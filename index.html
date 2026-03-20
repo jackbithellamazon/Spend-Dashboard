@@ -440,20 +440,20 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
     <div id="oaA2aBody">
       <!-- Row 1: Pies + Key Metrics -->
-      <div style="display:grid;grid-template-columns:260px 260px 1fr;gap:24px;margin-bottom:20px;align-items:start;">
+      <div style="display:grid;grid-template-columns:280px 280px 1fr;gap:20px;margin-bottom:20px;align-items:start;">
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
-          <div style="position:relative;height:200px;"><canvas id="chartOaA2a"></canvas></div>
+          <div style="position:relative;height:220px;"><canvas id="chartOaA2a"></canvas></div>
           <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:6px;margin-top:14px;"></div>
         </div>
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A — UK vs EU</div>
-          <div style="position:relative;height:200px;"><canvas id="chartA2aRegion"></canvas></div>
+          <div style="position:relative;height:220px;"><canvas id="chartA2aRegion"></canvas></div>
           <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:6px;margin-top:14px;"></div>
         </div>
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">key metrics</div>
-          <div id="oaA2aStats" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+          <div id="oaA2aStats" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;"></div>
         </div>
       </div>
       <!-- Row 2: Daily chart -->
@@ -476,7 +476,9 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
         </div>
         <div style="position:relative;height:260px;"><canvas id="chartOaA2aDaily"></canvas></div>
       </div>
-      <!-- Row 3: Analysis summary -->
+      <!-- Row 3: Daily stats summary -->
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px;" id="oaDailyStats"></div>
+      <!-- Row 4: Analysis summary -->
       <div id="oaA2aAnalysis" style="margin-bottom:20px;background:var(--surface2);border-radius:8px;padding:16px 20px;border-left:3px solid var(--accent);"></div>
       <!-- Row 4: Top ASINs per method -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
@@ -610,11 +612,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div id="provModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
     </div>
     <!-- Orders table -->
+    <!-- Daily spend breakdown -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
+      <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
       <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
     </div>
-    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;overflow-x:auto;min-width:0;">
+    <div id="provModalTableWrap" style="max-height:320px;overflow-y:auto;overflow-x:auto;width:100%;display:block;">
       <table style="width:100%;min-width:600px;border-collapse:collapse;font-size:11px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">#</th>
@@ -734,22 +741,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <thead>
         <tr>
           <th style="text-align:left;">#</th>
-          <th style="text-align:left;">provider</th>
-          <th style="text-align:left;">supplier</th>
-          <th style="text-align:left;">ASIN</th>
-          <th>spend</th>
-          <th>units</th>
-          <th>buy price</th>
-        </tr>
-      </thead>
-      <tbody id="todayOrdersTable"></tbody>
-    </table>
-  </div>
-</main>
-</div>
-<footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
-
-<script>
+          <th style="text-align:left;">pr
 const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
 const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
 
@@ -1278,7 +1270,7 @@ function buildOaA2a(rows,totalSpend){
   const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
   const mkStat=(label,val,sub,clickTitle,clickLabel)=>{
     const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});
-    return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'" style="padding:10px 12px;"><div class="prow-stat-label" style="font-size:9px;margin-bottom:4px;">'+label+'</div><div class="prow-stat-value" style="font-size:16px;">'+val+'</div>'+(sub?'<div style="font-size:9px;color:var(--muted2);margin-top:2px;">'+sub+'</div>':'')+'</div>';
+    return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'" style="padding:8px 10px;"><div class="prow-stat-label" style="font-size:8px;letter-spacing:.06em;margin-bottom:3px;">'+label+'</div><div class="prow-stat-value" style="font-size:15px;line-height:1.1;">'+val+'</div>'+(sub?'<div style="font-size:8px;color:var(--muted2);margin-top:2px;">'+sub+'</div>':'')+'</div>';
   };
   document.getElementById('oaA2aStats').innerHTML=
     mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
@@ -1306,6 +1298,25 @@ function buildOaA2a(rows,totalSpend){
   }
   provList(oaProvMap,oaSpend,'oaProviders');
   provList(a2aProvMap,a2aSpend,'a2aProviders');
+
+  // Daily stats row
+  const tradingDays=new Set(rows.map(r=>r.date.toISOString().split('T')[0])).size;
+  const allUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const allOrders=countOrders(rows);
+  const allAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const allSkus=rows.length;
+  const avgBuyAll=rows.filter(r=>r.buyPrice>0).length>0?rows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/rows.filter(r=>r.buyPrice>0).length:0;
+  const dailyStatsEl=document.getElementById('oaDailyStats');
+  if(dailyStatsEl){
+    const dstat=(label,val,sub)=>`<div style="background:var(--surface2);border-radius:8px;padding:12px 14px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;">${label}</div><div style="font-size:18px;font-weight:700;color:var(--text);line-height:1;">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
+    dailyStatsEl.innerHTML=
+      dstat('avg spend/day',tradingDays>0?fmt(totalSpend/tradingDays):'—',tradingDays+' trading days')+
+      dstat('avg units/day',tradingDays>0?(allUnits/tradingDays).toFixed(1):'—',allUnits+' units total')+
+      dstat('avg orders/day',tradingDays>0?(allOrders/tradingDays).toFixed(1):'—',allOrders+' true orders')+
+      dstat('avg ASINs/day',tradingDays>0?(allAsins/tradingDays).toFixed(1):'—',allAsins+' unique ASINs')+
+      dstat('avg SKUs/day',tradingDays>0?(allSkus/tradingDays).toFixed(1):'—',allSkus+' SKU lines')+
+      dstat('avg buy price',avgBuyAll>0?fmtDec(avgBuyAll):'—',rows.filter(r=>r.buyPrice>0).length+' priced items');
+  }
 
   // Analysis — references all key metrics shown above
   const tot=a2aSpend+oaSpend;
@@ -1849,6 +1860,22 @@ function openProvModal(providerName){
 
   // Orders table
   const tbody=document.getElementById('provModalTable');tbody.innerHTML='';
+  // Daily activity grid
+  const provDailyMap={};
+  rows.forEach(r=>{
+    const k=r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    if(!provDailyMap[k]) provDailyMap[k]={spend:0,units:0,skus:0,asins:new Set(),date:r.date};
+    provDailyMap[k].spend+=r.spend;
+    provDailyMap[k].units+=r.qty;
+    provDailyMap[k].skus++;
+    if(r.asin) provDailyMap[k].asins.add(r.asin);
+  });
+  const dailyGrid=document.getElementById('provModalDailyGrid');
+  if(dailyGrid){
+    const sortedDays=Object.entries(provDailyMap).sort((a,b)=>b[1].date-a[1].date);
+    dailyGrid.innerHTML=sortedDays.map(([day,d])=>`<div style="background:var(--surface2);border-radius:6px;padding:8px 10px;border-left:2px solid ${color}40;"><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">${day}</div><div style="font-size:13px;font-weight:700;color:${color};">${fmt(d.spend)}</div><div style="font-size:8px;color:var(--muted2);margin-top:2px;">${d.units} units · ${d.skus} SKUs · ${d.asins.size} ASINs</div></div>`).join('');
+  }
+
   // Reset collapse state
   document.getElementById('provModalTableWrap').style.display='';
   document.getElementById('provModalTableBtn').textContent='▲ hide orders';
@@ -2135,6 +2162,15 @@ async function loadAndRender(q){
     liveTargets=buildTargets(targetValues);
   } catch(e) {
     liveTargets={};
+
+(async()=>{
+  const now=new Date(),m=now.getMonth()+1;
+  activeQ=Math.ceil(m/3);activeMonth=m;
+  buildMonthBtns(activeQ);
+  document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
+  await loadAndRender(activeQ);
+})();
+gets={};
   }
   render();
 }
@@ -2145,6 +2181,10 @@ setInterval(()=>loadAndRender(activeQ),5*60*1000);
   const now=new Date(),m=now.getMonth()+1;
   activeQ=Math.ceil(m/3);activeMonth=m;
   buildMonthBtns(activeQ);
+  document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
+  await loadAndRender(activeQ);
+})();
+ns(activeQ);
   document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
   await loadAndRender(activeQ);
 })();
