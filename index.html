@@ -147,6 +147,24 @@ tbody tr:hover td{color:var(--text);}
 td.bold{color:var(--text);font-weight:500;}
 .rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
 
+/* STATS SECTIONS */
+.stats-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+.stats-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;}
+.stats-sub{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;}
+.stats-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat-tile{background:var(--surface2);border-radius:8px;padding:16px;}
+.stat-tile-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;line-height:1;}
+.stat-tile-value{font-size:22px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;}
+.stat-tile-sub{font-size:11px;color:var(--muted2);line-height:1.4;}
+.stat-tile-value.up{color:var(--green);}
+.stat-tile-value.down{color:var(--red);}
+.stat-tile-value.neutral{color:var(--amber);}
+.stat-tile-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-left:6px;}
+.badge-up{background:rgba(34,197,94,0.15);color:var(--green);}
+.badge-down{background:rgba(244,63,94,0.15);color:var(--red);}
+.badge-neutral{background:rgba(245,158,11,0.15);color:var(--amber);}
+@media(max-width:960px){.stats-grid-4{grid-template-columns:1fr 1fr;}}
+
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px;}
 @media(max-width:1200px){.summary-grid{grid-template-columns:repeat(3,1fr);}.summary-grid2{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:960px){
@@ -322,6 +340,23 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       </thead>
       <tbody id="supplierTable"></tbody>
     </table>
+  </div>
+  <!-- DAILY AVERAGES -->
+  <div class="stats-section" id="dailyAvgsSection">
+    <div class="stats-section-title">daily averages <span class="stats-sub" id="dailyAvgsSub"></span></div>
+    <div class="stats-grid-4" id="dailyAvgsGrid"></div>
+  </div>
+
+  <!-- MONTH INSIGHTS -->
+  <div class="stats-section" id="insightsSection">
+    <div class="stats-section-title">month insights</div>
+    <div class="stats-grid-4" id="insightsGrid"></div>
+  </div>
+
+  <!-- VS LAST MONTH -->
+  <div class="stats-section" id="vsLastSection">
+    <div class="stats-section-title">vs last month <span class="stats-sub" id="vsLastSub"></span></div>
+    <div class="stats-grid-4" id="vsLastGrid"></div>
   </div>
 </main>
 <footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
@@ -632,6 +667,9 @@ function render(){
 
   buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
   buildSupplierTable(allSortedSup,supUnits,supOrders,totalSpend);
+  buildDailyAvgs(rows,activeMonth,dataYear,currentDay,progress);
+  buildInsights(rows,activeMonth,dataYear,teamTarget,progress,dim);
+  buildVsLastMonth(rows,activeMonth,dataYear,currentDay);
   document.getElementById('lastUpdated').textContent='updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
@@ -746,6 +784,175 @@ function buildSupplierTable(sorted,supUnits,supOrders,total){
       <td>${((spend/total)*100).toFixed(1)}%</td>`;
     tbody.appendChild(tr);
   });
+}
+
+function statTile(label,value,sub,colorClass){
+  return `<div class="stat-tile"><div class="stat-tile-label">${label}</div><div class="stat-tile-value ${colorClass||''}">${value}</div><div class="stat-tile-sub">${sub}</div></div>`;
+}
+
+function badge(pct){
+  if(pct===null||isNaN(pct)) return '';
+  const cls=pct>5?'badge-up':pct<-5?'badge-down':'badge-neutral';
+  const sign=pct>0?'+':'';
+  return `<span class="stat-tile-badge ${cls}">${sign}${pct.toFixed(1)}%</span>`;
+}
+
+function buildDailyAvgs(rows,month,year,currentDay,progress){
+  if(month===0||rows.length===0){document.getElementById('dailyAvgsSection').style.display='none';return;}
+  document.getElementById('dailyAvgsSection').style.display='';
+  const days=Math.max(currentDay,1);
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const totalOrders=rows.length;
+  const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
+
+  // Group by day for busiest calculation
+  const byDay={};
+  rows.forEach(r=>{
+    const k=r.date.toISOString().split('T')[0];
+    byDay[k]=(byDay[k]||0)+r.spend;
+  });
+  const activeDays=Object.keys(byDay).length;
+
+  document.getElementById('dailyAvgsSub').textContent=`based on ${activeDays} active trading day${activeDays!==1?'s':''}`;
+  const grid=document.getElementById('dailyAvgsGrid');
+  grid.innerHTML=
+    statTile('avg spend / day',fmt(totalSpend/days),`${fmt(totalSpend/activeDays)} on active days`)+
+    statTile('avg units / day',(totalUnits/days).toFixed(1),`${(totalUnits/activeDays).toFixed(1)} on active days`)+
+    statTile('avg orders / day',(totalOrders/days).toFixed(1),`${(totalOrders/activeDays).toFixed(1)} on active days`)+
+    statTile('avg ASINs / day',(uniqueAsins/days).toFixed(1),`${uniqueAsins} unique ASINs total`)+
+    statTile('avg spend / order',fmt(totalSpend/totalOrders),`across ${totalOrders} orders`)+
+    statTile('avg units / order',(totalUnits/totalOrders).toFixed(1),`${totalUnits} units total`)+
+    statTile('avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`)+
+    statTile('trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`);
+}
+
+function buildInsights(rows,month,year,teamTarget,progress,dim){
+  if(month===0||rows.length===0){document.getElementById('insightsSection').style.display='none';return;}
+  document.getElementById('insightsSection').style.display='';
+
+  // Busiest day by spend
+  const byDay={},byDayUnits={},byDayOrders={};
+  rows.forEach(r=>{
+    const k=r.date.toDateString();
+    byDay[k]=(byDay[k]||0)+r.spend;
+    byDayUnits[k]=(byDayUnits[k]||0)+r.qty;
+    byDayOrders[k]=(byDayOrders[k]||0)+1;
+  });
+  const busiestDay=Object.entries(byDay).sort((a,b)=>b[1]-a[1])[0];
+  const busiestUnitDay=Object.entries(byDayUnits).sort((a,b)=>b[1]-a[1])[0];
+  const quietestDay=Object.entries(byDay).sort((a,b)=>a[1]-b[1])[0];
+
+  // Biggest single order
+  const biggestOrder=rows.reduce((a,r)=>r.spend>a.spend?r:a,rows[0]);
+
+  // Most ordered ASIN
+  const asinCount={};
+  rows.filter(r=>r.asin).forEach(r=>asinCount[r.asin]=(asinCount[r.asin]||0)+r.qty);
+  const topAsin=Object.entries(asinCount).sort((a,b)=>b[1]-a[1])[0];
+
+  // Best provider
+  const provSpend={};
+  rows.forEach(r=>provSpend[r.provider]=(provSpend[r.provider]||0)+r.spend);
+  const bestProv=Object.entries(provSpend).sort((a,b)=>b[1]-a[1])[0];
+
+  // Projection — linear extrapolation
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const now=new Date();
+  const currentDay=now.getDate();
+  const projected=progress>0?totalSpend/progress:totalSpend;
+
+  // Day target likely hit
+  let dayTargetHit='—';
+  if(teamTarget&&totalSpend>0&&progress>0){
+    const dailyRate=totalSpend/currentDay;
+    const daysNeeded=Math.ceil(teamTarget/dailyRate);
+    if(daysNeeded<=dim){
+      const hitDate=new Date(now.getFullYear(),now.getMonth(),daysNeeded);
+      dayTargetHit=hitDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    } else {
+      dayTargetHit='won\'t hit at current pace';
+    }
+  }
+
+  // Streak — consecutive days with orders
+  const daySet=new Set(rows.map(r=>r.date.toDateString()));
+  let streak=0;
+  const check=new Date();
+  while(daySet.has(check.toDateString())){streak++;check.setDate(check.getDate()-1);}
+
+  // Most active provider by orders
+  const provOrders={};
+  rows.forEach(r=>provOrders[r.provider]=(provOrders[r.provider]||0)+1);
+  const mostActiveProvOrders=Object.entries(provOrders).sort((a,b)=>b[1]-a[1])[0];
+
+  const grid=document.getElementById('insightsGrid');
+  grid.innerHTML=
+    statTile('busiest day',busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-',busiestDay?fmt(busiestDay[1])+' spend':'')+
+    statTile('biggest single order',fmt(biggestOrder.spend),biggestOrder.supplier+' · '+biggestOrder.provider)+
+    statTile('best provider',bestProv?bestProv[0]:'—',bestProv?fmt(bestProv[1])+' spent':'')+
+    statTile('most ordered ASIN',topAsin?topAsin[0]:'—',topAsin?topAsin[1]+' units':'no ASIN data')+
+    statTile('projected month total',fmt(projected),progress<1?'at current daily rate':'full month')+
+    statTile('target hit date',dayTargetHit,teamTarget?'based on current pace':'no target set')+
+    statTile('order streak',streak>0?streak+' day'+(streak!==1?'s':''):'none today','consecutive days with orders')+
+    statTile('most orders by',mostActiveProvOrders?mostActiveProvOrders[0]:'—',mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':'');
+}
+
+function buildVsLastMonth(rows,month,year,currentDay){
+  if(month===0){document.getElementById('vsLastSection').style.display='none';return;}
+  document.getElementById('vsLastSection').style.display='';
+
+  // Get last month
+  let lastMonth=month-1,lastYear=year;
+  if(lastMonth===0){lastMonth=12;lastYear=year-1;}
+
+  const thisRows=rows.filter(r=>r.month===month&&r.year===year&&r.date.getDate()<=currentDay);
+  const lastRows=allRows.filter(r=>r.month===lastMonth&&(r.year===lastYear||r.year===year)&&r.date.getDate()<=currentDay);
+
+  const monthName=(m)=>['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+
+  if(lastRows.length===0){
+    document.getElementById('vsLastSection').style.display='none';
+    return;
+  }
+
+  document.getElementById('vsLastSub').textContent=
+    `${monthName(month)} day 1–${currentDay} vs ${monthName(lastMonth)} day 1–${currentDay}`;
+
+  function calc(arr){
+    const spend=arr.reduce((a,r)=>a+r.spend,0);
+    const units=arr.reduce((a,r)=>a+r.qty,0);
+    const orders=arr.length;
+    const asins=new Set(arr.filter(r=>r.asin).map(r=>r.asin)).size;
+    const avgOrder=orders>0?spend/orders:0;
+    const avgBuy=arr.filter(r=>r.buyPrice>0).length>0?arr.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/arr.filter(r=>r.buyPrice>0).length:0;
+    const days=new Set(arr.map(r=>r.date.toDateString())).size;
+    return{spend,units,orders,asins,avgOrder,avgBuy,days};
+  }
+
+  function pctChange(a,b){return b>0?((a-b)/b)*100:null;}
+  function vsRow(label,thisVal,lastVal,fmtFn,higherIsBetter=true){
+    const pct=pctChange(thisVal,lastVal);
+    const cls=pct===null?'neutral':higherIsBetter?(pct>5?'up':pct<-5?'down':'neutral'):(pct<-5?'up':pct>5?'down':'neutral');
+    return statTile(
+      label,
+      fmtFn(thisVal)+badge(pct),
+      'prev: '+fmtFn(lastVal),
+      cls
+    );
+  }
+
+  const t=calc(thisRows),l=calc(lastRows);
+  const grid=document.getElementById('vsLastGrid');
+  grid.innerHTML=
+    vsRow('total spend',t.spend,l.spend,fmt)+
+    vsRow('total units',t.units,l.units,v=>v.toLocaleString())+
+    vsRow('total orders',t.orders,l.orders,v=>v.toString())+
+    vsRow('unique ASINs',t.asins,l.asins,v=>v.toString())+
+    vsRow('avg order value',t.avgOrder,l.avgOrder,fmt)+
+    vsRow('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
+    vsRow('active days',t.days,l.days,v=>v+' days')+
+    vsRow('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
 }
 
 document.querySelectorAll('[data-q]').forEach(btn=>{
