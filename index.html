@@ -110,8 +110,8 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-.chart-inner{display:grid;grid-template-columns:210px 1fr;gap:10px;align-items:start;}
-.pie-wrap{position:relative;height:210px;flex-shrink:0;}
+.chart-inner{display:grid;grid-template-columns:300px 1fr;gap:6px;align-items:center;}
+.pie-wrap{position:relative;height:300px;flex-shrink:0;}
 
 /* LEGEND — fixed alignment using CSS grid */
 .legend{display:flex;flex-direction:column;gap:4px;}
@@ -209,7 +209,8 @@ td.bold{color:var(--text);font-weight:500;}
 .stats-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
 /* MODAL CSS */
 .ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
-.ai-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px;max-width:800px;width:100%;max-height:85vh;overflow-y:auto;overflow-x:visible;}
+.ai-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;max-width:800px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;}
+.ai-modal-inner{padding:28px;overflow-y:auto;overflow-x:hidden;flex:1;}
 .ai-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
 .ai-modal-title{font-size:15px;font-weight:700;color:var(--text);}
 .ai-modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;padding:0;line-height:1;}
@@ -590,6 +591,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 <!-- PROVIDER MODAL -->
 <div id="provModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeProvModal()">
   <div class="ai-modal" style="max-width:900px;width:100%;min-width:min(900px,95vw);">
+    <div class="ai-modal-inner">
     <div class="ai-modal-header">
       <div style="display:flex;align-items:center;gap:10px;">
         <span id="provModalDot" style="width:12px;height:12px;border-radius:3px;flex-shrink:0;"></span>
@@ -625,24 +627,26 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
     </div>
-    <div id="provModalTableWrap" style="max-height:320px;overflow-y:auto;overflow-x:scroll;width:100%;display:block;border:1px solid var(--border);border-radius:6px;">
-      <table style="width:100%;min-width:600px;border-collapse:collapse;font-size:11px;">
+    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:280px;border:1px solid var(--border);border-radius:6px;">
+      <table style="width:max-content;min-width:100%;border-collapse:collapse;font-size:11px;">
         <thead><tr>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">#</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">date</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">supplier</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">ASIN</th>
-          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">spend</th>
-          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 0 8px 0;border-bottom:1px solid var(--border);">units</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">supplier</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 10px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
         </tr></thead>
         <tbody id="provModalTable"></tbody>
       </table>
+    </div>
     </div>
   </div>
 </div>
 <!-- AI INSIGHT MODAL -->
 <div id="aiModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeAiModal()">
   <div class="ai-modal">
+    <div class="ai-modal-inner">
     <div class="ai-modal-header">
       <div class="ai-modal-title" id="aiModalTitle">insight</div>
       <button class="ai-modal-close" onclick="closeAiModal()">✕</button>
@@ -653,6 +657,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
     <div class="ai-modal-body" id="aiModalBody">
       <div class="ai-loading"><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span style="margin-left:4px;">generating insight...</span></div>
+    </div>
     </div>
   </div>
 </div>
@@ -698,26 +703,20 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 
   <!-- DAY OF WEEK INTELLIGENCE -->
   <div class="today-section">
-    <div class="today-section-title" id="dowTitle">historical <span id="dowName">friday</span> patterns</div>
+    <div class="today-section-title">historical <span id="dowName">friday</span> patterns</div>
     <div class="stats-grid-4" id="dowGrid"></div>
-  </div>
-
-  <!-- DAY OF MONTH INTELLIGENCE -->
-  <div class="today-section">
-    <div class="today-section-title" id="domTitle">historical day <span id="domNum">21</span> patterns</div>
-    <div class="stats-grid-4" id="domGrid"></div>
-  </div>
-
-  <!-- WEEK PROJECTION -->
-  <div class="today-section">
-    <div class="today-section-title">this week — projection & target <span class="stats-sub" id="weekSub"></span></div>
-    <div id="weekGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;"></div>
   </div>
 
   <!-- PROVIDER STATUS -->
   <div class="today-section">
     <div class="today-section-title">provider status today</div>
     <div class="today-provider-grid" id="todayProviderGrid"></div>
+  </div>
+
+  <!-- SPEND BY STORE TODAY -->
+  <div class="today-section">
+    <div class="today-section-title">spend by store today</div>
+    <div id="todayStoreGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
   </div>
 
   <!-- INSIGHTS -->
@@ -2055,54 +2054,6 @@ function buildToday(){
     `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${dowMaxSpend>0?fmt(dowMaxSpend):'—'}</div><div class="stat-tile-sub">worst: ${dowMinSpend>0?fmt(dowMinSpend):'—'} · avg units: ${dowAvgUnits.toFixed(1)}</div></div>`+
     `<div class="stat-tile c-amber"><div class="stat-tile-label">your biggest spend day</div><div class="stat-tile-value">${DOW_NAMES[bestDOW.dow]}</div><div class="stat-tile-sub">avg ${fmt(bestDOW.avg)} · ${bestDOW.count} data points</div></div>`;
 
-  // DOM
-  document.getElementById('domNum').textContent=todayDOM;
-  const domAvgSpend=havg(domDays,d=>d.spend);
-  const domMaxSpend=hmax(domDays,d=>d.spend);
-  const domMinSpend=hmin(domDays,d=>d.spend);
-  const domCount=domDays.length;
-  const spendPctVsDOM=domAvgSpend>0?((totalSpend-domAvgSpend)/domAvgSpend*100):null;
-  const domBadge=spendPctVsDOM!==null?`<span class="stat-tile-badge ${spendPctVsDOM>5?'badge-up':spendPctVsDOM<-5?'badge-down':'badge-neutral'}">${spendPctVsDOM>0?'+':''}${spendPctVsDOM.toFixed(1)}%</span>`:'';
-  const domTotals={};
-  allDays.forEach(d=>{const dom=d.date.getDate();if(!domTotals[dom])domTotals[dom]=[];domTotals[dom].push(d.spend);});
-  const busiestDOM=Object.entries(domTotals).map(([dom,spends])=>({dom:+dom,avg:spends.reduce((a,b)=>a+b,0)/spends.length})).sort((a,b)=>b.avg-a.avg)[0];
-  document.getElementById('domGrid').innerHTML=
-    `<div class="stat-tile c-teal"><div class="stat-tile-label">avg spend on day ${todayDOM}</div><div class="stat-tile-value">${domAvgSpend>0?fmt(domAvgSpend):'no data'}</div><div class="stat-tile-sub">across ${domCount} month${domCount!==1?'s':''} of data</div></div>`+
-    `<div class="stat-tile c-purple"><div class="stat-tile-label">today vs avg day ${todayDOM}</div><div class="stat-tile-value">${fmt(totalSpend)}${domBadge}</div><div class="stat-tile-sub">${spendPctVsDOM!==null?(spendPctVsDOM>=0?'above':'below')+' historical avg for this date':'not enough history yet'}</div></div>`+
-    `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever day ${todayDOM}</div><div class="stat-tile-value">${domMaxSpend>0?fmt(domMaxSpend):'—'}</div><div class="stat-tile-sub">worst: ${domMinSpend>0?fmt(domMinSpend):'—'}</div></div>`+
-    `<div class="stat-tile c-indigo"><div class="stat-tile-label">busiest date historically</div><div class="stat-tile-value">day ${busiestDOM?busiestDOM.dom:'—'}</div><div class="stat-tile-sub">${busiestDOM?'avg '+fmt(busiestDOM.avg)+' on this date':''}</div></div>`;
-
-  // Week
-  document.getElementById('weekSub').textContent='Mon–Sun · actual where available, projected where not';
-  const weekGrid=document.getElementById('weekGrid');
-  weekGrid.innerHTML='';
-  const monday=new Date(now);
-  const diffToMon=now.getDay()===0?-6:1-now.getDay();
-  monday.setDate(now.getDate()+diffToMon);
-  monday.setHours(0,0,0,0);
-  const weekMax=Math.max(...Array.from({length:7},(_,i)=>{
-    const d2=new Date(monday);d2.setDate(monday.getDate()+i);
-    const dd=byDateKey[d2.toDateString()];
-    const dow2=d2.getDay();
-    return dd?dd.spend:havg(allDays.filter(x=>x.date.getDay()===dow2),x=>x.spend)||0;
-  }),1);
-  for(let i=0;i<7;i++){
-    const d=new Date(monday);d.setDate(monday.getDate()+i);
-    const isToday=d.toDateString()===now.toDateString();
-    const isPast=d<now&&!isToday;
-    const dow=d.getDay();
-    const dayData=byDateKey[d.toDateString()];
-    const actualSpend=dayData?dayData.spend:0;
-    const histDOWAvg=havg(allDays.filter(x=>x.date.getDay()===dow&&x.date.toDateString()!==d.toDateString()),x=>x.spend);
-    const displaySpend=isPast||isToday?actualSpend:histDOWAvg;
-    const barPct=Math.min((displaySpend/weekMax)*100,100);
-    const barColor=isToday?'var(--accent)':isPast?'var(--green)':'var(--muted)';
-    const tile=document.createElement('div');
-    tile.className='week-day-tile'+(isToday?' today':isPast?' past':'');
-    tile.innerHTML=`<div class="week-day-name">${DOW_SHORT[dow]}</div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">${d.getDate()}/${d.getMonth()+1}</div><div class="week-day-spend" style="color:${isToday?'var(--accent)':isPast?'var(--text)':'var(--muted2)'}">${displaySpend>0?fmt(displaySpend):'—'}</div><div class="week-day-target" style="font-size:9px;">${!isPast&&!isToday&&histDOWAvg>0?'proj':isPast?'actual':'today'}</div><div class="week-day-bar"><div class="week-day-fill" style="width:${barPct}%;background:${barColor};"></div></div>`;
-    weekGrid.appendChild(tile);
-  }
-
   // Provider status
   const provSpend={},provUnits={},provOrders={},provAsins={};
   todayRows.forEach(r=>{
@@ -2133,6 +2084,36 @@ function buildToday(){
     div.innerHTML=`<div class="today-prov-name"><span style="width:8px;height:8px;border-radius:50%;background:${isActive?color:'var(--muted)'};flex-shrink:0;"></span>${name}</div>${isActive?`<div class="today-prov-spend">${fmt(spent)}</div><div class="today-prov-sub">${units} units · ${orders} SKUs · ${asins} ASINs</div>${provDOWAvg>0?`<div class="today-prov-sub" style="margin-top:4px;color:${spent>=provDOWAvg?'var(--green)':'var(--red)'};">${spent>=provDOWAvg?'↑ above':'↓ below'} avg ${DOW_NAMES[todayDOW]} (${fmt(provDOWAvg)})</div>`:''}` :`<div class="today-silent-label">no orders today</div>${provDOWAvg>0?`<div style="font-size:10px;color:var(--muted);margin-top:4px;">usually ${fmt(provDOWAvg)} on ${DOW_NAMES[todayDOW]}s</div>`:''}`}`;
     pgrid.appendChild(div);
   });
+
+  // Spend by store today (top 4)
+  const storeSpend={},storeUnits={};
+  todayRows.forEach(r=>{
+    if(!r.supplier) return;
+    storeSpend[r.supplier]=(storeSpend[r.supplier]||0)+r.spend;
+    storeUnits[r.supplier]=(storeUnits[r.supplier]||0)+r.qty;
+  });
+  const sortedStores=Object.entries(storeSpend).sort((a,b)=>b[1]-a[1]);
+  const topStores=sortedStores.slice(0,4);
+  const otherSpend=sortedStores.slice(4).reduce((a,[,v])=>a+v,0);
+  const storeGrid=document.getElementById('todayStoreGrid');
+  storeGrid.innerHTML='';
+  const STORE_COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4'];
+  topStores.forEach(([name,spend],i)=>{
+    const color=STORE_COLORS[i%STORE_COLORS.length];
+    const div=document.createElement('div');
+    div.style.cssText=`background:${color}18;border:1px solid ${color}33;border-radius:10px;padding:14px 16px;`;
+    div.innerHTML=`<div style="font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">${name}</div><div style="font-size:22px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;">${fmt(spend)}</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">${storeUnits[name]||0} units</div>`;
+    storeGrid.appendChild(div);
+  });
+  if(otherSpend>0){
+    const div=document.createElement('div');
+    div.style.cssText=`background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;`;
+    div.innerHTML=`<div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">${sortedStores.length-4} other stores</div><div style="font-size:22px;font-weight:800;color:var(--muted2);line-height:1;margin-bottom:4px;">${fmt(otherSpend)}</div><div style="font-size:11px;color:var(--muted);">combined</div>`;
+    storeGrid.appendChild(div);
+  }
+  if(sortedStores.length===0){
+    storeGrid.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No orders today yet</div>';
+  }
 
   // Insights
   const biggestOrder=todayRows.length?todayRows.reduce((a,r)=>r.spend>a.spend?r:a,todayRows[0]):null;
