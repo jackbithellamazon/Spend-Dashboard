@@ -2162,15 +2162,6 @@ async function loadAndRender(q){
     liveTargets=buildTargets(targetValues);
   } catch(e) {
     liveTargets={};
-
-(async()=>{
-  const now=new Date(),m=now.getMonth()+1;
-  activeQ=Math.ceil(m/3);activeMonth=m;
-  buildMonthBtns(activeQ);
-  document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
-  await loadAndRender(activeQ);
-})();
-gets={};
   }
   render();
 }
@@ -2181,10 +2172,6 @@ setInterval(()=>loadAndRender(activeQ),5*60*1000);
   const now=new Date(),m=now.getMonth()+1;
   activeQ=Math.ceil(m/3);activeMonth=m;
   buildMonthBtns(activeQ);
-  document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
-  await loadAndRender(activeQ);
-})();
-ns(activeQ);
   document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
   await loadAndRender(activeQ);
 })();
