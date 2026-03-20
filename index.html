@@ -440,15 +440,15 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
     <div id="oaA2aBody">
       <!-- Row 1: Pies + Key Metrics -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:220px 220px 1fr;gap:20px;margin-bottom:20px;align-items:start;">
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
-          <div style="position:relative;height:140px;"><canvas id="chartOaA2a"></canvas></div>
+          <div style="position:relative;height:160px;"><canvas id="chartOaA2a"></canvas></div>
           <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
         </div>
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A — UK vs EU</div>
-          <div style="position:relative;height:140px;"><canvas id="chartA2aRegion"></canvas></div>
+          <div style="position:relative;height:160px;"><canvas id="chartA2aRegion"></canvas></div>
           <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
         </div>
         <div>
@@ -458,8 +458,17 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       </div>
       <!-- Row 2: Daily chart -->
       <div style="margin-bottom:20px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily spend — OA vs A2A</div>
-        <div style="position:relative;height:180px;"><canvas id="chartOaA2aDaily"></canvas></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">daily spend — OA vs A2A</div>
+          <div style="display:flex;gap:6px;" id="oaChartViewBtns">
+            <button onclick="setOaChartView('full')" id="oaViewFull" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-family:var(--font-mono);">full month</button>
+            <button onclick="setOaChartView('w1')" id="oaViewW1" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 1</button>
+            <button onclick="setOaChartView('w2')" id="oaViewW2" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 2</button>
+            <button onclick="setOaChartView('w3')" id="oaViewW3" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 3</button>
+            <button onclick="setOaChartView('w4')" id="oaViewW4" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 4</button>
+          </div>
+        </div>
+        <div style="position:relative;height:260px;"><canvas id="chartOaA2aDaily"></canvas></div>
       </div>
       <!-- Row 3: Analysis summary -->
       <div id="oaA2aAnalysis" style="margin-bottom:20px;background:var(--surface2);border-radius:8px;padding:16px 20px;border-left:3px solid var(--accent);"></div>
@@ -1238,10 +1247,69 @@ function buildOaA2a(rows,totalSpend){
   allDates.forEach(d=>{dailyOA[d]=0;dailyA2A[d]=0;});
   oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyOA[k]=(dailyOA[k]||0)+r.spend;});
   a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyA2A[k]=(dailyA2A[k]||0)+r.spend;});
-  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
-  if(allDates.length>0){
-    new Chart(document.getElementById('chartOaA2aDaily'),{type:'bar',data:{labels:allDates.map(d=>{const dt=new Date(d);return dt.getDate()+'/'+(dt.getMonth()+1);}),datasets:[{label:'OA',data:allDates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:2},{label:'A2A',data:allDates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.7)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#555e6e',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#555e6e',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+  // Store data globally for week filter
+  window._oaDates=allDates;
+  window._oaDailyOA=dailyOA;
+  window._oaDailyA2A=dailyA2A;
+  buildOaA2aChart('full');
+}
+
+function setOaChartView(view){
+  ['full','w1','w2','w3','w4'].forEach(v=>{
+    const btn=document.getElementById('oaView'+v.charAt(0).toUpperCase()+v.slice(1));
+    if(btn){btn.style.background=v===view?'var(--accent)':'transparent';btn.style.color=v===view?'#fff':'var(--muted2)';btn.style.borderColor=v===view?'var(--accent)':'var(--border)';}
+  });
+  buildOaA2aChart(view);
+}
+
+function buildOaA2aChart(view){
+  const allDates=window._oaDates||[];
+  const dailyOA=window._oaDailyOA||{};
+  const dailyA2A=window._oaDailyA2A||{};
+  if(!allDates.length) return;
+
+  let dates=allDates;
+  if(view!=='full'){
+    const wNum=parseInt(view.replace('w',''));
+    const start=(wNum-1)*7+1;
+    const end=wNum*7;
+    dates=allDates.filter(d=>{const day=new Date(d).getDate();return day>=start&&day<=end;});
   }
+
+  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
+  if(dates.length===0){
+    const el=document.getElementById('chartOaA2aDaily');
+    const ctx2=el.getContext('2d');ctx2.clearRect(0,0,el.width,el.height);
+    return;
+  }
+
+  new Chart(document.getElementById('chartOaA2aDaily'),{
+    type:'bar',
+    data:{
+      labels:dates.map(d=>{const dt=new Date(d);return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()]+' '+dt.getDate()+'/'+(dt.getMonth()+1);}),
+      datasets:[
+        {label:'OA',data:dates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.75)',borderRadius:3,borderSkipped:false},
+        {label:'A2A',data:dates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.75)',borderRadius:3,borderSkipped:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        x:{ticks:{color:'#6b7584',font:{size:view==='full'?9:11},maxRotation:view==='full'?45:0},grid:{color:'rgba(255,255,255,0.04)'},barPercentage:0.7,categoryPercentage:0.8},
+        y:{ticks:{color:'#6b7584',font:{size:11},callback:v=>v>=1000?'£'+Math.round(v/1000)+'k':'£'+v},grid:{color:'rgba(255,255,255,0.04)'}}
+      },
+      plugins:{
+        legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10,padding:16}},
+        tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:12,callbacks:{
+          title:items=>{const d=new Date(dates[items[0].dataIndex]);return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1);},
+          label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y),
+          afterBody:items=>{const d=dates[items[0].dataIndex];const tot=(dailyOA[d]||0)+(dailyA2A[d]||0);return tot>0?['','Total: '+fmt(tot)]:[]}
+        }}
+      }
+    }
+  });
+// dummy closing - actual end of buildOaA2a was moved up
+function _dummy(){
 
   // Top ASINs
   function topAsinList(methodRows,elId,color){
@@ -1324,6 +1392,8 @@ function buildOaA2a(rows,totalSpend){
   const analysisEl=document.getElementById('oaA2aAnalysis');
   if(analysisEl) analysisEl.innerHTML=analysis;
 }
+}
+
 
 function buildDailyAvgs(rows,month,year,currentDay,progress){
   if(month===0||rows.length===0){document.getElementById('dailyAvgsSection').style.display='none';return;}
