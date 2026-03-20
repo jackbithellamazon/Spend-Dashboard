@@ -400,8 +400,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartSupplier"></canvas></div>
         <div>
-          <div class="legend" id="legendSupplier"></div>
-          <button style="margin-top:10px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:none;width:100%;text-align:center;" id="expandSupplier" onclick="toggleSupplier()">▼ show all</button>
+          <div class="legend" id="legendSupplier" style="max-height:340px;overflow-y:auto;padding-right:4px;"></div>
         </div>
       </div>
     </div>
@@ -672,12 +671,13 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div id="supModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:320px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
         <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:600px;">
           <thead><tr>
-            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
-            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
-            <th style="text-align:center;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">provider</th>
-            <th style="text-align:center;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
-            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
-            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 10px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
+            <th style="text-align:center;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">provider</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 18px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">cost/unit</th>
           </tr></thead>
           <tbody id="supModalTable"></tbody>
         </table>
@@ -1130,11 +1130,7 @@ function render(){
 
   // Provider pie — always fully visible, no expand
   buildPie('chartProvider','legendProvider',sortedProv,totalSpend,true,false);
-  // Supplier pie — with expand
-  supplierExpanded=false;
-  document.getElementById('expandSupplier').textContent='▼ show all';
-  document.getElementById('expandSupplier').style.display=allSortedSup.length>8?'inline':'none';
-  buildPie('chartSupplier','legendSupplier',allSortedSup,totalSpend,false,true);
+  buildPie('chartSupplier','legendSupplier',allSortedSup,totalSpend,false,false);
 
   buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
   buildSupplierTable(allSortedSup,supUnits,supOrders,totalSpend);
@@ -1324,10 +1320,10 @@ function renderSupModalTable(){
   visible.forEach((r,i)=>{
     const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:5px 8px 5px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:5px 8px 5px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:5px 8px 5px 0;border-bottom:1px solid var(--border);text-align:center;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:5px 8px 5px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;text-align:center;">${r.asin||'—'}</td><td style="padding:5px 8px 5px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:5px 20px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
+    tr.innerHTML=`<td style="padding:4px 8px 4px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:center;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;text-align:left;">${r.asin||'—'}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td><td style="padding:4px 18px 4px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
     tbody.appendChild(tr);
   });
-  if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders</td></tr>';
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">No orders</td></tr>';
 
   const wrap=document.getElementById('supModalExpandWrap');
   const btn=document.getElementById('supModalExpandBtn');
@@ -2053,7 +2049,7 @@ function openProvModal(providerName){
   document.getElementById('provModalTableBtn').textContent='▲ hide orders';
   rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:6px 6px 6px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:6px 6px 6px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:6px 6px 6px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;text-align:left;">${r.supplier}</td><td style="padding:6px 6px 6px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;text-align:left;">${r.asin||'—'}</td><td style="padding:6px 6px 6px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:6px 18px 6px 6px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
+    tr.innerHTML=`<td style="padding:4px 6px 4px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;text-align:left;">${r.supplier}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;text-align:left;">${r.asin||'—'}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:4px 18px 4px 6px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
     tbody.appendChild(tr);
   });
   if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
