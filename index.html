@@ -37,14 +37,14 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .pace-dot{width:8px;height:8px;border-radius:50%;}
 #paceInfo{margin-left:auto;font-size:11px;color:var(--muted);}
 
-/* SUMMARY CARDS — row 1: 5 cards, row 2: 4 cards */
+/* SUMMARY CARDS */
 .summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:14px;}
 .summary-grid2{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
 .card{border-radius:10px;padding:20px 22px;}
 .card-label{font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-weight:500;}
 .card-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:#fff;line-height:1;}
 .card-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:10px;}
-.card-name{font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:4px;}
+.card-name{font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px;}
 .card-blue{background:linear-gradient(135deg,#1a3a6e,#1e4080);}
 .card-green{background:linear-gradient(135deg,#0f4a2a,#145c33);}
 .card-green2{background:linear-gradient(135deg,#14532d,#166534);}
@@ -84,43 +84,69 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
 .chart-inner{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:start;}
 .pie-wrap{position:relative;height:170px;flex-shrink:0;}
-.legend{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow:hidden;transition:max-height .4s ease;}
-.legend.expanded{max-height:800px;}
-.li{display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.3;}
-.li-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.li-name{flex:1;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.li-val{color:var(--text);font-weight:500;white-space:nowrap;font-size:11px;min-width:60px;text-align:right;}
-.expand-btn{margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:none;align-items:center;gap:4px;}
-.expand-btn:hover{color:#fff;}
+
+/* LEGEND — fixed alignment using CSS grid */
+.legend{display:flex;flex-direction:column;gap:5px;}
+.li{
+  display:grid;
+  grid-template-columns:10px 1fr auto;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  line-height:1.3;
+}
+.li-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.li-name{color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.li-val{color:var(--text);font-weight:500;white-space:nowrap;font-family:var(--font-mono);font-size:11px;text-align:right;}
+
+/* PROVIDER BADGE */
+.prov-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 8px 3px 5px;
+  border-radius:5px;
+  font-size:11px;font-weight:600;
+  color:#fff;
+}
+.prov-badge-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
 
 /* PROVIDER TARGETS */
 .targets-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
 .targets-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:20px;}
 .provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
 .prow-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.prow-name{font-size:13px;color:var(--text);font-weight:500;display:flex;align-items:center;gap:8px;}
-.prow-name-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
 .prow-right{display:flex;align-items:baseline;gap:8px;}
-.prow-spent{font-size:14px;font-weight:600;}
-.prow-of{font-size:11px;color:var(--muted2);}
-.prow-pct{font-size:12px;font-weight:600;}
-.prow-sub{font-size:11px;margin-top:6px;line-height:1.4;}
-/* Provider mini stats row */
+.prow-spent{font-size:14px;font-weight:600;font-family:var(--font-mono);}
+.prow-of{font-size:11px;color:var(--muted2);font-family:var(--font-mono);}
+.prow-pct{font-size:12px;font-weight:600;font-family:var(--font-mono);}
+.prow-sub{font-size:11px;margin-top:6px;line-height:1.4;font-family:var(--font-mono);}
 .prow-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
 .prow-stat{background:var(--surface2);border-radius:6px;padding:8px 10px;}
 .prow-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;line-height:1;}
-.prow-stat-value{font-size:13px;font-weight:600;color:var(--text);line-height:1;}
+.prow-stat-value{font-size:13px;font-weight:600;color:var(--text);line-height:1;font-family:var(--font-mono);}
 
-/* TABLE */
+/* TABLE — fixed column alignment */
 .table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;overflow-x:auto;}
 .table-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 14px 12px 0;border-bottom:1px solid var(--border);}
-tbody td{padding:10px 14px 10px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:12px;}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-mono);}
+thead th{
+  text-align:right;font-size:10px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);
+  padding:0 0 12px 16px;border-bottom:1px solid var(--border);
+}
+thead th:first-child{text-align:center;padding-left:0;}
+thead th:nth-child(2){text-align:left;padding-left:0;}
+tbody td{
+  padding:10px 0 10px 16px;border-bottom:1px solid var(--border);
+  color:var(--muted2);font-size:12px;text-align:right;
+  font-family:var(--font-mono);
+}
+tbody td:first-child{text-align:center;padding-left:0;}
+tbody td:nth-child(2){text-align:left;padding-left:0;}
 tbody tr:last-child td{border-bottom:none;}
 tbody tr:hover td{color:var(--text);}
 td.bold{color:var(--text);font-weight:500;}
 .rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
+
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px;}
 @media(max-width:1200px){.summary-grid{grid-template-columns:repeat(3,1fr);}.summary-grid2{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:960px){
@@ -166,7 +192,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <span id="paceInfo"></span>
   </div>
 
-  <!-- ROW 1: 5 cards -->
   <div class="summary-grid">
     <div class="card card-blue" id="cardSpendWrap">
       <div class="card-label">total spend</div>
@@ -195,7 +220,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
   </div>
 
-  <!-- ROW 2: 4 cards -->
   <div class="summary-grid2">
     <div class="card card-indigo">
       <div class="card-label">top supplier by spend</div>
@@ -262,10 +286,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="chart-title">spend by provider</div>
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartProvider"></canvas></div>
-        <div>
-          <div class="legend" id="legendProvider"></div>
-          <button class="expand-btn" id="expandProvider" onclick="toggleLegend('Provider')">▼ show all</button>
-        </div>
+        <div class="legend" id="legendProvider"></div>
       </div>
     </div>
     <div class="chart-card">
@@ -274,7 +295,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
         <div class="pie-wrap"><canvas id="chartSupplier"></canvas></div>
         <div>
           <div class="legend" id="legendSupplier"></div>
-          <button class="expand-btn" id="expandSupplier" onclick="toggleLegend('Supplier')">▼ show all</button>
+          <button style="margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:none;" id="expandSupplier" onclick="toggleSupplier()">▼ show all</button>
         </div>
       </div>
     </div>
@@ -290,8 +311,13 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <table>
       <thead>
         <tr>
-          <th>#</th><th>supplier</th><th>total spend</th>
-          <th>units</th><th>orders</th><th>avg order</th><th>% of spend</th>
+          <th style="width:30px;">#</th>
+          <th>supplier</th>
+          <th>spend</th>
+          <th>units</th>
+          <th>orders</th>
+          <th>avg order</th>
+          <th>% spend</th>
         </tr>
       </thead>
       <tbody id="supplierTable"></tbody>
@@ -305,6 +331,7 @@ const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
 const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
 
 const QUARTER_TABS={1:'Q1 AMZ - OA',2:'Q2 AMZ - OA',3:'Q3 AMZ - OA',4:'Q4 AMZ - OA'};
+const TARGETS_TAB='Targets';
 const QUARTER_MONTHS={
   1:[{num:1,label:'Jan'},{num:2,label:'Feb'},{num:3,label:'Mar'},{num:0,label:'All Q1'}],
   2:[{num:4,label:'Apr'},{num:5,label:'May'},{num:6,label:'Jun'},{num:0,label:'All Q2'}],
@@ -312,14 +339,11 @@ const QUARTER_MONTHS={
   4:[{num:10,label:'Oct'},{num:11,label:'Nov'},{num:12,label:'Dec'},{num:0,label:'All Q4'}],
 };
 
+// Month name → number
+const MONTH_MAP={'jan':1,'feb':2,'mar':3,'march':3,'apr':4,'april':4,'may':5,'jun':6,'june':6,'jul':7,'july':7,'aug':8,'august':8,'sep':9,'sept':9,'september':9,'oct':10,'october':10,'nov':11,'november':11,'dec':12,'december':12};
+
 const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14;
 const HEADER_ROWS=1;
-
-const TARGETS={
-  1:{team:0,'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0,'Arbi':0,'HOR':0},
-  2:{team:0,'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0,'Arbi':0,'HOR':0},
-  3:{team:60000,'Jack':20000,'VA-S':7500,'VA-A':7500,'TFTJ':20000,'Replen':0,'FFB':3000,'THC':3000,'S PP A2A':3000,'ProfitPath A2A':1000,'PS':3000,'Arbi':0,'HOR':0},
-};
 
 const PROVIDER_COLORS={
   'Jack':'#f97316','VA-S':'#eab308','VA-A':'#4c1d95',
@@ -329,7 +353,9 @@ const PROVIDER_COLORS={
 };
 const SUPPLIER_PALETTE=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8','#f97316','#67e8f9'];
 
-let activeQ=1,activeMonth=3,allRows=[];
+let activeQ=1,activeMonth=3,allRows=[],liveTargets={};
+let supplierExpanded=false;
+let allSortedSup=[];
 
 function fmt(v){return '£'+Math.round(v).toLocaleString('en-GB');}
 function fmtDec(v){return '£'+v.toFixed(2);}
@@ -361,25 +387,58 @@ function paceLabel(spent,target,progress){
   return fmt(exp-spent)+' behind pace';
 }
 
+// Build targets from live sheet data
+function buildTargets(values){
+  // values[0] = header row: Provider, Jan, Feb, March, April...
+  const targets={};
+  if(!values||values.length<2) return targets;
+  const headers=values[0].map(h=>(h||'').trim().toLowerCase());
+  // map month name → col index
+  const monthCols={};
+  headers.forEach((h,i)=>{
+    const mn=MONTH_MAP[h];
+    if(mn) monthCols[mn]=i;
+  });
+  for(let r=1;r<values.length;r++){
+    const row=values[r];
+    const provider=(row[0]||'').trim();
+    if(!provider) continue;
+    Object.entries(monthCols).forEach(([mn,ci])=>{
+      const val=parseFloat((row[ci]||'').toString().replace(/[£, ]/g,''));
+      if(!isNaN(val)){
+        if(!targets[mn]) targets[mn]={};
+        const key=provider==='Overall'?'team':provider;
+        targets[mn][key]=val;
+      }
+    });
+  }
+  return targets;
+}
+
 function getTargetForView(month){
   if(month===0){
     const months=QUARTER_MONTHS[activeQ].filter(m=>m.num!==0).map(m=>m.num);
     let team=0;const prov={};
     months.forEach(m=>{
-      const t=TARGETS[m]||{};
+      const t=liveTargets[m]||{};
       team+=(t.team||0);
       Object.entries(t).forEach(([k,v])=>{if(k!=='team') prov[k]=(prov[k]||0)+(v||0);});
     });
     return{team,...prov};
   }
-  return TARGETS[month]||{};
+  return liveTargets[month]||{};
+}
+
+function provBadge(name){
+  const color=PROVIDER_COLORS[name]||'#4f8ef7';
+  return `<span class="prov-badge" style="background:${color}20;border:1px solid ${color}40"><span class="prov-badge-dot" style="background:${color}"></span>${name}</span>`;
 }
 
 function showNoData(msg){
   ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins','cardAvgOrder'].forEach(id=>document.getElementById(id).textContent='—');
   ['cardTopSupName','cardTopUnitSupName','cardTopProvName'].forEach(id=>document.getElementById(id).textContent='—');
   ['cardTopSupSpend','cardTopUnitSupVal','cardTopProvSpend'].forEach(id=>document.getElementById(id).textContent='—');
-  document.getElementById('cardTargetSub').textContent=msg||'No data for this period';
+  document.getElementById('cardTargetSub').textContent=msg||'No data';
   document.getElementById('teamNums').innerHTML=msg||'No data yet';
   document.getElementById('teamPct').textContent='';
   ['statDaily','statExpected','statDiff'].forEach(id=>document.getElementById(id).textContent='—');
@@ -389,13 +448,11 @@ function showNoData(msg){
   ['chartProvider','chartSupplier'].forEach(id=>{const c=Chart.getChart(id);if(c)c.destroy();});
 }
 
-async function fetchSheet(q){
-  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(QUARTER_TABS[q])}?key=${API_KEY}`;
-  try{
-    const res=await fetch(url);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    return (await res.json()).values||[];
-  }catch(e){showNoData('No data for this quarter yet.');return null;}
+async function fetchTab(tab){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  return (await res.json()).values||[];
 }
 
 function parseRows(values){
@@ -408,7 +465,8 @@ function parseRows(values){
     const supplier=(r[COL_SUPPLIER]||'').trim().replace(/\s+$/,'');
     const spend=parseFloat((r[COL_SPEND]||'').replace(/[£, ]/g,''));
     const buyPrice=parseFloat((r[COL_BUY_PRICE]||'').replace(/[£, ]/g,''));
-    const qty=parseInt((r[COL_QTY]||'').replace(/[, ]/g,''))||1;
+    const qtyRaw=(r[COL_QTY]||'').toString().replace(/[, ]/g,'').trim();
+    const qty=parseInt(qtyRaw)||1;
     const asin=(r[COL_ASIN]||'').trim();
     if(!dateStr||!provider||isNaN(spend)||spend<=0) continue;
     let date=null;
@@ -432,10 +490,20 @@ function buildMonthBtns(q){
   });
 }
 
-function toggleLegend(w){
-  const leg=document.getElementById('legend'+w),btn=document.getElementById('expand'+w);
-  leg.classList.toggle('expanded');
-  btn.textContent=leg.classList.contains('expanded')?'▲ show less':'▼ show all';
+function toggleSupplier(){
+  supplierExpanded=!supplierExpanded;
+  document.getElementById('expandSupplier').textContent=supplierExpanded?'▲ show less':'▼ show all';
+  buildSupplierLegend(allSortedSup,supplierExpanded?allSortedSup.length:8);
+}
+
+function buildSupplierLegend(sorted,limit){
+  const leg=document.getElementById('legendSupplier');
+  leg.innerHTML='';
+  sorted.slice(0,limit).forEach(([name,val],i)=>{
+    const d=document.createElement('div');d.className='li';
+    d.innerHTML=`<span class="li-dot" style="background:${SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
+    leg.appendChild(d);
+  });
 }
 
 function render(){
@@ -461,43 +529,37 @@ function render(){
     activeMonth===0?'full quarter view':
     progress<1?`day ${currentDay} of ${dim} — ${(progress*100).toFixed(0)}% through month`:'full month view';
 
-  // Aggregate
   const provMap={},provUnits={},provAsins={},provBuyTotal={},provBuyCount={};
   const supMap={},supUnits={},supOrders={};
   let totalSpend=0,totalUnits=0,totalBuyPrice=0,buyPriceCount=0,orderCount=0;
   const uniqueAsins=new Set();
 
   rows.forEach(r=>{
-    // Provider
     provMap[r.provider]=(provMap[r.provider]||0)+r.spend;
     provUnits[r.provider]=(provUnits[r.provider]||0)+r.qty;
     if(!provAsins[r.provider]) provAsins[r.provider]=new Set();
     if(r.asin) provAsins[r.provider].add(r.asin);
-    if(r.buyPrice>0){
-      provBuyTotal[r.provider]=(provBuyTotal[r.provider]||0)+r.buyPrice;
-      provBuyCount[r.provider]=(provBuyCount[r.provider]||0)+1;
-    }
-    // Supplier
+    if(r.buyPrice>0){provBuyTotal[r.provider]=(provBuyTotal[r.provider]||0)+r.buyPrice;provBuyCount[r.provider]=(provBuyCount[r.provider]||0)+1;}
     supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend;
     supUnits[r.supplier]=(supUnits[r.supplier]||0)+r.qty;
     supOrders[r.supplier]=(supOrders[r.supplier]||0)+1;
-    // Totals
     totalSpend+=r.spend;totalUnits+=r.qty;orderCount++;
     if(r.buyPrice>0){totalBuyPrice+=r.buyPrice;buyPriceCount++;}
     if(r.asin) uniqueAsins.add(r.asin);
   });
 
   const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
-  const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
+  allSortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
   const sortedSupByUnits=Object.entries(supUnits).sort((a,b)=>b[1]-a[1]);
   const avgBuyPrice=buyPriceCount>0?totalBuyPrice/buyPriceCount:0;
 
-  // Row 1 cards
+  // Spend card colour
   const spendCard=document.getElementById('cardSpendWrap');
   if(teamTarget&&progress>0){
     const r=totalSpend/(teamTarget*progress);
     spendCard.className=r>=1?'card card-green2':r>=0.95?'card card-orange':'card card-red';
   } else { spendCard.className='card card-blue'; }
+
   document.getElementById('cardTotal').textContent=fmt(totalSpend);
   document.getElementById('cardTotalSub').textContent=teamTarget?paceLabel(totalSpend,teamTarget,progress):'';
   document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
@@ -509,8 +571,7 @@ function render(){
   document.getElementById('cardAsins').textContent=uniqueAsins.size.toLocaleString();
   document.getElementById('cardAsinsSub').textContent='distinct products';
 
-  // Row 2 cards
-  const topSup=sortedSup[0];
+  const topSup=allSortedSup[0];
   document.getElementById('cardTopSupName').textContent=topSup?topSup[0]:'—';
   document.getElementById('cardTopSupSpend').textContent=topSup?fmt(topSup[1]):'—';
   document.getElementById('cardTopSupSub').textContent=topSup?((topSup[1]/totalSpend*100).toFixed(1)+'% of total spend'):'';
@@ -561,27 +622,37 @@ function render(){
     ['statDaily','statExpected','statDiff'].forEach(id=>document.getElementById(id).textContent='—');
   }
 
-  buildPie('chartProvider','legendProvider','expandProvider',sortedProv,totalSpend,true);
-  buildPie('chartSupplier','legendSupplier','expandSupplier',sortedSup,totalSpend,false);
+  // Provider pie — always fully visible, no expand
+  buildPie('chartProvider','legendProvider',sortedProv,totalSpend,true,false);
+  // Supplier pie — with expand
+  supplierExpanded=false;
+  document.getElementById('expandSupplier').textContent='▼ show all';
+  document.getElementById('expandSupplier').style.display=allSortedSup.length>8?'inline':'none';
+  buildPie('chartSupplier','legendSupplier',allSortedSup,totalSpend,false,true);
+
   buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
-  buildSupplierTable(sortedSup,supUnits,supOrders,totalSpend);
+  buildSupplierTable(allSortedSup,supUnits,supOrders,totalSpend);
   document.getElementById('lastUpdated').textContent='updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
-function buildPie(canvasId,legendId,expandId,sorted,total,useProvColors){
+function buildPie(canvasId,legendId,sorted,total,useProvColors,limitLegend){
   const labels=sorted.map(d=>d[0]);
   const values=sorted.map(d=>d[1]);
   const colors=labels.map((n,i)=>useProvColors?(PROVIDER_COLORS[n]||SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]):SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]);
   const leg=document.getElementById(legendId);
-  leg.innerHTML='';leg.classList.remove('expanded');
-  const expBtn=document.getElementById(expandId);
-  expBtn.textContent='▼ show all';
-  sorted.forEach(([name,val],i)=>{
+  leg.innerHTML='';
+  const limit=limitLegend?8:sorted.length;
+  sorted.slice(0,limit).forEach(([name,val],i)=>{
     const d=document.createElement('div');d.className='li';
-    d.innerHTML=`<span class="li-dot" style="background:${colors[i]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
+    // Provider legend uses coloured badge, supplier uses dot
+    if(useProvColors){
+      const color=PROVIDER_COLORS[name]||SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length];
+      d.innerHTML=`<span class="li-dot" style="background:${color}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
+    } else {
+      d.innerHTML=`<span class="li-dot" style="background:${colors[i]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
+    }
     leg.appendChild(d);
   });
-  expBtn.style.display=sorted.length>6?'flex':'none';
   const ex=Chart.getChart(canvasId);if(ex) ex.destroy();
   new Chart(document.getElementById(canvasId),{
     type:'doughnut',
@@ -601,7 +672,9 @@ function buildPie(canvasId,legendId,expandId,sorted,total,useProvColors){
 
 function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend){
   const grid=document.getElementById('providerGrid');grid.innerHTML='';
-  const allProviders=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
+  const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','FFB','Replen','THC','ProfitPath A2A','PS','Arbi','HOR'];
+  const allProvidersSet=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
+  const allProviders=[...PROVIDER_ORDER.filter(p=>allProvidersSet.has(p)),...[...allProvidersSet].filter(p=>!PROVIDER_ORDER.includes(p))];
   allProviders.forEach(name=>{
     const spent=provMap[name]||0;
     const target=targets[name]||0;
@@ -613,19 +686,12 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
 
     const statsHTML=`
       <div class="prow-stats">
-        <div class="prow-stat">
-          <div class="prow-stat-label">units bought</div>
-          <div class="prow-stat-value">${units.toLocaleString()}</div>
-        </div>
-        <div class="prow-stat">
-          <div class="prow-stat-label">unique ASINs</div>
-          <div class="prow-stat-value">${asins}</div>
-        </div>
-        <div class="prow-stat">
-          <div class="prow-stat-label">avg buy price</div>
-          <div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div>
-        </div>
+        <div class="prow-stat"><div class="prow-stat-label">units bought</div><div class="prow-stat-value">${units.toLocaleString()}</div></div>
+        <div class="prow-stat"><div class="prow-stat-label">unique ASINs</div><div class="prow-stat-value">${asins}</div></div>
+        <div class="prow-stat"><div class="prow-stat-label">avg buy price</div><div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div></div>
       </div>`;
+
+    const badge=provBadge(name);
 
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
@@ -634,7 +700,7 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
       const pacePct=Math.min(progress*100,99);
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name"><span class="prow-name-dot" style="background:${provColor}"></span>${name}</span>
+          ${badge}
           <div class="prow-right">
             <span class="prow-spent" style="color:${color}">${fmt(spent)}</span>
             <span class="prow-of">/ ${fmt(target)}</span>
@@ -650,15 +716,13 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
     } else {
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name"><span class="prow-name-dot" style="background:${provColor}"></span>${name}</span>
+          ${badge}
           <div class="prow-right">
             <span class="prow-spent" style="color:${provColor}">${fmt(spent)}</span>
             <span class="prow-of" style="color:var(--muted);font-style:italic;">no target</span>
           </div>
         </div>
-        <div class="track">
-          <div class="fill" style="width:${spent>0?100:0}%;background:${provColor};opacity:0.5"></div>
-        </div>
+        <div class="track"><div class="fill" style="width:${spent>0?100:0}%;background:${provColor};opacity:0.4"></div></div>
         <div class="prow-sub" style="color:var(--muted2)">${spent>0?'spend tracked — no minimum set':'no spend this period'}</div>
         ${statsHTML}`;
     }
@@ -672,7 +736,14 @@ function buildSupplierTable(sorted,supUnits,supOrders,total){
     const units=supUnits[name]||0;
     const orders=supOrders[name]||1;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="rank">${i+1}</span></td><td class="bold">${name}</td><td class="bold">${fmt(spend)}</td><td>${units.toLocaleString()}</td><td>${orders}</td><td>${fmt(spend/orders)}</td><td>${((spend/total)*100).toFixed(1)}%</td>`;
+    tr.innerHTML=`
+      <td><span class="rank">${i+1}</span></td>
+      <td class="bold">${name}</td>
+      <td class="bold">${fmt(spend)}</td>
+      <td>${units.toLocaleString()}</td>
+      <td>${orders}</td>
+      <td>${fmt(spend/orders)}</td>
+      <td>${((spend/total)*100).toFixed(1)}%</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -689,11 +760,18 @@ document.querySelectorAll('[data-q]').forEach(btn=>{
 });
 
 async function loadAndRender(q){
-  const values=await fetchSheet(q);
-  if(!values){showNoData('No data for this quarter yet.');return;}
-  allRows=parseRows(values);
-  if(allRows.length===0){showNoData('No data found — check tab name in config.');return;}
-  render();
+  try {
+    const [spendValues, targetValues] = await Promise.all([
+      fetchTab(QUARTER_TABS[q]),
+      fetchTab(TARGETS_TAB)
+    ]);
+    liveTargets=buildTargets(targetValues);
+    allRows=parseRows(spendValues);
+    if(allRows.length===0){showNoData('No data found — check tab name.');return;}
+    render();
+  } catch(e) {
+    showNoData('No data for this quarter yet.');
+  }
 }
 
 setInterval(()=>loadAndRender(activeQ),5*60*1000);
