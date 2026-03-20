@@ -175,7 +175,36 @@ tbody tr:hover td{color:var(--text);}
 td.bold{color:var(--text);font-weight:500;}
 .rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
 
-/* STATS SECTIONS */
+/* COLOURED STAT TILES */
+.stat-tile.c-blue{background:linear-gradient(135deg,#1a3a6e,#1e4080);}
+.stat-tile.c-green{background:linear-gradient(135deg,#0f4a2a,#145c33);}
+.stat-tile.c-red{background:linear-gradient(135deg,#5c1a1a,#7a2020);}
+.stat-tile.c-amber{background:linear-gradient(135deg,#5c3a0a,#7a4d0d);}
+.stat-tile.c-purple{background:linear-gradient(135deg,#2d1f5e,#3a2878);}
+.stat-tile.c-teal{background:linear-gradient(135deg,#0a3d42,#0d4f55);}
+.stat-tile.c-rose{background:linear-gradient(135deg,#4c0519,#881337);}
+.stat-tile.c-indigo{background:linear-gradient(135deg,#1e1b4b,#312e81);}
+.stat-tile.c-blue .stat-tile-label,.stat-tile.c-green .stat-tile-label,
+.stat-tile.c-red .stat-tile-label,.stat-tile.c-amber .stat-tile-label,
+.stat-tile.c-purple .stat-tile-label,.stat-tile.c-teal .stat-tile-label,
+.stat-tile.c-rose .stat-tile-label,.stat-tile.c-indigo .stat-tile-label{color:rgba(255,255,255,0.6);}
+.stat-tile.c-blue .stat-tile-value,.stat-tile.c-green .stat-tile-value,
+.stat-tile.c-red .stat-tile-value,.stat-tile.c-amber .stat-tile-value,
+.stat-tile.c-purple .stat-tile-value,.stat-tile.c-teal .stat-tile-value,
+.stat-tile.c-rose .stat-tile-value,.stat-tile.c-indigo .stat-tile-value{color:#fff;}
+.stat-tile.c-blue .stat-tile-sub,.stat-tile.c-green .stat-tile-sub,
+.stat-tile.c-red .stat-tile-sub,.stat-tile.c-amber .stat-tile-sub,
+.stat-tile.c-purple .stat-tile-sub,.stat-tile.c-teal .stat-tile-sub,
+.stat-tile.c-rose .stat-tile-sub,.stat-tile.c-indigo .stat-tile-sub{color:rgba(255,255,255,0.65);}
+/* WEEK GRID */
+.week-day-tile{background:var(--surface2);border-radius:8px;padding:12px 10px;text-align:center;border:1px solid var(--border);}
+.week-day-tile.today{border-color:var(--accent);background:rgba(79,142,247,0.1);}
+.week-day-tile.past{opacity:0.7;}
+.week-day-name{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.week-day-spend{font-size:16px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;}
+.week-day-target{font-size:10px;color:var(--muted2);margin-bottom:4px;}
+.week-day-bar{height:4px;background:var(--surface);border-radius:2px;overflow:hidden;margin-top:6px;}
+.week-day-fill{height:100%;border-radius:2px;}
 .stats-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
 .stats-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;}
 .stats-sub{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;}
@@ -415,7 +444,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="card-sub" id="todayUnitsSub"></div>
     </div>
     <div class="card card-teal">
-      <div class="card-label">orders today</div>
+      <div class="card-label">true orders</div>
       <div class="card-value" id="todayOrders">—</div>
       <div class="card-sub" id="todayOrdersSub"></div>
     </div>
@@ -429,6 +458,30 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="card-value" id="todayVsTarget">—</div>
       <div class="card-sub" id="todayVsTargetSub"></div>
     </div>
+  </div>
+
+  <!-- TODAY VS AVERAGES - coloured tiles -->
+  <div class="today-section">
+    <div class="today-section-title">today vs your averages <span class="stats-sub" id="todayVsAvgSub"></span></div>
+    <div class="stats-grid-4" id="todayVsAvgGrid"></div>
+  </div>
+
+  <!-- DAY OF WEEK INTELLIGENCE -->
+  <div class="today-section">
+    <div class="today-section-title" id="dowTitle">historical <span id="dowName">friday</span> patterns</div>
+    <div class="stats-grid-4" id="dowGrid"></div>
+  </div>
+
+  <!-- DAY OF MONTH INTELLIGENCE -->
+  <div class="today-section">
+    <div class="today-section-title" id="domTitle">historical day <span id="domNum">21</span> patterns</div>
+    <div class="stats-grid-4" id="domGrid"></div>
+  </div>
+
+  <!-- WEEK PROJECTION -->
+  <div class="today-section">
+    <div class="today-section-title">this week — projection & target <span class="stats-sub" id="weekSub"></span></div>
+    <div id="weekGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;"></div>
   </div>
 
   <!-- PROVIDER STATUS -->
@@ -1103,15 +1156,36 @@ function switchPage(page){
 
 function buildToday(){
   const now=new Date();
-  const todayRows=allRows.filter(r=>{
-    return r.date.getDate()===now.getDate()&&
-           r.date.getMonth()===now.getMonth()&&
-           r.date.getFullYear()===now.getFullYear();
-  });
+  const todayDOW=now.getDay();
+  const todayDOM=now.getDate();
+  const todayMonth=now.getMonth()+1;
+  const todayYear=now.getFullYear();
+  const DOW_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const DOW_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  const targets=getTargetForView(now.getMonth()+1);
+  const todayRows=allRows.filter(r=>
+    r.date.getDate()===todayDOM&&r.date.getMonth()+1===todayMonth&&r.date.getFullYear()===todayYear
+  );
+
+  const byDateKey={};
+  allRows.forEach(r=>{
+    const k=r.date.toDateString();
+    if(!byDateKey[k]) byDateKey[k]={date:r.date,spend:0,units:0,rows:0};
+    byDateKey[k].spend+=r.spend;
+    byDateKey[k].units+=r.qty;
+    byDateKey[k].rows++;
+  });
+  const allDays=Object.values(byDateKey);
+  const dowDays=allDays.filter(d=>d.date.getDay()===todayDOW&&d.date.toDateString()!==now.toDateString());
+  const domDays=allDays.filter(d=>d.date.getDate()===todayDOM&&d.date.toDateString()!==now.toDateString());
+
+  function havg(arr,fn){return arr.length?arr.reduce((a,d)=>a+fn(d),0)/arr.length:0;}
+  function hmax(arr,fn){return arr.length?Math.max(...arr.map(fn)):0;}
+  function hmin(arr,fn){return arr.length?Math.min(...arr.map(fn)):0;}
+
+  const targets=getTargetForView(todayMonth);
   const teamTarget=targets.team||0;
-  const dim=getDIM(now.getMonth()+1,now.getFullYear());
+  const dim=getDIM(todayMonth,todayYear);
   const dailyTarget=teamTarget?teamTarget/dim:0;
 
   const totalSpend=todayRows.reduce((a,r)=>a+r.spend,0);
@@ -1119,6 +1193,14 @@ function buildToday(){
   const totalOrders=countOrders(todayRows);
   const skuLines=todayRows.length;
   const uniqueAsins=new Set(todayRows.filter(r=>r.asin).map(r=>r.asin));
+  const monthRows=allRows.filter(r=>r.month===todayMonth&&r.year===todayYear);
+  const monthTotal=monthRows.reduce((a,r)=>a+r.spend,0);
+  const remaining=teamTarget?teamTarget-monthTotal:0;
+  const allTimeDays=allDays.filter(d=>d.date.toDateString()!==now.toDateString());
+  const monthDays=allDays.filter(d=>d.date.getMonth()+1===todayMonth&&d.date.getFullYear()===todayYear&&d.date.toDateString()!==now.toDateString());
+  const avgDaySpend=havg(allTimeDays,d=>d.spend);
+  const avgDayUnits=havg(allTimeDays,d=>d.units);
+  const avgDayOrders=havg(allTimeDays,d=>d.rows);
 
   // Header cards
   document.getElementById('todaySpend').textContent=fmt(totalSpend);
@@ -1130,13 +1212,12 @@ function buildToday(){
   document.getElementById('todayAsins').textContent=uniqueAsins.size;
   document.getElementById('todayAsinsSub').textContent='distinct products today';
 
-  // vs daily target
   const targetCard=document.getElementById('todayTargetCard');
   if(dailyTarget){
     const diff=totalSpend-dailyTarget;
     const pct=(totalSpend/dailyTarget*100).toFixed(1);
-    const color=diff>=0?'card-green2':totalSpend/dailyTarget>=0.9?'card-amber':'card-red';
-    targetCard.className='card '+color;
+    const col=diff>=0?'card-green2':totalSpend/dailyTarget>=0.9?'card-amber':'card-red';
+    targetCard.className='card '+col;
     document.getElementById('todayVsTarget').textContent=fmt(dailyTarget);
     document.getElementById('todayVsTargetSub').textContent=(diff>=0?'+':'')+fmt(diff)+' vs daily target ('+pct+'%)';
   } else {
@@ -1145,7 +1226,91 @@ function buildToday(){
     document.getElementById('todayVsTargetSub').textContent='no target set';
   }
 
-  // Provider status grid
+  // Today vs averages
+  document.getElementById('todayVsAvgSub').textContent='vs all-time daily avg';
+  function cTile(label,val,avgVal,fmtFn,colorClass){
+    const pct=avgVal>0?((val-avgVal)/avgVal*100):null;
+    const bClass=pct===null?'':pct>5?'badge-up':pct<-5?'badge-down':'badge-neutral';
+    const bSign=pct!==null&&pct>0?'+':'';
+    const b=pct!==null?`<span class="stat-tile-badge ${bClass}">${bSign}${pct.toFixed(1)}%</span>`:'';
+    return `<div class="stat-tile ${colorClass}"><div class="stat-tile-label">${label}</div><div class="stat-tile-value">${fmtFn(val)}${b}</div><div class="stat-tile-sub">all-time avg: ${fmtFn(avgVal)}</div></div>`;
+  }
+  const allRank=allTimeDays.filter(d=>d.spend>totalSpend).length+1;
+  document.getElementById('todayVsAvgGrid').innerHTML=
+    cTile('spend today',totalSpend,avgDaySpend,fmt,'c-blue')+
+    cTile('units today',totalUnits,avgDayUnits,v=>Math.round(v).toString(),'c-purple')+
+    cTile('SKU lines today',skuLines,avgDayOrders,v=>Math.round(v).toString(),'c-teal')+
+    `<div class="stat-tile c-indigo"><div class="stat-tile-label">all-time daily rank</div><div class="stat-tile-value">#${allRank} / ${allTimeDays.length+1}</div><div class="stat-tile-sub">${totalSpend>avgDaySpend?'above':'below'} all-time avg of ${fmt(avgDaySpend)}</div></div>`;
+
+  // DOW
+  document.getElementById('dowName').textContent=DOW_NAMES[todayDOW];
+  const dowAvgSpend=havg(dowDays,d=>d.spend);
+  const dowMaxSpend=hmax(dowDays,d=>d.spend);
+  const dowMinSpend=hmin(dowDays,d=>d.spend);
+  const dowAvgUnits=havg(dowDays,d=>d.units);
+  const dowCount=dowDays.length;
+  const dowTotals=Array.from({length:7},(_,i)=>{
+    const days=allDays.filter(d=>d.date.getDay()===i);
+    return{dow:i,avg:havg(days,d=>d.spend),count:days.length};
+  });
+  const bestDOW=dowTotals.reduce((a,b)=>b.avg>a.avg?b:a,dowTotals[0]);
+  const spendPctVsDOW=dowAvgSpend>0?((totalSpend-dowAvgSpend)/dowAvgSpend*100):null;
+  const dowBadge=spendPctVsDOW!==null?`<span class="stat-tile-badge ${spendPctVsDOW>5?'badge-up':spendPctVsDOW<-5?'badge-down':'badge-neutral'}">${spendPctVsDOW>0?'+':''}${spendPctVsDOW.toFixed(1)}%</span>`:'';
+  document.getElementById('dowGrid').innerHTML=
+    `<div class="stat-tile c-blue"><div class="stat-tile-label">avg ${DOW_NAMES[todayDOW]} spend</div><div class="stat-tile-value">${dowAvgSpend>0?fmt(dowAvgSpend):'no data'}</div><div class="stat-tile-sub">across ${dowCount} ${DOW_NAMES[todayDOW]}s in data</div></div>`+
+    `<div class="stat-tile c-green"><div class="stat-tile-label">today vs avg ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${fmt(totalSpend)}${dowBadge}</div><div class="stat-tile-sub">${spendPctVsDOW!==null?(spendPctVsDOW>=0?'ahead of':'behind')+' your typical '+DOW_NAMES[todayDOW]:'not enough history yet'}</div></div>`+
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${dowMaxSpend>0?fmt(dowMaxSpend):'—'}</div><div class="stat-tile-sub">worst: ${dowMinSpend>0?fmt(dowMinSpend):'—'} · avg units: ${dowAvgUnits.toFixed(1)}</div></div>`+
+    `<div class="stat-tile c-amber"><div class="stat-tile-label">your biggest spend day</div><div class="stat-tile-value">${DOW_NAMES[bestDOW.dow]}</div><div class="stat-tile-sub">avg ${fmt(bestDOW.avg)} · ${bestDOW.count} data points</div></div>`;
+
+  // DOM
+  document.getElementById('domNum').textContent=todayDOM;
+  const domAvgSpend=havg(domDays,d=>d.spend);
+  const domMaxSpend=hmax(domDays,d=>d.spend);
+  const domMinSpend=hmin(domDays,d=>d.spend);
+  const domCount=domDays.length;
+  const spendPctVsDOM=domAvgSpend>0?((totalSpend-domAvgSpend)/domAvgSpend*100):null;
+  const domBadge=spendPctVsDOM!==null?`<span class="stat-tile-badge ${spendPctVsDOM>5?'badge-up':spendPctVsDOM<-5?'badge-down':'badge-neutral'}">${spendPctVsDOM>0?'+':''}${spendPctVsDOM.toFixed(1)}%</span>`:'';
+  const domTotals={};
+  allDays.forEach(d=>{const dom=d.date.getDate();if(!domTotals[dom])domTotals[dom]=[];domTotals[dom].push(d.spend);});
+  const busiestDOM=Object.entries(domTotals).map(([dom,spends])=>({dom:+dom,avg:spends.reduce((a,b)=>a+b,0)/spends.length})).sort((a,b)=>b.avg-a.avg)[0];
+  document.getElementById('domGrid').innerHTML=
+    `<div class="stat-tile c-teal"><div class="stat-tile-label">avg spend on day ${todayDOM}</div><div class="stat-tile-value">${domAvgSpend>0?fmt(domAvgSpend):'no data'}</div><div class="stat-tile-sub">across ${domCount} month${domCount!==1?'s':''} of data</div></div>`+
+    `<div class="stat-tile c-purple"><div class="stat-tile-label">today vs avg day ${todayDOM}</div><div class="stat-tile-value">${fmt(totalSpend)}${domBadge}</div><div class="stat-tile-sub">${spendPctVsDOM!==null?(spendPctVsDOM>=0?'above':'below')+' historical avg for this date':'not enough history yet'}</div></div>`+
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever day ${todayDOM}</div><div class="stat-tile-value">${domMaxSpend>0?fmt(domMaxSpend):'—'}</div><div class="stat-tile-sub">worst: ${domMinSpend>0?fmt(domMinSpend):'—'}</div></div>`+
+    `<div class="stat-tile c-indigo"><div class="stat-tile-label">busiest date historically</div><div class="stat-tile-value">day ${busiestDOM?busiestDOM.dom:'—'}</div><div class="stat-tile-sub">${busiestDOM?'avg '+fmt(busiestDOM.avg)+' on this date':''}</div></div>`;
+
+  // Week
+  document.getElementById('weekSub').textContent='Mon–Sun · actual where available, projected where not';
+  const weekGrid=document.getElementById('weekGrid');
+  weekGrid.innerHTML='';
+  const monday=new Date(now);
+  const diffToMon=now.getDay()===0?-6:1-now.getDay();
+  monday.setDate(now.getDate()+diffToMon);
+  monday.setHours(0,0,0,0);
+  const weekMax=Math.max(...Array.from({length:7},(_,i)=>{
+    const d2=new Date(monday);d2.setDate(monday.getDate()+i);
+    const dd=byDateKey[d2.toDateString()];
+    const dow2=d2.getDay();
+    return dd?dd.spend:havg(allDays.filter(x=>x.date.getDay()===dow2),x=>x.spend)||0;
+  }),1);
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const isToday=d.toDateString()===now.toDateString();
+    const isPast=d<now&&!isToday;
+    const dow=d.getDay();
+    const dayData=byDateKey[d.toDateString()];
+    const actualSpend=dayData?dayData.spend:0;
+    const histDOWAvg=havg(allDays.filter(x=>x.date.getDay()===dow&&x.date.toDateString()!==d.toDateString()),x=>x.spend);
+    const displaySpend=isPast||isToday?actualSpend:histDOWAvg;
+    const barPct=Math.min((displaySpend/weekMax)*100,100);
+    const barColor=isToday?'var(--accent)':isPast?'var(--green)':'var(--muted)';
+    const tile=document.createElement('div');
+    tile.className='week-day-tile'+(isToday?' today':isPast?' past':'');
+    tile.innerHTML=`<div class="week-day-name">${DOW_SHORT[dow]}</div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">${d.getDate()}/${d.getMonth()+1}</div><div class="week-day-spend" style="color:${isToday?'var(--accent)':isPast?'var(--text)':'var(--muted2)'}">${displaySpend>0?fmt(displaySpend):'—'}</div><div class="week-day-target" style="font-size:9px;">${!isPast&&!isToday&&histDOWAvg>0?'proj':isPast?'actual':'today'}</div><div class="week-day-bar"><div class="week-day-fill" style="width:${barPct}%;background:${barColor};"></div></div>`;
+    weekGrid.appendChild(tile);
+  }
+
+  // Provider status
   const provSpend={},provUnits={},provOrders={},provAsins={};
   todayRows.forEach(r=>{
     provSpend[r.provider]=(provSpend[r.provider]||0)+r.spend;
@@ -1154,13 +1319,9 @@ function buildToday(){
     if(!provAsins[r.provider]) provAsins[r.provider]=new Set();
     if(r.asin) provAsins[r.provider].add(r.asin);
   });
-
-  const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
-  const allKnownProviders=new Set([...PROVIDER_ORDER,...Object.keys(provSpend)]);
-  const orderedProviders=[...PROVIDER_ORDER.filter(p=>allKnownProviders.has(p)),...Object.keys(provSpend).filter(p=>!PROVIDER_ORDER.includes(p))];
-
-  const pgrid=document.getElementById('todayProviderGrid');
-  pgrid.innerHTML='';
+  const PROV_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
+  const orderedProviders=[...PROV_ORDER,...Object.keys(provSpend).filter(p=>!PROV_ORDER.includes(p))];
+  const pgrid=document.getElementById('todayProviderGrid');pgrid.innerHTML='';
   orderedProviders.forEach(name=>{
     const spent=provSpend[name]||0;
     const units=provUnits[name]||0;
@@ -1168,19 +1329,15 @@ function buildToday(){
     const asins=(provAsins[name]||new Set()).size;
     const color=PROVIDER_COLORS[name]||'#4f8ef7';
     const isActive=spent>0;
+    const provDOWRows=allRows.filter(r=>r.provider===name&&r.date.getDay()===todayDOW&&r.date.toDateString()!==now.toDateString());
+    const provDOWDays={};
+    provDOWRows.forEach(r=>{const k=r.date.toDateString();provDOWDays[k]=(provDOWDays[k]||0)+r.spend;});
+    const provDOWAvg=Object.values(provDOWDays).length>0?Object.values(provDOWDays).reduce((a,b)=>a+b,0)/Object.values(provDOWDays).length:0;
     const div=document.createElement('div');
     div.className='today-prov-card '+(isActive?'active':'silent');
     div.style.background=isActive?color+'22':'var(--surface2)';
     div.style.borderColor=isActive?color+'44':'transparent';
-    div.innerHTML=`
-      <div class="today-prov-name">
-        <span style="width:8px;height:8px;border-radius:50%;background:${isActive?color:'var(--muted)'};flex-shrink:0;"></span>
-        ${name}
-      </div>
-      ${isActive?`
-        <div class="today-prov-spend">${fmt(spent)}</div>
-        <div class="today-prov-sub">${units} units · ${orders} orders · ${asins} ASINs</div>
-      `:`<div class="today-silent-label">no orders today</div>`}`;
+    div.innerHTML=`<div class="today-prov-name"><span style="width:8px;height:8px;border-radius:50%;background:${isActive?color:'var(--muted)'};flex-shrink:0;"></span>${name}</div>${isActive?`<div class="today-prov-spend">${fmt(spent)}</div><div class="today-prov-sub">${units} units · ${orders} SKUs · ${asins} ASINs</div>${provDOWAvg>0?`<div class="today-prov-sub" style="margin-top:4px;color:${spent>=provDOWAvg?'var(--green)':'var(--red)'};">${spent>=provDOWAvg?'↑ above':'↓ below'} avg ${DOW_NAMES[todayDOW]} (${fmt(provDOWAvg)})</div>`:''}` :`<div class="today-silent-label">no orders today</div>${provDOWAvg>0?`<div style="font-size:10px;color:var(--muted);margin-top:4px;">usually ${fmt(provDOWAvg)} on ${DOW_NAMES[todayDOW]}s</div>`:''}`}`;
     pgrid.appendChild(div);
   });
 
@@ -1188,58 +1345,32 @@ function buildToday(){
   const biggestOrder=todayRows.length?todayRows.reduce((a,r)=>r.spend>a.spend?r:a,todayRows[0]):null;
   const topProvEntry=Object.entries(provSpend).sort((a,b)=>b[1]-a[1])[0];
   const topProvUnits=Object.entries(provUnits).sort((a,b)=>b[1]-a[1])[0];
-  const avgBuyPriceToday=todayRows.filter(r=>r.buyPrice>0).length>0?
-    todayRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/todayRows.filter(r=>r.buyPrice>0).length:0;
-
-  // Month total including today
-  const monthRows=allRows.filter(r=>r.month===now.getMonth()+1&&r.year===now.getFullYear());
-  const monthTotal=monthRows.reduce((a,r)=>a+r.spend,0);
-  const monthTarget=teamTarget;
-  const remaining=monthTarget?monthTarget-monthTotal:0;
-
-  // Silent providers today
-  const silentToday=PROVIDER_ORDER.filter(p=>!provSpend[p]);
-
-  // Avg spend per ASIN today
+  const avgBuyPriceToday=todayRows.filter(r=>r.buyPrice>0).length>0?todayRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/todayRows.filter(r=>r.buyPrice>0).length:0;
+  const silentToday=PROV_ORDER.filter(p=>!provSpend[p]);
   const asinSpend={},asinUnits={},asinOrders={};
-  todayRows.filter(r=>r.asin).forEach(r=>{
-    asinSpend[r.asin]=(asinSpend[r.asin]||0)+r.spend;
-    asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;
-    asinOrders[r.asin]=(asinOrders[r.asin]||0)+1;
-  });
+  todayRows.filter(r=>r.asin).forEach(r=>{asinSpend[r.asin]=(asinSpend[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;asinOrders[r.asin]=(asinOrders[r.asin]||0)+1;});
 
-  const igrid=document.getElementById('todayInsightsGrid');
-  igrid.innerHTML=
-    statTile('biggest order today',biggestOrder?fmt(biggestOrder.spend):'—',biggestOrder?biggestOrder.supplier+' · '+biggestOrder.provider:'')+
-    statTile('top provider today',topProvEntry?topProvEntry[0]:'—',topProvEntry?fmt(topProvEntry[1])+' · '+(provOrders[topProvEntry[0]]||0)+' orders':'')+
-    statTile('top provider by units',topProvUnits?topProvUnits[0]:'—',topProvUnits?topProvUnits[1]+' units ordered':'')+
-    statTile('avg buy price today',avgBuyPriceToday>0?fmtDec(avgBuyPriceToday):'—',todayRows.filter(r=>r.buyPrice>0).length+' priced items')+
-    statTile('month total so far',fmt(monthTotal),monthTarget?(fmt(remaining)+' still needed'):'no target set')+
-    statTile('providers active',Object.keys(provSpend).length+' / '+PROVIDER_ORDER.length,silentToday.length>0?'silent: '+silentToday.slice(0,3).join(', ')+(silentToday.length>3?'...':''):'all providers active!')+
-    statTile('spend per ASIN today',uniqueAsins.size>0?fmt(totalSpend/uniqueAsins.size):'—',uniqueAsins.size+' unique ASINs')+
-    statTile('units per order today',totalOrders>0?(totalUnits/totalOrders).toFixed(1):'—',totalUnits+' units across '+totalOrders+' orders');
+  document.getElementById('todayInsightsGrid').innerHTML=
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">biggest order today</div><div class="stat-tile-value">${biggestOrder?fmt(biggestOrder.spend):'—'}</div><div class="stat-tile-sub">${biggestOrder?biggestOrder.supplier+' · '+biggestOrder.provider:''}</div></div>`+
+    `<div class="stat-tile c-blue"><div class="stat-tile-label">top provider today</div><div class="stat-tile-value">${topProvEntry?topProvEntry[0]:'—'}</div><div class="stat-tile-sub">${topProvEntry?fmt(topProvEntry[1])+' · '+(provOrders[topProvEntry[0]]||0)+' SKUs':''}</div></div>`+
+    `<div class="stat-tile c-purple"><div class="stat-tile-label">top by units</div><div class="stat-tile-value">${topProvUnits?topProvUnits[0]:'—'}</div><div class="stat-tile-sub">${topProvUnits?topProvUnits[1]+' units':''}</div></div>`+
+    `<div class="stat-tile c-amber"><div class="stat-tile-label">avg buy price today</div><div class="stat-tile-value">${avgBuyPriceToday>0?fmtDec(avgBuyPriceToday):'—'}</div><div class="stat-tile-sub">${todayRows.filter(r=>r.buyPrice>0).length} priced items</div></div>`+
+    `<div class="stat-tile c-green"><div class="stat-tile-label">month total so far</div><div class="stat-tile-value">${fmt(monthTotal)}</div><div class="stat-tile-sub">${teamTarget?(fmt(remaining)+' still needed'):'no target set'}</div></div>`+
+    `<div class="stat-tile c-teal"><div class="stat-tile-label">providers active</div><div class="stat-tile-value">${Object.keys(provSpend).length} / ${PROV_ORDER.length}</div><div class="stat-tile-sub">${silentToday.length>0?'silent: '+silentToday.slice(0,3).join(', ')+(silentToday.length>3?'...':''):'all active!'}</div></div>`+
+    `<div class="stat-tile c-indigo"><div class="stat-tile-label">spend per ASIN</div><div class="stat-tile-value">${uniqueAsins.size>0?fmt(totalSpend/uniqueAsins.size):'—'}</div><div class="stat-tile-sub">${uniqueAsins.size} unique ASINs</div></div>`+
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">units per SKU</div><div class="stat-tile-value">${skuLines>0?(totalUnits/skuLines).toFixed(1):'—'}</div><div class="stat-tile-sub">${totalUnits} units across ${skuLines} SKUs</div></div>`;
 
   // Top ASINs by spend
   const sortedAsinSpend=Object.entries(asinSpend).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const asinSpendGrid=document.getElementById('todayTopAsinSpend');
-  asinSpendGrid.innerHTML='';
-  sortedAsinSpend.forEach(([asin,spend],i)=>{
-    const div=document.createElement('div');div.className='asin-tile';
-    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units · ${asinOrders[asin]||0} orders</div>`;
-    asinSpendGrid.appendChild(div);
-  });
-  if(sortedAsinSpend.length===0) asinSpendGrid.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data for today</div>';
+  const ag1=document.getElementById('todayTopAsinSpend');ag1.innerHTML='';
+  sortedAsinSpend.forEach(([asin,spend],i)=>{const div=document.createElement('div');div.className='asin-tile';div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units · ${asinOrders[asin]||0} orders</div>`;ag1.appendChild(div);});
+  if(sortedAsinSpend.length===0) ag1.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data today</div>';
 
   // Top ASINs by units
   const sortedAsinUnits=Object.entries(asinUnits).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const asinUnitsGrid=document.getElementById('todayTopAsinUnits');
-  asinUnitsGrid.innerHTML='';
-  sortedAsinUnits.forEach(([asin,units],i)=>{
-    const div=document.createElement('div');div.className='asin-tile';
-    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${units} units</div><div class="asin-tile-sub">${fmt(asinSpend[asin]||0)} spend · ${asinOrders[asin]||0} orders</div>`;
-    asinUnitsGrid.appendChild(div);
-  });
-  if(sortedAsinUnits.length===0) asinUnitsGrid.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data for today</div>';
+  const ag2=document.getElementById('todayTopAsinUnits');ag2.innerHTML='';
+  sortedAsinUnits.forEach(([asin,units],i)=>{const div=document.createElement('div');div.className='asin-tile';div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${units} units</div><div class="asin-tile-sub">${fmt(asinSpend[asin]||0)} spend · ${asinOrders[asin]||0} orders</div>`;ag2.appendChild(div);});
+  if(sortedAsinUnits.length===0) ag2.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data today</div>';
 
   // Orders table
   const tbody=document.getElementById('todayOrdersTable');tbody.innerHTML='';
@@ -1249,14 +1380,7 @@ function buildToday(){
     todayRows.sort((a,b)=>b.spend-a.spend).forEach((r,i)=>{
       const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
       const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td style="text-align:left;"><span class="rank">${i+1}</span></td>
-        <td style="text-align:left;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td>
-        <td style="text-align:left;font-weight:500;color:var(--text);">${r.supplier}</td>
-        <td style="text-align:left;color:var(--accent);font-size:11px;">${r.asin||'—'}</td>
-        <td class="bold">${fmt(r.spend)}</td>
-        <td>${r.qty}</td>
-        <td>${r.buyPrice>0?fmtDec(r.buyPrice):'—'}</td>`;
+      tr.innerHTML=`<td style="text-align:left;"><span class="rank">${i+1}</span></td><td style="text-align:left;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="text-align:left;font-weight:500;color:var(--text);">${r.supplier}</td><td style="text-align:left;color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td class="bold">${fmt(r.spend)}</td><td>${r.qty}</td><td>${r.buyPrice>0?fmtDec(r.buyPrice):'—'}</td>`;
       tbody.appendChild(tr);
     });
   }
