@@ -295,7 +295,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   <div class="pace-legend">
     <span style="font-size:11px;color:var(--muted);margin-right:4px;">colour logic:</span>
     <span><span class="pace-dot" style="background:var(--green)"></span> ahead of daily pace</span>
-    <span><span class="pace-dot" style="background:var(--amber)"></span> within 5% of pace</span>
+    <span><span class="pace-dot" style="background:var(--amber)"></span> within 10% of pace</span>
     <span><span class="pace-dot" style="background:var(--red)"></span> behind pace</span>
     <span id="paceInfo"></span>
   </div>
@@ -618,7 +618,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <!-- Top ASINs -->
     <div style="margin-bottom:16px;">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
-      <div id="provModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+      <div id="provModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
     </div>
     <!-- Orders table -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -630,7 +630,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
     </div>
-    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:280px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
+    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:220px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
       <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:600px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
@@ -643,6 +643,55 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
         <tbody id="provModalTable"></tbody>
       </table>
     </div>
+    </div>
+  </div>
+</div>
+<!-- SUPPLIER MODAL -->
+<div id="supModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeSupModal()">
+  <div class="ai-modal" style="max-width:900px;width:100%;min-width:min(900px,95vw);">
+    <div class="ai-modal-inner">
+      <div class="ai-modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="supModalDot" style="width:12px;height:12px;border-radius:3px;background:var(--accent);flex-shrink:0;"></span>
+          <div class="ai-modal-title" id="supModalTitle">supplier</div>
+        </div>
+        <button class="ai-modal-close" onclick="closeSupModal()">✕</button>
+      </div>
+      <!-- Summary cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;" id="supModalCards"></div>
+      <!-- Top ASINs -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
+        <div id="supModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+      </div>
+      <!-- Orders table -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">order history</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select id="supModalSort" onchange="renderSupModalTable()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;">
+            <option value="spend">highest spend</option>
+            <option value="date_desc">newest first</option>
+            <option value="date_asc">oldest first</option>
+          </select>
+          <button onclick="toggleCollapse('supModalTableWrap','supModalTableBtn')" id="supModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
+        </div>
+      </div>
+      <div id="supModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:320px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
+        <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:600px;">
+          <thead><tr>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">provider</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 10px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+          </tr></thead>
+          <tbody id="supModalTable"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px;" id="supModalExpandWrap" style="display:none;">
+        <button id="supModalExpandBtn" onclick="toggleSupModalExpand()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:6px 16px;border-radius:4px;cursor:pointer;">▼ show all orders</button>
+      </div>
     </div>
   </div>
 </div>
@@ -830,7 +879,7 @@ function paceColor(spent,target,progress){
   const exp=target*progress;
   if(exp===0) return '#22c55e';
   const r=spent/exp;
-  return r>=1?'#22c55e':r>=0.95?'#f59e0b':'#f43f5e';
+  return r>=1?'#22c55e':r>=0.90?'#f59e0b':'#f43f5e';
 }
 
 function paceLabel(spent,target,progress){
@@ -839,7 +888,7 @@ function paceLabel(spent,target,progress){
   if(exp===0) return 'start of month';
   const r=spent/exp;
   if(r>=1) return fmt(spent-exp)+' ahead of pace';
-  if(r>=0.95) return 'on pace ✓';
+  if(r>=0.90) return 'on pace ✓';
   return fmt(exp-spent)+' behind pace';
 }
 
@@ -1017,7 +1066,7 @@ function render(){
   const spendCard=document.getElementById('cardSpendWrap');
   if(teamTarget&&progress>0){
     const r=totalSpend/(teamTarget*progress);
-    spendCard.className=r>=1?'card card-green2':r>=0.95?'card card-orange':'card card-red';
+    spendCard.className=r>=1?'card card-green2':r>=0.90?'card card-orange':'card card-red';
   } else { spendCard.className='card card-blue'; }
 
   document.getElementById('cardTotal').textContent=fmt(totalSpend);
@@ -1215,9 +1264,11 @@ function buildSupplierTable(sorted,supUnits,supOrders,total){
     const units=supUnits[name]||0;
     const orders=supOrders[name]||1;
     const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.onclick=()=>openSupModal(name);
     tr.innerHTML=`
       <td><span class="rank">${i+1}</span></td>
-      <td class="bold">${name}</td>
+      <td class="bold" style="color:var(--accent);">${name}</td>
       <td class="bold">${fmt(spend)}</td>
       <td>${units.toLocaleString()}</td>
       <td>${orders}</td>
@@ -1227,13 +1278,84 @@ function buildSupplierTable(sorted,supUnits,supOrders,total){
   });
 }
 
+// ── SUPPLIER MODAL ──────────────────────────────────────────────
+let _supModalRows=[];
+let _supModalExpanded=false;
+
+function openSupModal(name){
+  const rows=allRows.filter(r=>r.supplier===name);
+  _supModalRows=rows;
+  _supModalExpanded=false;
+  document.getElementById('supModal').style.display='flex';
+  document.getElementById('supModalTitle').textContent=name;
+  document.getElementById('supModalSort').value='spend';
+
+  // Summary cards
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(rows);
+  const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
+  document.getElementById('supModalCards').innerHTML=
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">total spend</div><div class="prov-modal-card-value" style="color:var(--accent)">${fmt(totalSpend)}</div><div class="prov-modal-card-sub">${rows.length} SKU lines</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">units bought</div><div class="prov-modal-card-value">${totalUnits.toLocaleString()}</div><div class="prov-modal-card-sub">${trueOrders} true orders</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">avg order value</div><div class="prov-modal-card-value">${trueOrders>0?fmt(totalSpend/trueOrders):'—'}</div><div class="prov-modal-card-sub">${fmt(totalUnits/Math.max(trueOrders,1))} units/order</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">unique ASINs</div><div class="prov-modal-card-value">${uniqueAsins}</div><div class="prov-modal-card-sub">${fmt(totalSpend/Math.max(uniqueAsins,1))} avg/ASIN</div></div>`;
+
+  // Top ASINs
+  const asinMap={},asinUnits={};
+  rows.filter(r=>r.asin).forEach(r=>{asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;});
+  const sortedAsins=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ag=document.getElementById('supModalAsins');ag.innerHTML='';
+  sortedAsins.forEach(([asin,spend],i)=>{
+    const div=document.createElement('div');div.className='asin-tile';
+    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units</div>`;
+    ag.appendChild(div);
+  });
+  if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:11px;grid-column:1/-1;">No ASIN data</div>';
+
+  // Reset collapse
+  document.getElementById('supModalTableWrap').style.display='';
+  document.getElementById('supModalTableBtn').textContent='▲ hide orders';
+  renderSupModalTable();
+}
+
+function renderSupModalTable(){
+  const sort=document.getElementById('supModalSort').value;
+  let rows=[..._supModalRows];
+  if(sort==='spend') rows.sort((a,b)=>b.spend-a.spend);
+  else if(sort==='date_desc') rows.sort((a,b)=>b.date-a.date);
+  else rows.sort((a,b)=>a.date-b.date);
+
+  const visible=_supModalExpanded?rows:rows.slice(0,10);
+  const tbody=document.getElementById('supModalTable');tbody.innerHTML='';
+  visible.forEach((r,i)=>{
+    const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="padding:7px 16px 7px 10px;border-bottom:1px solid var(--border);color:var(--muted2);">${i+1}</td><td style="padding:7px 16px 7px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:7px 16px 7px 0;border-bottom:1px solid var(--border);"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:7px 16px 7px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;">${r.asin||'—'}</td><td style="padding:7px 16px 7px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);">${fmt(r.spend)}</td><td style="padding:7px 10px 7px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);">${r.qty}</td>`;
+    tbody.appendChild(tr);
+  });
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders</td></tr>';
+
+  const wrap=document.getElementById('supModalExpandWrap');
+  const btn=document.getElementById('supModalExpandBtn');
+  if(rows.length>10){wrap.style.display='flex';btn.textContent=_supModalExpanded?'▲ show less':'▼ show all '+rows.length+' orders';}
+  else{wrap.style.display='none';}
+}
+
+function toggleSupModalExpand(){
+  _supModalExpanded=!_supModalExpanded;
+  renderSupModalTable();
+}
+
+function closeSupModal(){document.getElementById('supModal').style.display='none';}
+
 function statTile(label,value,sub,colorClass){
   return `<div class="stat-tile"><div class="stat-tile-label">${label}</div><div class="stat-tile-value ${colorClass||''}">${value}</div><div class="stat-tile-sub">${sub}</div></div>`;
 }
 
 function badge(pct){
   if(pct===null||isNaN(pct)) return '';
-  const cls=pct>5?'badge-up':pct<-5?'badge-down':'badge-neutral';
+  const cls=pct>10?'badge-up':pct<-10?'badge-down':'badge-neutral';
   const sign=pct>0?'+':'';
   return `<span class="stat-tile-badge ${cls}">${sign}${pct.toFixed(1)}%</span>`;
 }
@@ -1624,7 +1746,7 @@ function buildVsLastMonth(rows,month,year,currentDay){
   function pctChange(a,b){return b>0?((a-b)/b)*100:null;}
   function vsRow(label,thisVal,lastVal,fmtFn,higherIsBetter=true){
     const pct=pctChange(thisVal,lastVal);
-    const cls=pct===null?'neutral':higherIsBetter?(pct>5?'up':pct<-5?'down':'neutral'):(pct<-5?'up':pct>5?'down':'neutral');
+    const cls=pct===null?'neutral':higherIsBetter?(pct>10?'up':pct<-10?'down':'neutral'):(pct<-10?'up':pct>10?'down':'neutral');
     return statTile(
       label,
       fmtFn(thisVal)+badge(pct),
@@ -1637,7 +1759,7 @@ function buildVsLastMonth(rows,month,year,currentDay){
   const vsCtx={thisMonth:monthName(month),lastMonth:monthName(lastMonth),currentDay,...t,prevSpend:l.spend,prevUnits:l.units,prevOrders:l.orders};
   function vsRowClick(label,thisVal,lastVal,fmtFn,higherIsBetter=true){
     const pct=lastVal>0?((thisVal-lastVal)/lastVal*100):null;
-    const cls=pct===null?'neutral':higherIsBetter?(pct>5?'up':pct<-5?'down':'neutral'):(pct<-5?'up':pct>5?'down':'neutral');
+    const cls=pct===null?'neutral':higherIsBetter?(pct>10?'up':pct<-10?'down':'neutral'):(pct<-10?'up':pct>10?'down':'neutral');
     const bClass=cls==='up'?'badge-up':cls==='down'?'badge-down':'badge-neutral';
     const bSign=pct!==null&&pct>0?'+':'';
     const b=pct!==null?`<span class="stat-tile-badge ${bClass}">${bSign}${pct.toFixed(1)}%</span>`:'';
@@ -2037,7 +2159,7 @@ function buildToday(){
   document.getElementById('todayVsAvgSub').textContent='vs all-time daily avg';
   function cTile(label,val,avgVal,fmtFn,colorClass){
     const pct=avgVal>0?((val-avgVal)/avgVal*100):null;
-    const bClass=pct===null?'':pct>5?'badge-up':pct<-5?'badge-down':'badge-neutral';
+    const bClass=pct===null?'':pct>10?'badge-up':pct<-10?'badge-down':'badge-neutral';
     const bSign=pct!==null&&pct>0?'+':'';
     const b=pct!==null?`<span class="stat-tile-badge ${bClass}">${bSign}${pct.toFixed(1)}%</span>`:'';
     return `<div class="stat-tile ${colorClass}"><div class="stat-tile-label">${label}</div><div class="stat-tile-value">${fmtFn(val)}${b}</div><div class="stat-tile-sub">all-time avg: ${fmtFn(avgVal)}</div></div>`;
@@ -2060,7 +2182,7 @@ function buildToday(){
   const worstDOWDay=dowDays.length?dowDays.reduce((a,b)=>b.spend<a.spend?b:a,dowDays[0]):null;
   const fmtDate=d=>d.date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
   const spendPctVsDOW=dowAvgSpend>0?((totalSpend-dowAvgSpend)/dowAvgSpend*100):null;
-  const dowBadge=spendPctVsDOW!==null?`<span class="stat-tile-badge ${spendPctVsDOW>5?'badge-up':spendPctVsDOW<-5?'badge-down':'badge-neutral'}">${spendPctVsDOW>0?'+':''}${spendPctVsDOW.toFixed(1)}%</span>`:'';
+  const dowBadge=spendPctVsDOW!==null?`<span class="stat-tile-badge ${spendPctVsDOW>10?'badge-up':spendPctVsDOW<-10?'badge-down':'badge-neutral'}">${spendPctVsDOW>0?'+':''}${spendPctVsDOW.toFixed(1)}%</span>`:'';
   // Rank today vs all previous same-DOW days
   const todayDOWRank=dowDays.filter(d=>d.spend>totalSpend).length+1;
   document.getElementById('dowGrid').innerHTML=
