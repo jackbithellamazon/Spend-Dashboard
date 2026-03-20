@@ -412,35 +412,59 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 
   <!-- OA VS A2A -->
   <div class="stats-section" id="oaA2aSection">
-    <div class="stats-section-title">OA vs A2A <span class="stats-sub">online arbitrage vs Amazon to Amazon</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div>
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
-        <div style="position:relative;height:140px;"><canvas id="chartOaA2a"></canvas></div>
-        <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A breakdown — UK vs EU</div>
-        <div style="position:relative;height:140px;"><canvas id="chartA2aRegion"></canvas></div>
-        <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">key metrics</div>
-        <div id="oaA2aStats" style="display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="stats-section-title" style="margin-bottom:0;">OA vs A2A <span class="stats-sub">online arbitrage vs Amazon to Amazon</span></div>
+      <button onclick="toggleCollapse('oaA2aBody','oaA2aToggle')" id="oaA2aToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;">▲ collapse</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div>
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">OA — top providers</div>
-        <div id="oaProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="oaA2aBody">
+      <!-- Row 1: Pies + Key Metrics -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
+          <div style="position:relative;height:140px;"><canvas id="chartOaA2a"></canvas></div>
+          <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A — UK vs EU</div>
+          <div style="position:relative;height:140px;"><canvas id="chartA2aRegion"></canvas></div>
+          <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">key metrics</div>
+          <div id="oaA2aStats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        </div>
       </div>
-      <div>
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">A2A — top providers</div>
-        <div id="a2aProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <!-- Row 2: Daily chart -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily spend — OA vs A2A</div>
+        <div style="position:relative;height:180px;"><canvas id="chartOaA2aDaily"></canvas></div>
+      </div>
+      <!-- Row 3: Top ASINs per method -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">OA — top ASINs</div>
+          <div id="oaTopAsins" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">A2A — top ASINs</div>
+          <div id="a2aTopAsins" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+      <!-- Row 4: Providers -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">OA — top providers</div>
+          <div id="oaProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">A2A — top providers</div>
+          <div id="a2aProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- DATE EXPLORER -->
   <!-- DATE EXPLORER -->
   <div class="stats-section" id="dateExplorerSection">
     <div class="stats-section-title">date explorer <span class="stats-sub">pick a date or range to drill down</span></div>
@@ -459,33 +483,41 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <button onclick="setExplorerThisMonth()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;">this month</button>
     </div>
     <div id="explorerResults" style="display:none;">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" id="explorerCards"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-        <div>
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by provider</div>
-          <div id="explorerProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by supplier</div>
-          <div id="explorerSuppliers" style="display:flex;flex-direction:column;gap:6px;"></div>
-        </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button onclick="toggleCollapse('explorerBody','explorerToggle')" id="explorerToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;">▲ collapse results</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
-      <div id="explorerAsins" class="asin-grid" style="margin-bottom:16px;"></div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">all orders in period</div>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead><tr>
-            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">#</th>
-            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">date</th>
-            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">provider</th>
-            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">supplier</th>
-            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">ASIN</th>
-            <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">spend</th>
-            <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 0 10px 0;border-bottom:1px solid var(--border);">units</th>
-          </tr></thead>
-          <tbody id="explorerTable"></tbody>
-        </table>
+      <div id="explorerBody">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" id="explorerCards"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by provider</div>
+            <div id="explorerProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by supplier</div>
+            <div id="explorerSuppliers" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
+        <div id="explorerAsins" class="asin-grid" style="margin-bottom:16px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders in period</div>
+          <button onclick="toggleCollapse('explorerTableWrap','explorerTableToggle')" id="explorerTableToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
+        </div>
+        <div id="explorerTableWrap" style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead><tr>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">#</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">date</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">provider</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">supplier</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">ASIN</th>
+              <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">spend</th>
+              <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 0 10px 0;border-bottom:1px solid var(--border);">units</th>
+            </tr></thead>
+            <tbody id="explorerTable"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -509,6 +541,22 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   </div>
 
 </main>
+<!-- AI INSIGHT MODAL -->
+<div id="aiModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeAiModal()">
+  <div class="ai-modal">
+    <div class="ai-modal-header">
+      <div class="ai-modal-title" id="aiModalTitle">insight</div>
+      <button class="ai-modal-close" onclick="closeAiModal()">✕</button>
+    </div>
+    <div class="ai-modal-metric">
+      <div class="ai-modal-metric-label" id="aiModalLabel"></div>
+      <div class="ai-modal-metric-value" id="aiModalValue"></div>
+    </div>
+    <div class="ai-modal-body" id="aiModalBody">
+      <div class="ai-loading"><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span style="margin-left:4px;">generating insight...</span></div>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- TODAY PAGE -->
@@ -1165,17 +1213,18 @@ function buildInsights(rows,month,year,teamTarget,progress,dim){
 
   const willHit=dayTargetHit!=="won't hit at current pace";
   const extraNeeded=teamTarget&&!willHit&&progress>0?fmt((teamTarget-projected)/(dim-Math.round(progress*dim))+projected/Math.round(progress*dim)):'';
+  const ctx={totalSpend:rows.reduce((a,r)=>a+r.spend,0),totalOrders:rows.length,progress,teamTarget,projected,streak,dim,currentDay:Math.round(progress*dim)};
 
   const grid=document.getElementById('insightsGrid');
   grid.innerHTML=
-    `<div class="stat-tile c-blue"><div class="stat-tile-label">busiest day</div><div class="stat-tile-value">${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}</div><div class="stat-tile-sub">${busiestDay?fmt(busiestDay[1])+' spend':''}</div></div>`+
-    `<div class="stat-tile c-rose"><div class="stat-tile-label">biggest single order</div><div class="stat-tile-value">${fmt(biggestOrder.spend)}</div><div class="stat-tile-sub">${biggestOrder.supplier+' · '+biggestOrder.provider}</div></div>`+
-    `<div class="stat-tile c-green"><div class="stat-tile-label">best provider</div><div class="stat-tile-value">${bestProv?bestProv[0]:'—'}</div><div class="stat-tile-sub">${bestProv?fmt(bestProv[1])+' spent':''}</div></div>`+
-    `<div class="stat-tile c-teal"><div class="stat-tile-label">most ordered ASIN</div><div class="stat-tile-value" style="font-size:14px;">${topAsin?topAsin[0]:'—'}</div><div class="stat-tile-sub">${topAsin?topAsin[1]+' units':'no ASIN data'}</div></div>`+
-    `<div class="stat-tile c-indigo"><div class="stat-tile-label">projected month total</div><div class="stat-tile-value">${fmt(projected)}</div><div class="stat-tile-sub">${progress<1?'at current daily rate':'full month'}</div></div>`+
-    `<div class="stat-tile ${willHit?'c-green':'c-red'}"><div class="stat-tile-label">target hit date</div><div class="stat-tile-value" style="font-size:${willHit?'22px':'14px'};">${dayTargetHit}</div><div class="stat-tile-sub">${willHit?'based on current pace':extraNeeded?'need '+extraNeeded+'/day extra':'no target set'}</div></div>`+
-    `<div class="stat-tile c-amber"><div class="stat-tile-label">order streak</div><div class="stat-tile-value">${streak>0?streak+' day'+(streak!==1?'s':''):'none today'}</div><div class="stat-tile-sub">consecutive days with orders</div></div>`+
-    `<div class="stat-tile c-purple"><div class="stat-tile-label">most orders by</div><div class="stat-tile-value">${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}</div><div class="stat-tile-sub">${mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':''}</div></div>`;
+    `<div class="stat-tile c-blue clickable" onclick="openAiModal('Busiest Day','busiest day this month','${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}',${JSON.stringify({...ctx,busiestSpend:busiestDay?busiestDay[1]:0})})"><div class="stat-tile-label">busiest day</div><div class="stat-tile-value">${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}</div><div class="stat-tile-sub">${busiestDay?fmt(busiestDay[1])+' spend':''}</div></div>`+
+    `<div class="stat-tile c-rose clickable" onclick="openAiModal('Biggest Single Order','biggest single order',${JSON.stringify(fmt(biggestOrder.spend))},${JSON.stringify({...ctx,supplier:biggestOrder.supplier,provider:biggestOrder.provider})})"><div class="stat-tile-label">biggest single order</div><div class="stat-tile-value">${fmt(biggestOrder.spend)}</div><div class="stat-tile-sub">${biggestOrder.supplier+' · '+biggestOrder.provider}</div></div>`+
+    `<div class="stat-tile c-green clickable" onclick="openAiModal('Best Provider','best provider by spend','${bestProv?bestProv[0]:'—'}',${JSON.stringify({...ctx,bestProvSpend:bestProv?bestProv[1]:0})})"><div class="stat-tile-label">best provider</div><div class="stat-tile-value">${bestProv?bestProv[0]:'—'}</div><div class="stat-tile-sub">${bestProv?fmt(bestProv[1])+' spent':''}</div></div>`+
+    `<div class="stat-tile c-teal clickable" onclick="openAiModal('Most Ordered ASIN','most ordered ASIN by units','${topAsin?topAsin[0]:'—'}',${JSON.stringify({...ctx,topAsinUnits:topAsin?topAsin[1]:0})})"><div class="stat-tile-label">most ordered ASIN</div><div class="stat-tile-value" style="font-size:14px;">${topAsin?topAsin[0]:'—'}</div><div class="stat-tile-sub">${topAsin?topAsin[1]+' units':'no ASIN data'}</div></div>`+
+    `<div class="stat-tile c-indigo clickable" onclick="openAiModal('Projected Month Total','projected end of month spend',${JSON.stringify(fmt(projected))},${JSON.stringify(ctx)})"><div class="stat-tile-label">projected month total</div><div class="stat-tile-value">${fmt(projected)}</div><div class="stat-tile-sub">${progress<1?'at current daily rate':'full month'}</div></div>`+
+    `<div class="stat-tile ${willHit?'c-green':'c-red'} clickable" onclick="openAiModal('Target Hit Date','target hit date','${dayTargetHit}',${JSON.stringify(ctx)})"><div class="stat-tile-label">target hit date</div><div class="stat-tile-value" style="font-size:${willHit?'22px':'14px'};">${dayTargetHit}</div><div class="stat-tile-sub">${willHit?'based on current pace':extraNeeded?'need '+extraNeeded+'/day extra':'no target set'}</div></div>`+
+    `<div class="stat-tile c-amber clickable" onclick="openAiModal('Order Streak','consecutive days with orders','${streak>0?streak+' days':'none'}',${JSON.stringify(ctx)})"><div class="stat-tile-label">order streak</div><div class="stat-tile-value">${streak>0?streak+' day'+(streak!==1?'s':''):'none today'}</div><div class="stat-tile-sub">consecutive days with orders</div></div>`+
+    `<div class="stat-tile c-purple clickable" onclick="openAiModal('Most Orders By','provider with most orders placed','${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}',${JSON.stringify(ctx)})"><div class="stat-tile-label">most orders by</div><div class="stat-tile-value">${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}</div><div class="stat-tile-sub">${mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':''}</div></div>`;
 }
 
 function buildVsLastMonth(rows,month,year,currentDay){
@@ -1235,13 +1284,53 @@ function buildVsLastMonth(rows,month,year,currentDay){
     vsRow('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
 }
 
-function buildOaA2a(rows,totalSpend){
-  const A2A_SUPPLIERS=['Amazon UK','Amazon Germany','Amazon Italy','Amazon France','Amazon Spain'];
-  const UK_SUPPLIERS=['Amazon UK'];
-  const EU_SUPPLIERS=['Amazon Germany','Amazon Italy','Amazon France','Amazon Spain'];
+function toggleCollapse(bodyId,btnId){
+  const body=document.getElementById(bodyId);
+  const btn=document.getElementById(btnId);
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'':'none';
+  btn.textContent=hidden?'▲ collapse':'▼ expand';
+}
 
-  const isA2A=r=>A2A_SUPPLIERS.some(s=>r.supplier.toLowerCase().includes(s.toLowerCase().replace('amazon ','').trim())||r.supplier.toLowerCase().includes('amazon'));
-  // More precise: check if supplier starts with Amazon
+function openAiModal(title,label,value,contextData){
+  document.getElementById('aiModalTitle').textContent=title;
+  document.getElementById('aiModalLabel').textContent=label;
+  document.getElementById('aiModalValue').textContent=value;
+  document.getElementById('aiModalBody').innerHTML='<div class="ai-loading"><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span style="margin-left:4px;">generating insight...</span></div>';
+  document.getElementById('aiModal').style.display='flex';
+  generateAiInsight(title,label,value,contextData);
+}
+function closeAiModal(){document.getElementById('aiModal').style.display='none';}
+
+async function generateAiInsight(title,label,value,contextData){
+  const prompt=`You are an analyst reviewing spend data for an Amazon OA/A2A reselling business. Provide a concise, data-driven insight (2-3 paragraphs) about the following metric. No fluff, no advice, just observations and trends from the data provided.
+
+Metric: ${label}
+Value: ${value}
+Context: ${JSON.stringify(contextData)}
+
+Focus on: what this number means, how it compares to other data points provided, any patterns or trends worth noting. Be specific with numbers.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'Unable to generate insight.';
+    const paras=text.split('\n\n').filter(p=>p.trim());
+    document.getElementById('aiModalBody').innerHTML=paras.map(p=>`<p>${p}</p>`).join('');
+  }catch(e){
+    document.getElementById('aiModalBody').innerHTML='<p style="color:var(--red);">Error generating insight. Please try again.</p>';
+  }
+}
+
+function buildOaA2a(rows,totalSpend){
   const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
   const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
   const isEU=r=>r.supplier.trim().toLowerCase().startsWith('amazon')&&!r.supplier.trim().toLowerCase().includes('amazon uk');
@@ -1284,14 +1373,9 @@ function buildOaA2a(rows,totalSpend){
   const leg2=document.getElementById('a2aRegionLegend');
   leg2.innerHTML=`<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">${fmt(ukSpend)} (${a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0}%)</span></div><div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">${fmt(euSpend)} (${a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0}%)</span></div>`;
 
-  // Key metrics
+  // Key metrics — replaced by enhanced version below
   const stats=document.getElementById('oaA2aStats');
-  const mkStat=(label,val,sub)=>`<div class="prow-stat"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
-  stats.innerHTML=
-    mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units')+
-    mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units')+
-    mkStat('A2A avg buy price',a2aRows.filter(r=>r.buyPrice>0).length>0?fmtDec(a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length):'—','avg buy price')+
-    mkStat('OA avg buy price',oaRows.filter(r=>r.buyPrice>0).length>0?fmtDec(oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length):'—','avg buy price');
+  const mkStatSimple=(label,val,sub)=>`<div class="prow-stat"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
 
   // Provider breakdowns
   const oaProvMap={},a2aProvMap={};
@@ -1309,6 +1393,71 @@ function buildOaA2a(rows,totalSpend){
   }
   provList(oaProvMap,oaSpend,'oaProviders');
   provList(a2aProvMap,a2aSpend,'a2aProviders');
+
+  // Daily OA vs A2A chart
+  const dailyOA={},dailyA2A={};
+  const allDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
+  allDates.forEach(d=>{dailyOA[d]=0;dailyA2A[d]=0;});
+  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyOA[k]=(dailyOA[k]||0)+r.spend;});
+  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyA2A[k]=(dailyA2A[k]||0)+r.spend;});
+  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
+  if(allDates.length>0){
+    new Chart(document.getElementById('chartOaA2aDaily'),{
+      type:'bar',
+      data:{
+        labels:allDates.map(d=>{const dt=new Date(d);return dt.getDate()+'/'+(dt.getMonth()+1);}),
+        datasets:[
+          {label:'OA',data:allDates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:2},
+          {label:'A2A',data:allDates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.7)',borderRadius:2}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        scales:{
+          x:{stacked:false,ticks:{color:'#555e6e',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
+          y:{ticks:{color:'#555e6e',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}
+        },
+        plugins:{
+          legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10}},
+          tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}
+        }
+      }
+    });
+  }
+
+  // Top ASINs per method
+  function topAsinList(rows,elId,color){
+    const asinMap={};
+    rows.filter(r=>r.asin).forEach(r=>asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend);
+    const sorted=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const total=rows.reduce((a,r)=>a+r.spend,0);
+    document.getElementById(elId).innerHTML=sorted.map(([asin,spend],i)=>{
+      const pct=total>0?((spend/total)*100).toFixed(1):0;
+      const barW=total>0?(spend/total)*100:0;
+      return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:11px;color:${color};font-weight:600;">#${i+1} ${asin}</span><span style="font-size:11px;color:var(--text);font-weight:600;">${fmt(spend)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
+    }).join('')||'<div style="font-size:11px;color:var(--muted);">no ASIN data</div>';
+  }
+  topAsinList(oaRows,'oaTopAsins','#22c55e');
+  topAsinList(a2aRows,'a2aTopAsins','#4f8ef7');
+
+  // Key metrics with more data — now 8 tiles in 2x4 grid
+  const a2aAvgBuy=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
+  const oaAvgBuy=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
+  const a2aUniqueAsins=new Set(a2aRows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const oaUniqueAsins=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
+
+  const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
+  const mkStat=(label,val,sub,clickTitle,clickLabel)=>`<div class="prow-stat stat-tile clickable" onclick="openAiModal('${clickTitle||label}','${clickLabel||label}','${val}',${JSON.stringify(ctxData)})"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
+
+  document.getElementById('oaA2aStats').innerHTML=
+    mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
+    mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units','OA Average Order','OA avg order value')+
+    mkStat('A2A avg buy',a2aAvgBuy>0?fmtDec(a2aAvgBuy):'—','avg buy price per item','A2A Buy Price','A2A avg buy price')+
+    mkStat('OA avg buy',oaAvgBuy>0?fmtDec(oaAvgBuy):'—','avg buy price per item','OA Buy Price','OA avg buy price')+
+    mkStat('A2A ASINs',a2aUniqueAsins.toString(),'unique products A2A','A2A Unique ASINs','A2A unique ASINs ordered')+
+    mkStat('OA ASINs',oaUniqueAsins.toString(),'unique products OA','OA Unique ASINs','OA unique ASINs ordered')+
+    mkStat('UK % of A2A',a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(ukSpend)+' Amazon UK','Amazon UK Share','Amazon UK % of total A2A spend')+
+    mkStat('EU % of A2A',a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(euSpend)+' Amazon EU','Amazon EU Share','Amazon EU % of total A2A spend');
 }
 
 // DATE EXPLORER
