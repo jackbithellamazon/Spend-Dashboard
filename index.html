@@ -35,79 +35,102 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .pace-legend{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;}
 .pace-legend span{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:6px;}
 .pace-dot{width:8px;height:8px;border-radius:50%;}
-.pace-title{font-size:11px;color:var(--muted);margin-right:4px;}
-#paceInfo{margin-left:auto;font-size:10px;color:var(--muted);}
-.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
-.card{border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;}
-.card-label{font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;font-weight:500;}
-.card-value{font-family:var(--font-head);font-size:26px;font-weight:700;color:#fff;line-height:1;}
-.card-sub{font-size:12px;color:rgba(255,255,255,0.75);margin-top:8px;font-weight:500;}
+#paceInfo{margin-left:auto;font-size:11px;color:var(--muted);}
+
+/* SUMMARY CARDS — row 1: 5 cards, row 2: 4 cards */
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:14px;}
+.summary-grid2{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.card{border-radius:10px;padding:20px 22px;}
+.card-label{font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-weight:500;}
+.card-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:#fff;line-height:1;}
+.card-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:10px;}
+.card-name{font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:4px;}
 .card-blue{background:linear-gradient(135deg,#1a3a6e,#1e4080);}
 .card-green{background:linear-gradient(135deg,#0f4a2a,#145c33);}
+.card-green2{background:linear-gradient(135deg,#14532d,#166534);}
 .card-purple{background:linear-gradient(135deg,#2d1f5e,#3a2878);}
 .card-amber{background:linear-gradient(135deg,#5c3a0a,#7a4d0d);}
 .card-teal{background:linear-gradient(135deg,#0a3d42,#0d4f55);}
 .card-red{background:linear-gradient(135deg,#5c1a1a,#7a2020);}
+.card-orange{background:linear-gradient(135deg,#7c2d12,#9a3412);}
+.card-indigo{background:linear-gradient(135deg,#1e1b4b,#312e81);}
+.card-rose{background:linear-gradient(135deg,#4c0519,#881337);}
+.card-cyan{background:linear-gradient(135deg,#083344,#0e4f64);}
+.card-slate{background:linear-gradient(135deg,#1e293b,#334155);}
+
 /* TEAM BAR */
-.team-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
-.team-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
-.team-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
-.team-right{display:flex;align-items:baseline;gap:10px;}
-.team-nums{font-size:13px;color:var(--muted2);}
-.team-nums strong{color:var(--text);font-weight:500;}
-.team-pct{font-family:var(--font-head);font-size:24px;font-weight:700;}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+.team-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.team-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.team-right{display:flex;align-items:baseline;gap:12px;}
+.team-nums{font-size:14px;color:var(--muted2);}
+.team-nums strong{color:var(--text);font-weight:600;}
+.team-pct{font-family:var(--font-head);font-size:28px;font-weight:700;line-height:1;}
 .track-wrap{position:relative;}
 .track{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden;}
 .fill{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1);}
-.track-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:7px;}
-.pace-marker{position:absolute;top:-3px;width:2px;height:18px;background:rgba(255,255,255,0.3);border-radius:1px;pointer-events:none;}
-.pace-marker::after{content:attr(data-label);position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap;}
-/* PACE STATS ROW */
-.pace-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
-.pace-stat{background:var(--surface2);border-radius:6px;padding:12px 14px;}
-.pace-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
-.pace-stat-value{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--text);}
-.pace-stat-sub{font-size:10px;color:var(--muted2);margin-top:3px;}
+.track-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;}
+.pace-marker{position:absolute;top:-3px;width:2px;height:18px;background:rgba(255,255,255,0.25);border-radius:1px;pointer-events:none;}
+.pace-marker::after{content:attr(data-label);position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap;}
+.pace-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+.pace-stat{background:var(--surface2);border-radius:8px;padding:16px 18px;}
+.pace-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;line-height:1;}
+.pace-stat-value{font-family:var(--font-head);font-size:24px;font-weight:700;line-height:1;margin-bottom:6px;}
+.pace-stat-sub{font-size:11px;color:var(--muted2);line-height:1.4;}
+
 /* CHARTS */
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-.chart-inner{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:start;}
-.pie-wrap{position:relative;height:170px;}
-.legend-wrap{}
-.legend{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:hidden;transition:max-height .4s ease;}
+.chart-inner{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:start;}
+.pie-wrap{position:relative;height:170px;flex-shrink:0;}
+.legend{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow:hidden;transition:max-height .4s ease;}
 .legend.expanded{max-height:800px;}
-.li{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;font-size:11px;color:var(--muted2);}
+.li{display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.3;}
 .li-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.li-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.li-val{color:var(--text);font-weight:500;white-space:nowrap;text-align:right;}
-.expand-btn{margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:flex;align-items:center;gap:4px;}
+.li-name{flex:1;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-val{color:var(--text);font-weight:500;white-space:nowrap;font-size:11px;min-width:60px;text-align:right;}
+.expand-btn{margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:none;align-items:center;gap:4px;}
 .expand-btn:hover{color:#fff;}
+
 /* PROVIDER TARGETS */
-.targets-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
-.targets-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:18px;}
-.provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
-.prow-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
-.prow-name{font-size:13px;color:var(--text);font-weight:500;}
-.prow-right{display:flex;align-items:baseline;gap:6px;}
-.prow-spent{font-size:13px;font-weight:500;}
-.prow-target{font-size:11px;color:var(--muted2);}
-.prow-pct{font-size:12px;font-weight:500;}
-.prow-sub{font-size:11px;margin-top:5px;}
-.no-target-label{font-size:11px;color:var(--muted);font-style:italic;}
+.targets-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+.targets-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:20px;}
+.provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
+.prow-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prow-name{font-size:13px;color:var(--text);font-weight:500;display:flex;align-items:center;gap:8px;}
+.prow-name-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.prow-right{display:flex;align-items:baseline;gap:8px;}
+.prow-spent{font-size:14px;font-weight:600;}
+.prow-of{font-size:11px;color:var(--muted2);}
+.prow-pct{font-size:12px;font-weight:600;}
+.prow-sub{font-size:11px;margin-top:6px;line-height:1.4;}
+/* Provider mini stats row */
+.prow-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.prow-stat{background:var(--surface2);border-radius:6px;padding:8px 10px;}
+.prow-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;line-height:1;}
+.prow-stat-value{font-size:13px;font-weight:600;color:var(--text);line-height:1;}
+
 /* TABLE */
-.table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;overflow-x:auto;}
 .table-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
-thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 16px 10px 0;border-bottom:1px solid var(--border);}
-tbody td{padding:9px 16px 9px 0;border-bottom:1px solid var(--border);color:var(--muted2);}
+thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 14px 12px 0;border-bottom:1px solid var(--border);}
+tbody td{padding:10px 14px 10px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:12px;}
 tbody tr:last-child td{border-bottom:none;}
 tbody tr:hover td{color:var(--text);}
 td.bold{color:var(--text);font-weight:500;}
-.rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
+.rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px;}
-@media(max-width:1100px){.summary-grid{grid-template-columns:repeat(3,1fr);}.pace-stats{grid-template-columns:1fr 1fr;}}
-@media(max-width:960px){.summary-grid{grid-template-columns:1fr 1fr;}.charts-row{grid-template-columns:1fr;}.chart-inner{grid-template-columns:1fr;justify-items:center;}.provider-grid{grid-template-columns:1fr;}main{padding:20px 16px;}header{padding:14px 16px;}}
+@media(max-width:1200px){.summary-grid{grid-template-columns:repeat(3,1fr);}.summary-grid2{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:960px){
+  .summary-grid,.summary-grid2{grid-template-columns:1fr 1fr;}
+  .charts-row{grid-template-columns:1fr;}
+  .chart-inner{grid-template-columns:1fr;justify-items:center;}
+  .provider-grid{grid-template-columns:1fr;}
+  .pace-stats{grid-template-columns:1fr;}
+  main{padding:20px 16px;}header{padding:14px 16px;}
+}
 </style>
 </head>
 <body>
@@ -136,13 +159,14 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   </div>
 
   <div class="pace-legend">
-    <span class="pace-title">colour logic:</span>
+    <span style="font-size:11px;color:var(--muted);margin-right:4px;">colour logic:</span>
     <span><span class="pace-dot" style="background:var(--green)"></span> ahead of daily pace</span>
     <span><span class="pace-dot" style="background:var(--amber)"></span> within 5% of pace</span>
     <span><span class="pace-dot" style="background:var(--red)"></span> behind pace</span>
     <span id="paceInfo"></span>
   </div>
 
+  <!-- ROW 1: 5 cards -->
   <div class="summary-grid">
     <div class="card card-blue" id="cardSpendWrap">
       <div class="card-label">total spend</div>
@@ -171,6 +195,33 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
   </div>
 
+  <!-- ROW 2: 4 cards -->
+  <div class="summary-grid2">
+    <div class="card card-indigo">
+      <div class="card-label">top supplier by spend</div>
+      <div class="card-name" id="cardTopSupName">—</div>
+      <div class="card-value" id="cardTopSupSpend">—</div>
+      <div class="card-sub" id="cardTopSupSub"></div>
+    </div>
+    <div class="card card-rose">
+      <div class="card-label">top supplier by units</div>
+      <div class="card-name" id="cardTopUnitSupName">—</div>
+      <div class="card-value" id="cardTopUnitSupVal">—</div>
+      <div class="card-sub" id="cardTopUnitSupSub"></div>
+    </div>
+    <div class="card card-cyan">
+      <div class="card-label">top provider by spend</div>
+      <div class="card-name" id="cardTopProvName">—</div>
+      <div class="card-value" id="cardTopProvSpend">—</div>
+      <div class="card-sub" id="cardTopProvSub"></div>
+    </div>
+    <div class="card card-slate">
+      <div class="card-label">avg order value</div>
+      <div class="card-value" id="cardAvgOrder">—</div>
+      <div class="card-sub" id="cardAvgOrderSub"></div>
+    </div>
+  </div>
+
   <div class="team-card">
     <div class="team-header">
       <div class="team-label">team target progress</div>
@@ -184,24 +235,24 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="pace-marker" id="teamPaceMarker" data-label="today's pace"></div>
     </div>
     <div class="track-labels">
-      <span id="teamGapLabel"></span>
+      <span id="teamGapLabel" style="font-weight:500;"></span>
       <span id="teamTargetLabel">—</span>
     </div>
     <div class="pace-stats">
       <div class="pace-stat">
         <div class="pace-stat-label">daily target</div>
         <div class="pace-stat-value" id="statDaily">—</div>
-        <div class="pace-stat-sub">per day to hit target</div>
+        <div class="pace-stat-sub">required per day to hit target</div>
       </div>
       <div class="pace-stat">
         <div class="pace-stat-label">expected by now</div>
         <div class="pace-stat-value" id="statExpected">—</div>
-        <div class="pace-stat-sub" id="statExpectedSub"></div>
+        <div class="pace-stat-sub" id="statExpectedSub">based on today's date</div>
       </div>
       <div class="pace-stat">
         <div class="pace-stat-label">pace difference</div>
         <div class="pace-stat-value" id="statDiff">—</div>
-        <div class="pace-stat-sub" id="statDiffSub"></div>
+        <div class="pace-stat-sub" id="statDiffSub">vs where you should be</div>
       </div>
     </div>
   </div>
@@ -211,7 +262,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="chart-title">spend by provider</div>
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartProvider"></canvas></div>
-        <div class="legend-wrap">
+        <div>
           <div class="legend" id="legendProvider"></div>
           <button class="expand-btn" id="expandProvider" onclick="toggleLegend('Provider')">▼ show all</button>
         </div>
@@ -221,7 +272,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="chart-title">spend by supplier</div>
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartSupplier"></canvas></div>
-        <div class="legend-wrap">
+        <div>
           <div class="legend" id="legendSupplier"></div>
           <button class="expand-btn" id="expandSupplier" onclick="toggleLegend('Supplier')">▼ show all</button>
         </div>
@@ -230,14 +281,19 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   </div>
 
   <div class="targets-card">
-    <div class="targets-title">provider targets <span style="color:var(--muted);font-weight:400;font-size:12px;">— pace-adjusted for today</span></div>
+    <div class="targets-title">provider breakdown <span style="color:var(--muted);font-weight:400;font-size:12px;">— targets pace-adjusted for today</span></div>
     <div class="provider-grid" id="providerGrid"></div>
   </div>
 
   <div class="table-card">
     <div class="table-title">supplier breakdown</div>
     <table>
-      <thead><tr><th>#</th><th>supplier</th><th>total spend</th><th>orders</th><th>avg order</th><th>% of spend</th></tr></thead>
+      <thead>
+        <tr>
+          <th>#</th><th>supplier</th><th>total spend</th>
+          <th>units</th><th>orders</th><th>avg order</th><th>% of spend</th>
+        </tr>
+      </thead>
       <tbody id="supplierTable"></tbody>
     </table>
   </div>
@@ -265,62 +321,42 @@ const TARGETS={
   3:{team:60000,'Jack':20000,'VA-S':7500,'VA-A':7500,'TFTJ':20000,'Replen':0,'FFB':3000,'THC':3000,'S PP A2A':3000,'ProfitPath A2A':1000,'PS':3000,'Arbi':0,'HOR':0},
 };
 
-// Provider colours matched to your sheet
 const PROVIDER_COLORS={
-  'Jack':      '#f97316',
-  'VA-S':      '#eab308',
-  'VA-A':      '#4c1d95',
-  'Replen':    '#16a34a',
-  'TFTJ':      '#0891b2',
-  'ProfitPath A2A': '#3b82f6',
-  'FFB':       '#92400e',
-  'Arbi':      '#c084fc',
-  'THC':       '#ef4444',
-  'PS':        '#f472b6',
-  'S PP A2A':  '#67e8f9',
-  'HOR':       '#1e3a8a',
+  'Jack':'#f97316','VA-S':'#eab308','VA-A':'#4c1d95',
+  'Replen':'#16a34a','TFTJ':'#0891b2','ProfitPath A2A':'#3b82f6',
+  'FFB':'#92400e','Arbi':'#c084fc','THC':'#ef4444',
+  'PS':'#f472b6','S PP A2A':'#67e8f9','HOR':'#1e3a8a',
 };
-
 const SUPPLIER_PALETTE=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8','#f97316','#67e8f9'];
 
 let activeQ=1,activeMonth=3,allRows=[];
 
 function fmt(v){return '£'+Math.round(v).toLocaleString('en-GB');}
 function fmtDec(v){return '£'+v.toFixed(2);}
+function getDIM(month,year){return month===0?92:new Date(year,month,0).getDate();}
 
 function monthProgress(month,year){
   if(month===0) return 1.0;
-  const now=new Date();
-  const cm=now.getMonth()+1,cy=now.getFullYear();
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
   if(year<cy||(year===cy&&month<cm)) return 1.0;
-  if(year===cy&&month===cm){
-    const dim=new Date(year,month,0).getDate();
-    return now.getDate()/dim;
-  }
+  if(year===cy&&month===cm) return now.getDate()/getDIM(month,year);
   return 0;
 }
 
-function daysInMonth(month,year){
-  if(month===0) return 92;
-  return new Date(year,month,0).getDate();
-}
-
 function paceColor(spent,target,progress){
-  if(target===0) return '#4f8ef7';
+  if(!target) return '#4f8ef7';
   const exp=target*progress;
   if(exp===0) return '#22c55e';
   const r=spent/exp;
-  if(r>=1.0) return '#22c55e';
-  if(r>=0.95) return '#f59e0b';
-  return '#f43f5e';
+  return r>=1?'#22c55e':r>=0.95?'#f59e0b':'#f43f5e';
 }
 
 function paceLabel(spent,target,progress){
-  if(target===0) return '';
+  if(!target) return '';
   const exp=target*progress;
   if(exp===0) return 'start of month';
   const r=spent/exp;
-  if(r>=1.0) return fmt(spent-exp)+' ahead of pace';
+  if(r>=1) return fmt(spent-exp)+' ahead of pace';
   if(r>=0.95) return 'on pace ✓';
   return fmt(exp-spent)+' behind pace';
 }
@@ -340,32 +376,26 @@ function getTargetForView(month){
 }
 
 function showNoData(msg){
-  ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins'].forEach(id=>document.getElementById(id).textContent='—');
-  document.getElementById('cardTotalSub').textContent=msg||'No data for this period';
-  document.getElementById('teamNums').innerHTML=msg||'No data for this period';
+  ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins','cardAvgOrder'].forEach(id=>document.getElementById(id).textContent='—');
+  ['cardTopSupName','cardTopUnitSupName','cardTopProvName'].forEach(id=>document.getElementById(id).textContent='—');
+  ['cardTopSupSpend','cardTopUnitSupVal','cardTopProvSpend'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('cardTargetSub').textContent=msg||'No data for this period';
+  document.getElementById('teamNums').innerHTML=msg||'No data yet';
   document.getElementById('teamPct').textContent='';
-  document.getElementById('statDaily').textContent='—';
-  document.getElementById('statExpected').textContent='—';
-  document.getElementById('statDiff').textContent='—';
-  document.getElementById('providerGrid').innerHTML=`<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">${msg||'No data yet.'}</div>`;
+  ['statDaily','statExpected','statDiff'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('providerGrid').innerHTML=`<div style="color:var(--muted);font-size:12px;grid-column:1/-1;padding:8px 0;">${msg||'No data yet.'}</div>`;
   document.getElementById('supplierTable').innerHTML='';
-  document.getElementById('legendProvider').innerHTML='';
-  document.getElementById('legendSupplier').innerHTML='';
+  ['legendProvider','legendSupplier'].forEach(id=>document.getElementById(id).innerHTML='');
   ['chartProvider','chartSupplier'].forEach(id=>{const c=Chart.getChart(id);if(c)c.destroy();});
 }
 
 async function fetchSheet(q){
-  const tab=QUARTER_TABS[q];
-  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(QUARTER_TABS[q])}?key=${API_KEY}`;
   try{
     const res=await fetch(url);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json=await res.json();
-    return json.values||[];
-  }catch(e){
-    showNoData('No data for this quarter yet.');
-    return null;
-  }
+    return (await res.json()).values||[];
+  }catch(e){showNoData('No data for this quarter yet.');return null;}
 }
 
 function parseRows(values){
@@ -374,16 +404,16 @@ function parseRows(values){
     const r=values[i];
     if(!r||r.length<=COL_SPEND) continue;
     const dateStr=(r[COL_DATE]||'').trim();
-    const asin=(r[COL_ASIN]||'').trim();
     const provider=(r[COL_PROVIDER]||'').trim();
     const supplier=(r[COL_SUPPLIER]||'').trim().replace(/\s+$/,'');
     const spend=parseFloat((r[COL_SPEND]||'').replace(/[£, ]/g,''));
     const buyPrice=parseFloat((r[COL_BUY_PRICE]||'').replace(/[£, ]/g,''));
     const qty=parseInt((r[COL_QTY]||'').replace(/[, ]/g,''))||1;
+    const asin=(r[COL_ASIN]||'').trim();
     if(!dateStr||!provider||isNaN(spend)||spend<=0) continue;
     let date=null;
-    const parts=dateStr.split('/');
-    if(parts.length===3) date=new Date(+parts[2],+parts[1]-1,+parts[0]);
+    const p=dateStr.split('/');
+    if(p.length===3) date=new Date(+p[2],+p[1]-1,+p[0]);
     else date=new Date(dateStr);
     if(!date||isNaN(date)) continue;
     rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,provider,supplier,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty});
@@ -402,17 +432,14 @@ function buildMonthBtns(q){
   });
 }
 
-function toggleLegend(which){
-  const leg=document.getElementById('legend'+which);
-  const btn=document.getElementById('expand'+which);
-  const expanded=leg.classList.toggle('expanded');
-  btn.textContent=expanded?'▲ show less':'▼ show all';
+function toggleLegend(w){
+  const leg=document.getElementById('legend'+w),btn=document.getElementById('expand'+w);
+  leg.classList.toggle('expanded');
+  btn.textContent=leg.classList.contains('expanded')?'▲ show less':'▼ show all';
 }
 
 function render(){
-  document.querySelectorAll('#monthBtns .tab-btn').forEach(b=>{
-    b.className='tab-btn'+(+b.dataset.month===activeMonth?' active':'');
-  });
+  document.querySelectorAll('#monthBtns .tab-btn').forEach(b=>b.className='tab-btn'+(+b.dataset.month===activeMonth?' active':''));
 
   let rows;
   if(activeMonth===0){
@@ -421,54 +448,85 @@ function render(){
   } else {
     rows=allRows.filter(r=>r.month===activeMonth);
   }
-
   if(rows.length===0){showNoData('No data for this period yet.');return;}
 
   const targets=getTargetForView(activeMonth);
   const teamTarget=targets.team||0;
-  const years=rows.map(r=>r.year);
-  const dataYear=years.length?Math.max(...years):new Date().getFullYear();
+  const dataYear=Math.max(...rows.map(r=>r.year),new Date().getFullYear());
   const progress=monthProgress(activeMonth,dataYear);
-  const dim=daysInMonth(activeMonth,dataYear);
+  const dim=getDIM(activeMonth,dataYear);
   const currentDay=Math.round(progress*dim);
 
   document.getElementById('paceInfo').textContent=
     activeMonth===0?'full quarter view':
     progress<1?`day ${currentDay} of ${dim} — ${(progress*100).toFixed(0)}% through month`:'full month view';
 
-  const provMap={},supMap={},supCount={};
-  let totalSpend=0,totalUnits=0,totalBuyPrice=0,buyPriceCount=0;
+  // Aggregate
+  const provMap={},provUnits={},provAsins={},provBuyTotal={},provBuyCount={};
+  const supMap={},supUnits={},supOrders={};
+  let totalSpend=0,totalUnits=0,totalBuyPrice=0,buyPriceCount=0,orderCount=0;
   const uniqueAsins=new Set();
+
   rows.forEach(r=>{
+    // Provider
     provMap[r.provider]=(provMap[r.provider]||0)+r.spend;
+    provUnits[r.provider]=(provUnits[r.provider]||0)+r.qty;
+    if(!provAsins[r.provider]) provAsins[r.provider]=new Set();
+    if(r.asin) provAsins[r.provider].add(r.asin);
+    if(r.buyPrice>0){
+      provBuyTotal[r.provider]=(provBuyTotal[r.provider]||0)+r.buyPrice;
+      provBuyCount[r.provider]=(provBuyCount[r.provider]||0)+1;
+    }
+    // Supplier
     supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend;
-    supCount[r.supplier]=(supCount[r.supplier]||0)+1;
-    totalSpend+=r.spend;totalUnits+=r.qty;
+    supUnits[r.supplier]=(supUnits[r.supplier]||0)+r.qty;
+    supOrders[r.supplier]=(supOrders[r.supplier]||0)+1;
+    // Totals
+    totalSpend+=r.spend;totalUnits+=r.qty;orderCount++;
     if(r.buyPrice>0){totalBuyPrice+=r.buyPrice;buyPriceCount++;}
     if(r.asin) uniqueAsins.add(r.asin);
   });
 
   const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
   const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
+  const sortedSupByUnits=Object.entries(supUnits).sort((a,b)=>b[1]-a[1]);
   const avgBuyPrice=buyPriceCount>0?totalBuyPrice/buyPriceCount:0;
 
-  // Summary cards
+  // Row 1 cards
   const spendCard=document.getElementById('cardSpendWrap');
-  if(teamTarget){
-    const r=totalSpend/(teamTarget*Math.max(progress,0.01));
-    spendCard.className=r>=1?'card card-green':r>=0.95?'card card-amber':'card card-red';
+  if(teamTarget&&progress>0){
+    const r=totalSpend/(teamTarget*progress);
+    spendCard.className=r>=1?'card card-green2':r>=0.95?'card card-orange':'card card-red';
   } else { spendCard.className='card card-blue'; }
-
   document.getElementById('cardTotal').textContent=fmt(totalSpend);
   document.getElementById('cardTotalSub').textContent=teamTarget?paceLabel(totalSpend,teamTarget,progress):'';
   document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
-  document.getElementById('cardTargetSub').textContent=teamTarget?(((totalSpend/teamTarget)*100).toFixed(1)+'% reached'):'no target set';
+  document.getElementById('cardTargetSub').textContent=teamTarget?((totalSpend/teamTarget*100).toFixed(1)+'% of target reached'):'no target set';
   document.getElementById('cardUnits').textContent=totalUnits.toLocaleString();
-  document.getElementById('cardUnitsSub').textContent=rows.length+' line items';
+  document.getElementById('cardUnitsSub').textContent=orderCount+' line items';
   document.getElementById('cardAvgBuy').textContent=avgBuyPrice>0?fmtDec(avgBuyPrice):'—';
   document.getElementById('cardAvgBuySub').textContent=buyPriceCount+' priced items';
   document.getElementById('cardAsins').textContent=uniqueAsins.size.toLocaleString();
   document.getElementById('cardAsinsSub').textContent='distinct products';
+
+  // Row 2 cards
+  const topSup=sortedSup[0];
+  document.getElementById('cardTopSupName').textContent=topSup?topSup[0]:'—';
+  document.getElementById('cardTopSupSpend').textContent=topSup?fmt(topSup[1]):'—';
+  document.getElementById('cardTopSupSub').textContent=topSup?((topSup[1]/totalSpend*100).toFixed(1)+'% of total spend'):'';
+
+  const topUnitSup=sortedSupByUnits[0];
+  document.getElementById('cardTopUnitSupName').textContent=topUnitSup?topUnitSup[0]:'—';
+  document.getElementById('cardTopUnitSupVal').textContent=topUnitSup?(topUnitSup[1].toLocaleString()+' units'):'—';
+  document.getElementById('cardTopUnitSupSub').textContent=topUnitSup?(fmt(supMap[topUnitSup[0]]||0)+' spend'):'';
+
+  const topProv=sortedProv[0];
+  document.getElementById('cardTopProvName').textContent=topProv?topProv[0]:'—';
+  document.getElementById('cardTopProvSpend').textContent=topProv?fmt(topProv[1]):'—';
+  document.getElementById('cardTopProvSub').textContent=topProv?((topProv[1]/totalSpend*100).toFixed(1)+'% of total spend'):'';
+
+  document.getElementById('cardAvgOrder').textContent=orderCount>0?fmt(totalSpend/orderCount):'—';
+  document.getElementById('cardAvgOrderSub').textContent=orderCount+' total orders';
 
   // Team bar
   if(teamTarget){
@@ -479,25 +537,20 @@ function render(){
     document.getElementById('teamPct').textContent=pct.toFixed(1)+'%';
     document.getElementById('teamPct').style.color=color;
     document.getElementById('teamTargetLabel').textContent=fmt(teamTarget);
-    const pacePct=Math.min(progress*100,99);
-    document.getElementById('teamPaceMarker').style.left=pacePct+'%';
-    const exp=teamTarget*progress;
-    const gap=totalSpend-exp;
+    document.getElementById('teamPaceMarker').style.left=Math.min(progress*100,99)+'%';
+    const exp=teamTarget*progress,gap=totalSpend-exp;
     const gl=document.getElementById('teamGapLabel');
     gl.textContent=gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace';
     gl.style.color=color;
-
-    // Pace stats
-    const dailyTarget=teamTarget/dim;
-    document.getElementById('statDaily').textContent=fmt(dailyTarget);
+    const daily=teamTarget/dim;
+    document.getElementById('statDaily').textContent=fmt(daily);
     document.getElementById('statDaily').style.color=color;
     document.getElementById('statExpected').textContent=fmt(exp);
     document.getElementById('statExpected').style.color=color;
     document.getElementById('statExpectedSub').textContent=`based on day ${currentDay} of ${dim}`;
-    const diff=totalSpend-exp;
-    document.getElementById('statDiff').textContent=(diff>=0?'+':'')+fmt(Math.abs(diff));
+    document.getElementById('statDiff').textContent=(gap>=0?'+':'-')+fmt(Math.abs(gap));
     document.getElementById('statDiff').style.color=color;
-    document.getElementById('statDiffSub').textContent=diff>=0?'ahead of where you should be':'behind where you should be';
+    document.getElementById('statDiffSub').textContent=gap>=0?'ahead of where you should be':'behind where you should be';
   } else {
     document.getElementById('teamFill').style.width='0%';
     document.getElementById('teamNums').innerHTML='No target set for this period';
@@ -505,33 +558,31 @@ function render(){
     document.getElementById('teamTargetLabel').textContent='—';
     document.getElementById('teamGapLabel').textContent='';
     document.getElementById('teamPaceMarker').style.left='0%';
-    document.getElementById('statDaily').textContent='—';
-    document.getElementById('statExpected').textContent='—';
-    document.getElementById('statDiff').textContent='—';
+    ['statDaily','statExpected','statDiff'].forEach(id=>document.getElementById(id).textContent='—');
   }
 
   buildPie('chartProvider','legendProvider','expandProvider',sortedProv,totalSpend,true);
   buildPie('chartSupplier','legendSupplier','expandSupplier',sortedSup,totalSpend,false);
-  buildProviderTargets(provMap,targets,progress);
-  buildSupplierTable(sortedSup,supCount,totalSpend);
-
+  buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
+  buildSupplierTable(sortedSup,supUnits,supOrders,totalSpend);
   document.getElementById('lastUpdated').textContent='updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
-function buildPie(canvasId,legendId,expandId,sorted,total,useProviderColors){
+function buildPie(canvasId,legendId,expandId,sorted,total,useProvColors){
   const labels=sorted.map(d=>d[0]);
   const values=sorted.map(d=>d[1]);
-  const colors=labels.map((name,i)=>useProviderColors?(PROVIDER_COLORS[name]||SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]):SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]);
+  const colors=labels.map((n,i)=>useProvColors?(PROVIDER_COLORS[n]||SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]):SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]);
   const leg=document.getElementById(legendId);
   leg.innerHTML='';leg.classList.remove('expanded');
-  document.getElementById(expandId).textContent='▼ show all';
+  const expBtn=document.getElementById(expandId);
+  expBtn.textContent='▼ show all';
   sorted.forEach(([name,val],i)=>{
-    const div=document.createElement('div');div.className='li';
-    div.innerHTML=`<span class="li-dot" style="background:${colors[i]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
-    leg.appendChild(div);
+    const d=document.createElement('div');d.className='li';
+    d.innerHTML=`<span class="li-dot" style="background:${colors[i]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
+    leg.appendChild(d);
   });
-  document.getElementById(expandId).style.display=sorted.length>6?'flex':'none';
-  const existing=Chart.getChart(canvasId);if(existing) existing.destroy();
+  expBtn.style.display=sorted.length>6?'flex':'none';
+  const ex=Chart.getChart(canvasId);if(ex) ex.destroy();
   new Chart(document.getElementById(canvasId),{
     type:'doughnut',
     data:{labels,datasets:[{data:values,backgroundColor:colors,borderWidth:2,borderColor:'#13161c',hoverBorderColor:'#13161c'}]},
@@ -548,14 +599,34 @@ function buildPie(canvasId,legendId,expandId,sorted,total,useProviderColors){
   });
 }
 
-function buildProviderTargets(provMap,targets,progress){
+function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend){
   const grid=document.getElementById('providerGrid');grid.innerHTML='';
   const allProviders=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
   allProviders.forEach(name=>{
     const spent=provMap[name]||0;
     const target=targets[name]||0;
     const provColor=PROVIDER_COLORS[name]||'#4f8ef7';
-    const div=document.createElement('div');
+    const units=provUnits[name]||0;
+    const asins=(provAsins[name]||new Set()).size;
+    const avgBuy=provBuyCount[name]>0?(provBuyTotal[name]/provBuyCount[name]):0;
+    const div=document.createElement('div');div.className='prow';
+
+    const statsHTML=`
+      <div class="prow-stats">
+        <div class="prow-stat">
+          <div class="prow-stat-label">units bought</div>
+          <div class="prow-stat-value">${units.toLocaleString()}</div>
+        </div>
+        <div class="prow-stat">
+          <div class="prow-stat-label">unique ASINs</div>
+          <div class="prow-stat-value">${asins}</div>
+        </div>
+        <div class="prow-stat">
+          <div class="prow-stat-label">avg buy price</div>
+          <div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div>
+        </div>
+      </div>`;
+
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
       const color=paceColor(spent,target,progress);
@@ -563,12 +634,10 @@ function buildProviderTargets(provMap,targets,progress){
       const pacePct=Math.min(progress*100,99);
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name" style="display:flex;align-items:center;gap:7px;">
-            <span style="width:10px;height:10px;border-radius:2px;background:${provColor};flex-shrink:0;"></span>${name}
-          </span>
+          <span class="prow-name"><span class="prow-name-dot" style="background:${provColor}"></span>${name}</span>
           <div class="prow-right">
             <span class="prow-spent" style="color:${color}">${fmt(spent)}</span>
-            <span class="prow-target">/ ${fmt(target)}</span>
+            <span class="prow-of">/ ${fmt(target)}</span>
             <span class="prow-pct" style="color:${color}">${pct.toFixed(0)}%</span>
           </div>
         </div>
@@ -576,32 +645,34 @@ function buildProviderTargets(provMap,targets,progress){
           <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
           <div class="pace-marker" style="left:${pacePct}%" data-label="pace"></div>
         </div>
-        <div class="prow-sub" style="color:${color}">${label}</div>`;
+        <div class="prow-sub" style="color:${color}">${label}</div>
+        ${statsHTML}`;
     } else {
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name" style="display:flex;align-items:center;gap:7px;">
-            <span style="width:10px;height:10px;border-radius:2px;background:${provColor};flex-shrink:0;"></span>${name}
-          </span>
+          <span class="prow-name"><span class="prow-name-dot" style="background:${provColor}"></span>${name}</span>
           <div class="prow-right">
             <span class="prow-spent" style="color:${provColor}">${fmt(spent)}</span>
-            <span class="no-target-label">no target</span>
+            <span class="prow-of" style="color:var(--muted);font-style:italic;">no target</span>
           </div>
         </div>
-        <div class="track"><div class="fill" style="width:100%;background:${provColor};opacity:.2"></div></div>
-        <div class="prow-sub" style="color:var(--muted)">spend tracked — no minimum set</div>`;
+        <div class="track">
+          <div class="fill" style="width:${spent>0?100:0}%;background:${provColor};opacity:0.5"></div>
+        </div>
+        <div class="prow-sub" style="color:var(--muted2)">${spent>0?'spend tracked — no minimum set':'no spend this period'}</div>
+        ${statsHTML}`;
     }
     grid.appendChild(div);
   });
 }
 
-function buildSupplierTable(sorted,countMap,total){
+function buildSupplierTable(sorted,supUnits,supOrders,total){
   const tbody=document.getElementById('supplierTable');tbody.innerHTML='';
   sorted.forEach(([name,spend],i)=>{
-    const count=countMap[name]||1;
-    const pct=((spend/total)*100).toFixed(1);
+    const units=supUnits[name]||0;
+    const orders=supOrders[name]||1;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="rank">${i+1}</span></td><td class="bold">${name}</td><td class="bold">${fmt(spend)}</td><td>${count}</td><td>${fmt(spend/count)}</td><td>${pct}%</td>`;
+    tr.innerHTML=`<td><span class="rank">${i+1}</span></td><td class="bold">${name}</td><td class="bold">${fmt(spend)}</td><td>${units.toLocaleString()}</td><td>${orders}</td><td>${fmt(spend/orders)}</td><td>${((spend/total)*100).toFixed(1)}%</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -628,10 +699,10 @@ async function loadAndRender(q){
 setInterval(()=>loadAndRender(activeQ),5*60*1000);
 
 (async()=>{
-  const now=new Date();const m=now.getMonth()+1;
+  const now=new Date(),m=now.getMonth()+1;
   activeQ=Math.ceil(m/3);activeMonth=m;
   buildMonthBtns(activeQ);
-  document.querySelectorAll('[data-q]').forEach(b=>{b.className='tab-btn'+(+b.dataset.q===activeQ?' active':'');});
+  document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
   await loadAndRender(activeQ);
 })();
 </script>
