@@ -184,6 +184,7 @@ td.bold{color:var(--text);font-weight:500;}
 .stat-tile.c-teal{background:linear-gradient(135deg,#0a3d42,#0d4f55);}
 .stat-tile.c-rose{background:linear-gradient(135deg,#4c0519,#881337);}
 .stat-tile.c-indigo{background:linear-gradient(135deg,#1e1b4b,#312e81);}
+.stat-tile.c-red{background:linear-gradient(135deg,#5c1a1a,#7a2020);}
 .stat-tile.c-blue .stat-tile-label,.stat-tile.c-green .stat-tile-label,
 .stat-tile.c-red .stat-tile-label,.stat-tile.c-amber .stat-tile-label,
 .stat-tile.c-purple .stat-tile-label,.stat-tile.c-teal .stat-tile-label,
@@ -408,10 +409,97 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <tbody id="supplierTable"></tbody>
     </table>
   </div>
+
+  <!-- OA VS A2A -->
+  <div class="stats-section" id="oaA2aSection">
+    <div class="stats-section-title">OA vs A2A <span class="stats-sub">online arbitrage vs Amazon to Amazon</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
+        <div style="position:relative;height:140px;"><canvas id="chartOaA2a"></canvas></div>
+        <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A breakdown — UK vs EU</div>
+        <div style="position:relative;height:140px;"><canvas id="chartA2aRegion"></canvas></div>
+        <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:5px;margin-top:12px;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">key metrics</div>
+        <div id="oaA2aStats" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">OA — top providers</div>
+        <div id="oaProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">A2A — top providers</div>
+        <div id="a2aProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATE EXPLORER -->
+  <div class="stats-section" id="dateExplorerSection">
+    <div class="stats-section-title">date explorer <span class="stats-sub">pick a date or range to drill down</span></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="font-size:11px;color:var(--muted);">from</label>
+        <input type="date" id="explorerFrom" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:6px 10px;border-radius:6px;outline:none;">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="font-size:11px;color:var(--muted);">to</label>
+        <input type="date" id="explorerTo" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:6px 10px;border-radius:6px;outline:none;">
+      </div>
+      <button onclick="runExplorer()" style="background:var(--accent);border:none;color:#fff;font-family:var(--font-mono);font-size:12px;font-weight:600;padding:7px 18px;border-radius:6px;cursor:pointer;">explore</button>
+      <button onclick="setExplorerToday()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;">today</button>
+      <button onclick="setExplorerThisWeek()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;">this week</button>
+      <button onclick="setExplorerThisMonth()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;">this month</button>
+    </div>
+    <div id="explorerResults" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" id="explorerCards"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by provider</div>
+          <div id="explorerProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">spend by supplier</div>
+          <div id="explorerSuppliers" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
+      <div id="explorerAsins" class="asin-grid" style="margin-bottom:16px;"></div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">all orders in period</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr>
+            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">#</th>
+            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">date</th>
+            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">provider</th>
+            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">supplier</th>
+            <th style="text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">ASIN</th>
+            <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px 0;border-bottom:1px solid var(--border);">spend</th>
+            <th style="text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);padding:0 0 10px 0;border-bottom:1px solid var(--border);">units</th>
+          </tr></thead>
+          <tbody id="explorerTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- DAILY AVERAGES -->
   <div class="stats-section" id="dailyAvgsSection">
     <div class="stats-section-title">daily averages <span class="stats-sub" id="dailyAvgsSub"></span></div>
     <div class="stats-grid-4" id="dailyAvgsGrid"></div>
+  </div>
+
+  <!-- VS LAST MONTH -->
+  <div class="stats-section" id="vsLastSection">
+    <div class="stats-section-title">vs last month <span class="stats-sub" id="vsLastSub"></span></div>
+    <div class="stats-grid-4" id="vsLastGrid"></div>
   </div>
 
   <!-- MONTH INSIGHTS -->
@@ -420,11 +508,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <div class="stats-grid-4" id="insightsGrid"></div>
   </div>
 
-  <!-- VS LAST MONTH -->
-  <div class="stats-section" id="vsLastSection">
-    <div class="stats-section-title">vs last month <span class="stats-sub" id="vsLastSub"></span></div>
-    <div class="stats-grid-4" id="vsLastGrid"></div>
-  </div>
 </main>
 </div>
 
@@ -857,6 +940,7 @@ function render(){
 
   buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
   buildSupplierTable(allSortedSup,supUnits,supOrders,totalSpend);
+  buildOaA2a(rows,totalSpend);
   buildDailyAvgs(rows,activeMonth,dataYear,currentDay,progress);
   buildInsights(rows,activeMonth,dataYear,teamTarget,progress,dim);
   buildVsLastMonth(rows,activeMonth,dataYear,currentDay);
@@ -1006,15 +1090,18 @@ function buildDailyAvgs(rows,month,year,currentDay,progress){
 
   document.getElementById('dailyAvgsSub').textContent=`based on ${activeDays} active trading day${activeDays!==1?'s':''}`;
   const grid=document.getElementById('dailyAvgsGrid');
-  grid.innerHTML=
-    statTile('avg spend / day',fmt(totalSpend/days),`${fmt(totalSpend/activeDays)} on active days`)+
-    statTile('avg units / day',(totalUnits/days).toFixed(1),`${(totalUnits/activeDays).toFixed(1)} on active days`)+
-    statTile('avg orders / day',(totalOrders/days).toFixed(1),`${(totalOrders/activeDays).toFixed(1)} on active days`)+
-    statTile('avg ASINs / day',(uniqueAsins/days).toFixed(1),`${uniqueAsins} unique ASINs total`)+
-    statTile('avg spend / order',fmt(totalSpend/totalOrders),`across ${totalOrders} orders`)+
-    statTile('avg units / order',(totalUnits/totalOrders).toFixed(1),`${totalUnits} units total`)+
-    statTile('avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`)+
-    statTile('trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`);
+  const TILE_COLORS=['c-blue','c-purple','c-teal','c-amber','c-green','c-rose','c-indigo','c-blue'];
+  const tiles=[
+    ['avg spend / day',fmt(totalSpend/days),`${fmt(totalSpend/activeDays)} on active days`],
+    ['avg units / day',(totalUnits/days).toFixed(1),`${(totalUnits/activeDays).toFixed(1)} on active days`],
+    ['avg orders / day',(totalOrders/days).toFixed(1),`${(totalOrders/activeDays).toFixed(1)} on active days`],
+    ['avg ASINs / day',(uniqueAsins/days).toFixed(1),`${uniqueAsins} unique ASINs total`],
+    ['avg spend / order',fmt(totalSpend/totalOrders),`across ${totalOrders} orders`],
+    ['avg units / order',(totalUnits/totalOrders).toFixed(1),`${totalUnits} units total`],
+    ['avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`],
+    ['trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`],
+  ];
+  grid.innerHTML=tiles.map((t,i)=>`<div class="stat-tile ${TILE_COLORS[i]}"><div class="stat-tile-label">${t[0]}</div><div class="stat-tile-value">${t[1]}</div><div class="stat-tile-sub">${t[2]}</div></div>`).join('');
 }
 
 function buildInsights(rows,month,year,teamTarget,progress,dim){
@@ -1076,16 +1163,19 @@ function buildInsights(rows,month,year,teamTarget,progress,dim){
   rows.forEach(r=>provOrders[r.provider]=(provOrders[r.provider]||0)+1);
   const mostActiveProvOrders=Object.entries(provOrders).sort((a,b)=>b[1]-a[1])[0];
 
+  const willHit=dayTargetHit!=="won't hit at current pace";
+  const extraNeeded=teamTarget&&!willHit&&progress>0?fmt((teamTarget-projected)/(dim-Math.round(progress*dim))+projected/Math.round(progress*dim)):'';
+
   const grid=document.getElementById('insightsGrid');
   grid.innerHTML=
-    statTile('busiest day',busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-',busiestDay?fmt(busiestDay[1])+' spend':'')+
-    statTile('biggest single order',fmt(biggestOrder.spend),biggestOrder.supplier+' · '+biggestOrder.provider)+
-    statTile('best provider',bestProv?bestProv[0]:'—',bestProv?fmt(bestProv[1])+' spent':'')+
-    statTile('most ordered ASIN',topAsin?topAsin[0]:'—',topAsin?topAsin[1]+' units':'no ASIN data')+
-    statTile('projected month total',fmt(projected),progress<1?'at current daily rate':'full month')+
-    statTile('target hit date',dayTargetHit,teamTarget?'based on current pace':'no target set')+
-    statTile('order streak',streak>0?streak+' day'+(streak!==1?'s':''):'none today','consecutive days with orders')+
-    statTile('most orders by',mostActiveProvOrders?mostActiveProvOrders[0]:'—',mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':'');
+    `<div class="stat-tile c-blue"><div class="stat-tile-label">busiest day</div><div class="stat-tile-value">${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}</div><div class="stat-tile-sub">${busiestDay?fmt(busiestDay[1])+' spend':''}</div></div>`+
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">biggest single order</div><div class="stat-tile-value">${fmt(biggestOrder.spend)}</div><div class="stat-tile-sub">${biggestOrder.supplier+' · '+biggestOrder.provider}</div></div>`+
+    `<div class="stat-tile c-green"><div class="stat-tile-label">best provider</div><div class="stat-tile-value">${bestProv?bestProv[0]:'—'}</div><div class="stat-tile-sub">${bestProv?fmt(bestProv[1])+' spent':''}</div></div>`+
+    `<div class="stat-tile c-teal"><div class="stat-tile-label">most ordered ASIN</div><div class="stat-tile-value" style="font-size:14px;">${topAsin?topAsin[0]:'—'}</div><div class="stat-tile-sub">${topAsin?topAsin[1]+' units':'no ASIN data'}</div></div>`+
+    `<div class="stat-tile c-indigo"><div class="stat-tile-label">projected month total</div><div class="stat-tile-value">${fmt(projected)}</div><div class="stat-tile-sub">${progress<1?'at current daily rate':'full month'}</div></div>`+
+    `<div class="stat-tile ${willHit?'c-green':'c-red'}"><div class="stat-tile-label">target hit date</div><div class="stat-tile-value" style="font-size:${willHit?'22px':'14px'};">${dayTargetHit}</div><div class="stat-tile-sub">${willHit?'based on current pace':extraNeeded?'need '+extraNeeded+'/day extra':'no target set'}</div></div>`+
+    `<div class="stat-tile c-amber"><div class="stat-tile-label">order streak</div><div class="stat-tile-value">${streak>0?streak+' day'+(streak!==1?'s':''):'none today'}</div><div class="stat-tile-sub">consecutive days with orders</div></div>`+
+    `<div class="stat-tile c-purple"><div class="stat-tile-label">most orders by</div><div class="stat-tile-value">${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}</div><div class="stat-tile-sub">${mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':''}</div></div>`;
 }
 
 function buildVsLastMonth(rows,month,year,currentDay){
@@ -1143,6 +1233,171 @@ function buildVsLastMonth(rows,month,year,currentDay){
     vsRow('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
     vsRow('active days',t.days,l.days,v=>v+' days')+
     vsRow('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
+}
+
+function buildOaA2a(rows,totalSpend){
+  const A2A_SUPPLIERS=['Amazon UK','Amazon Germany','Amazon Italy','Amazon France','Amazon Spain'];
+  const UK_SUPPLIERS=['Amazon UK'];
+  const EU_SUPPLIERS=['Amazon Germany','Amazon Italy','Amazon France','Amazon Spain'];
+
+  const isA2A=r=>A2A_SUPPLIERS.some(s=>r.supplier.toLowerCase().includes(s.toLowerCase().replace('amazon ','').trim())||r.supplier.toLowerCase().includes('amazon'));
+  // More precise: check if supplier starts with Amazon
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
+  const isEU=r=>r.supplier.trim().toLowerCase().startsWith('amazon')&&!r.supplier.trim().toLowerCase().includes('amazon uk');
+
+  const a2aRows=rows.filter(isAmazon);
+  const oaRows=rows.filter(r=>!isAmazon(r));
+  const ukRows=rows.filter(isUK);
+  const euRows=rows.filter(isEU);
+
+  const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
+  const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
+  const ukSpend=ukRows.reduce((a,r)=>a+r.spend,0);
+  const euSpend=euRows.reduce((a,r)=>a+r.spend,0);
+  const a2aUnits=a2aRows.reduce((a,r)=>a+r.qty,0);
+  const oaUnits=oaRows.reduce((a,r)=>a+r.qty,0);
+  const a2aOrders=countOrders(a2aRows);
+  const oaOrders=countOrders(oaRows);
+
+  // OA vs A2A pie
+  const c1=Chart.getChart('chartOaA2a');if(c1)c1.destroy();
+  if(a2aSpend>0||oaSpend>0){
+    new Chart(document.getElementById('chartOaA2a'),{
+      type:'doughnut',
+      data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#4f8ef7','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const pct=((ctx.parsed/totalSpend)*100).toFixed(1);return ` ${fmt(ctx.parsed)} (${pct}%)`;}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}
+    });
+  }
+  const leg1=document.getElementById('oaA2aLegend');
+  leg1.innerHTML=`<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">${fmt(a2aSpend)} (${totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0}%)</span></div><div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">${fmt(oaSpend)} (${totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`;
+
+  // UK vs EU pie
+  const c2=Chart.getChart('chartA2aRegion');if(c2)c2.destroy();
+  if(ukSpend>0||euSpend>0){
+    new Chart(document.getElementById('chartA2aRegion'),{
+      type:'doughnut',
+      data:{labels:['Amazon UK','Amazon EU'],datasets:[{data:[ukSpend,euSpend],backgroundColor:['#f97316','#a78bfa'],borderWidth:2,borderColor:'#13161c'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const pct=a2aSpend>0?((ctx.parsed/a2aSpend)*100).toFixed(1):0;return ` ${fmt(ctx.parsed)} (${pct}% of A2A)`;}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}
+    });
+  }
+  const leg2=document.getElementById('a2aRegionLegend');
+  leg2.innerHTML=`<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">${fmt(ukSpend)} (${a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0}%)</span></div><div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">${fmt(euSpend)} (${a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0}%)</span></div>`;
+
+  // Key metrics
+  const stats=document.getElementById('oaA2aStats');
+  const mkStat=(label,val,sub)=>`<div class="prow-stat"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
+  stats.innerHTML=
+    mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units')+
+    mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units')+
+    mkStat('A2A avg buy price',a2aRows.filter(r=>r.buyPrice>0).length>0?fmtDec(a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length):'—','avg buy price')+
+    mkStat('OA avg buy price',oaRows.filter(r=>r.buyPrice>0).length>0?fmtDec(oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length):'—','avg buy price');
+
+  // Provider breakdowns
+  const oaProvMap={},a2aProvMap={};
+  oaRows.forEach(r=>oaProvMap[r.provider]=(oaProvMap[r.provider]||0)+r.spend);
+  a2aRows.forEach(r=>a2aProvMap[r.provider]=(a2aProvMap[r.provider]||0)+r.spend);
+
+  function provList(map,spend,el){
+    const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
+      const color=PROVIDER_COLORS[name]||'#4f8ef7';
+      const pct=spend>0?((val/spend)*100).toFixed(1):0;
+      const barW=spend>0?(val/spend)*100:0;
+      return `<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>${name}</span><span style="font-size:11px;font-weight:600;color:${color};">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
+    }).join('');
+  }
+  provList(oaProvMap,oaSpend,'oaProviders');
+  provList(a2aProvMap,a2aSpend,'a2aProviders');
+}
+
+// DATE EXPLORER
+function setExplorerToday(){
+  const t=new Date().toISOString().split('T')[0];
+  document.getElementById('explorerFrom').value=t;
+  document.getElementById('explorerTo').value=t;
+}
+function setExplorerThisWeek(){
+  const now=new Date();
+  const mon=new Date(now);
+  mon.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
+  document.getElementById('explorerFrom').value=mon.toISOString().split('T')[0];
+  document.getElementById('explorerTo').value=now.toISOString().split('T')[0];
+}
+function setExplorerThisMonth(){
+  const now=new Date();
+  document.getElementById('explorerFrom').value=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  document.getElementById('explorerTo').value=now.toISOString().split('T')[0];
+}
+function runExplorer(){
+  const from=new Date(document.getElementById('explorerFrom').value);
+  const to=new Date(document.getElementById('explorerTo').value);
+  to.setHours(23,59,59);
+  if(isNaN(from)||isNaN(to)){alert('Please select valid dates');return;}
+
+  const rows=allRows.filter(r=>r.date>=from&&r.date<=to);
+  const results=document.getElementById('explorerResults');
+  results.style.display='block';
+
+  if(rows.length===0){
+    document.getElementById('explorerCards').innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;padding:12px 0;">No orders found in this date range</div>';
+    ['explorerProviders','explorerSuppliers','explorerAsins','explorerTable'].forEach(id=>document.getElementById(id).innerHTML='');
+    return;
+  }
+
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(rows);
+  const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin));
+  const days=new Set(rows.map(r=>r.date.toDateString())).size;
+
+  // Cards
+  document.getElementById('explorerCards').innerHTML=
+    `<div class="stat-tile c-blue"><div class="stat-tile-label">total spend</div><div class="stat-tile-value">${fmt(totalSpend)}</div><div class="stat-tile-sub">${days} day${days!==1?'s':''} · ${fmt(totalSpend/days)} avg/day</div></div>`+
+    `<div class="stat-tile c-purple"><div class="stat-tile-label">units</div><div class="stat-tile-value">${totalUnits.toLocaleString()}</div><div class="stat-tile-sub">${rows.length} SKU lines</div></div>`+
+    `<div class="stat-tile c-teal"><div class="stat-tile-label">true orders</div><div class="stat-tile-value">${trueOrders}</div><div class="stat-tile-sub">${fmt(totalSpend/trueOrders)} avg order</div></div>`+
+    `<div class="stat-tile c-amber"><div class="stat-tile-label">unique ASINs</div><div class="stat-tile-value">${uniqueAsins.size}</div><div class="stat-tile-sub">${fmt(totalSpend/uniqueAsins.size)} avg per ASIN</div></div>`;
+
+  // Providers
+  const provMap={};rows.forEach(r=>provMap[r.provider]=(provMap[r.provider]||0)+r.spend);
+  const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('explorerProviders').innerHTML=sortedProv.map(([name,val])=>{
+    const color=PROVIDER_COLORS[name]||'#4f8ef7';
+    const pct=((val/totalSpend)*100).toFixed(1);
+    const barW=(val/totalSpend)*100;
+    return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};"></span>${name}</span><span style="font-size:11px;font-weight:600;color:${color};">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
+  }).join('');
+
+  // Suppliers
+  const supMap={};rows.forEach(r=>supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend);
+  const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('explorerSuppliers').innerHTML=sortedSup.map(([name,val],i)=>{
+    const color=SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length];
+    const pct=((val/totalSpend)*100).toFixed(1);
+    const barW=(val/totalSpend)*100;
+    return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};"></span>${name}</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
+  }).join('');
+
+  // ASINs
+  const asinMap={},asinUnits={};
+  rows.filter(r=>r.asin).forEach(r=>{asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;});
+  const sortedAsins=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ag=document.getElementById('explorerAsins');ag.innerHTML='';
+  sortedAsins.forEach(([asin,spend],i)=>{
+    const div=document.createElement('div');div.className='asin-tile';
+    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units</div>`;
+    ag.appendChild(div);
+  });
+  if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data</div>';
+
+  // Orders table
+  const tbody=document.getElementById('explorerTable');tbody.innerHTML='';
+  rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
+    const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);">${i+1}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);">${r.supplier}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:500;color:var(--text);">${fmt(r.spend)}</td><td style="padding:8px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);">${r.qty}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
 function switchPage(page){
