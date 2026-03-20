@@ -566,7 +566,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 
 <!-- PROVIDER MODAL -->
 <div id="provModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeProvModal()">
-  <div class="ai-modal" style="max-width:800px;width:100%;">
+  <div class="ai-modal" style="max-width:900px;width:100%;min-width:min(900px,95vw);">
     <div class="ai-modal-header">
       <div style="display:flex;align-items:center;gap:10px;">
         <span id="provModalDot" style="width:12px;height:12px;border-radius:3px;flex-shrink:0;"></span>
@@ -597,7 +597,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
       <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
     </div>
-    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;">
+    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:11px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">#</th>
@@ -1401,248 +1401,184 @@ function openAiModal(title,label,value,contextData){
 }
 function closeAiModal(){document.getElementById('aiModal').style.display='none';}
 
-async function generateAiInsight(title,label,value,contextData){
-  const prompt='You are an analyst reviewing spend data for an Amazon OA/A2A reselling business. Provide a concise, data-driven insight (2-3 paragraphs) about the following metric. No fluff, no advice, just observations and trends from the data provided.\n\nMetric: '+label+'\nValue: '+value+'\nContext: '+JSON.stringify(contextData)+'\n\nFocus on: what this number means, how it compares to other data points provided, any patterns or trends worth noting. Be specific with numbers.';
+function generateAiInsight(title,label,value,contextData){
+  const el=document.getElementById('aiModalBody');
+  const ctx=contextData||{};
 
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data=await res.json();
-    const text=data.content?.[0]?.text||'Unable to generate insight.';
-    const paras=text.split('\n\n').filter(p=>p.trim());
-    document.getElementById('aiModalBody').innerHTML=paras.map(p=>`<p>${p}</p>`).join('');
-  }catch(e){
-    document.getElementById('aiModalBody').innerHTML='<p style="color:var(--red);">Error generating insight. Please try again.</p>';
+  // Helper functions
+  const fmt=v=>'£'+Math.round(v).toLocaleString('en-GB');
+  const fmtDec=v=>'£'+parseFloat(v).toFixed(2);
+  const pct=(a,b)=>b>0?((a-b)/b*100).toFixed(1):null;
+  const sign=v=>v>0?'+':'';
+  const p=s=>`<p>${s}</p>`;
+
+  // Pull context values with safe defaults
+  const totalSpend=ctx.totalSpend||0;
+  const totalOrders=ctx.totalOrders||ctx.orders||0;
+  const teamTarget=ctx.teamTarget||0;
+  const progress=ctx.progress||0;
+  const projected=ctx.projected||0;
+  const dim=ctx.dim||31;
+  const currentDay=ctx.currentDay||1;
+  const streak=ctx.streak||0;
+  const avgDaySpend=totalSpend>0&&currentDay>0?totalSpend/currentDay:0;
+  const dailyTarget=teamTarget>0?teamTarget/dim:0;
+  const expectedNow=dailyTarget*currentDay;
+  const gapVsExpected=totalSpend-expectedNow;
+  const daysLeft=dim-currentDay;
+
+  let html='';
+
+  if(title==='Daily Spend Average'||label.includes('avg spend per calendar day')){
+    const spend=parseFloat(value.replace(/[£,]/g,''))||0;
+    const activeDaySpend=ctx.avgSpendActiveDays||ctx.avgSpendPerDay||spend;
+    const zeroDays=(ctx.days||dim)-(ctx.activeDays||currentDay);
+    const pctOfTarget=dailyTarget>0?((spend/dailyTarget)*100).toFixed(1):null;
+    html+=p(`Your average spend per calendar day this month is <strong>${fmt(spend)}</strong>. On days where orders were actually placed, the average rises to <strong>${fmt(activeDaySpend)}</strong> — a difference driven by ${zeroDays} day${zeroDays!==1?'s':''} with zero orders.`);
+    if(pctOfTarget) html+=p(`Against your daily target of ${fmt(dailyTarget)} (${fmt(teamTarget)} ÷ ${dim} days), you are currently running at <strong>${pctOfTarget}%</strong> of the required daily pace. ${spend>=dailyTarget?'This is above target pace, meaning you are on track to hit your monthly goal if the rate holds.':'This is below target pace. To recover by month end you would need to spend '+fmt(daysLeft>0?(teamTarget-totalSpend)/daysLeft:0)+' per day across the remaining '+daysLeft+' days.'}`);
+    if(teamTarget) html+=p(`With ${daysLeft} days remaining and ${fmt(totalSpend)} spent so far, you need <strong>${fmt(Math.max(0,teamTarget-totalSpend))}</strong> more to hit the ${fmt(teamTarget)} target. At current daily rate that projects to <strong>${fmt(projected)}</strong> by month end.`);
+    html+=p(`Your ${ctx.activeDays||currentDay} active trading days out of ${dim} total suggests ${Math.round(((ctx.activeDays||currentDay)/dim)*100)}% day utilisation this month. Higher day utilisation generally reduces pressure on individual trading days.`);
   }
+
+  else if(title==='Daily Units Average'||label.includes('units per calendar day')){
+    const units=parseFloat(value)||0;
+    const activeDayUnits=ctx.avgSpendActiveDays||units;
+    html+=p(`You are averaging <strong>${units.toFixed(1)} units per calendar day</strong> this month. This equates to approximately ${(units*dim).toFixed(0)} units projected for the full month at current pace.`);
+    if(totalOrders>0) html+=p(`With ${ctx.totalUnits||0} units across ${totalOrders} orders, your average basket size is <strong>${ctx.totalUnits>0&&totalOrders>0?(ctx.totalUnits/totalOrders).toFixed(1):units.toFixed(1)} units per order</strong>. Larger basket sizes typically indicate bulk or replen-style purchasing rather than single-unit OA.`);
+    html+=p(`Units per day is a useful proxy for activity level independent of price. A consistent units figure alongside a rising spend figure would indicate you are buying higher-priced products over time.`);
+  }
+
+  else if(title==='Daily Orders Average'||label.includes('orders per calendar day')){
+    const orders=parseFloat(value)||0;
+    html+=p(`You are averaging <strong>${orders.toFixed(1)} orders per calendar day</strong> this month (${(orders*dim).toFixed(0)} projected for the full month). On active trading days the rate is higher, indicating order clustering on specific days.`);
+    if(totalSpend>0&&orders>0) html+=p(`At ${fmt(totalSpend/Math.max(orders*currentDay,1))} average order value, your ordering pattern suggests ${orders>10?'high-frequency, lower-ticket purchasing':'lower-frequency, higher-ticket purchasing'}. This affects how quickly you can react to opportunities and spread risk across suppliers.`);
+    html+=p(`Order count is distinct from SKU count — a single order ID can contain multiple SKUs. Your true order count accounts for this, giving a more accurate picture of buying sessions than raw line count.`);
+  }
+
+  else if(title==='Average Order Value'||label.includes('avg spend per order')||label.includes('avg order value')){
+    const aov=parseFloat(value.replace(/[£,]/g,''))||0;
+    const prevAov=ctx.prevSpend&&ctx.prevOrders?ctx.prevSpend/ctx.prevOrders:null;
+    html+=p(`Your average order value this month is <strong>${fmt(aov)}</strong>. ${prevAov?`This compares to ${fmt(prevAov)} in the same period last month — a ${pct(aov,prevAov)}% ${aov>=prevAov?'increase':'decrease'}.`:''}`);
+    html+=p(`A higher AOV suggests you are buying more expensive products or larger quantities per order. For OA this typically means better margin products; for A2A this may reflect bulk replenishment orders. ${aov>200?'Your AOV above £200 indicates a preference for higher-ticket items.':aov<100?'Your AOV under £100 suggests predominantly lower-ticket, higher-volume buying.':'Your AOV is in a mid-range bracket, consistent with a mixed OA/A2A strategy.'}`);
+    if(teamTarget&&totalOrders) html+=p(`To hit your ${fmt(teamTarget)} monthly target, you need approximately ${Math.ceil((teamTarget-totalSpend)/Math.max(aov,1))} more orders at the current average order value, spread across ${daysLeft} remaining days — roughly ${Math.ceil((teamTarget-totalSpend)/Math.max(aov,1)/Math.max(daysLeft,1))} orders per day.`);
+  }
+
+  else if(title==='Units Per Order'||label.includes('units per order')){
+    const upo=parseFloat(value)||0;
+    html+=p(`You are buying an average of <strong>${upo.toFixed(1)} units per order</strong> this month. ${upo>3?'This is relatively high, suggesting multi-unit purchasing — typical of replenishment or bulk OA where you are buying multiple quantities of the same ASIN.':upo<=1.5?'This is close to 1 unit per order, typical of single-unit OA where you test one unit before committing to larger quantities.':'This mid-range figure suggests a mix of single-unit testing and some multi-unit purchasing.'}`);
+    html+=p(`Units per order is a useful indicator of buying strategy. Single-unit ordering (UPO close to 1) reduces risk but limits upside. Multi-unit ordering (UPO above 3) suggests higher conviction on product viability and better economies of scale on prep and shipping.`);
+    if(ctx.totalUnits&&totalOrders) html+=p(`Total: ${ctx.totalUnits} units across ${totalOrders} true orders this month. If you moved to an average of ${(upo+1).toFixed(0)} units per order, total units would increase to approximately ${Math.round(totalOrders*(upo+1))} — a ${Math.round(((upo+1)/upo-1)*100)}% increase in buying volume at the same order frequency.`);
+  }
+
+  else if(title==='Trading Days'||label.includes('active trading days')){
+    const active=parseInt(value)||0;
+    const total=parseInt((value+'').split('/')[1])||dim;
+    const util=total>0?(active/total*100).toFixed(1):0;
+    const zero=total-active;
+    html+=p(`You have traded on <strong>${active} out of ${total} days</strong> this month — a ${util}% day utilisation rate. ${zero} day${zero!==1?'s have':' has'} passed with no orders recorded.`);
+    html+=p(`${active>=total*0.9?'Your near-daily trading pattern suggests consistent buying activity throughout the month, which typically results in smoother inventory flow and more predictable spend.':active>=total*0.7?'You are trading on most days with some gaps. This is common when orders are placed in batches or when sourcing activity is concentrated on certain days of the week.':'You have a relatively low trading day utilisation. This could reflect weekend inactivity, weekly batch ordering, or periods of lower sourcing activity.'}`);
+    if(dailyTarget&&zero>0) html+=p(`Those ${zero} non-trading days represent ${fmt(dailyTarget*zero)} of foregone daily-target spend. Had orders been placed on those days at the average daily rate, total month spend would be approximately ${fmt(totalSpend+dailyTarget*zero)} — ${fmt(dailyTarget*zero)} higher than current.`);
+  }
+
+  else if(title==='Busiest Day'||label.includes('busiest day')){
+    const busySpend=ctx.busiestSpend||0;
+    const multOfAvg=avgDaySpend>0?(busySpend/avgDaySpend).toFixed(1):null;
+    html+=p(`Your busiest day this month saw <strong>${fmt(busySpend)}</strong> in spend — ${multOfAvg?multOfAvg+'x your daily average of '+fmt(avgDaySpend):''}.`);
+    html+=p(`${busySpend>dailyTarget*2?'This single day accounted for '+((busySpend/totalSpend)*100).toFixed(1)+'% of all month spend so far. High-spend days like this often reflect large replenishment orders, bulk A2A purchases, or high-ticket OA finds.':'This figure is broadly in line with a strong trading day, suggesting relatively consistent spend distribution rather than one outlier day driving the total.'}`);
+    if(teamTarget) html+=p(`That single day alone contributed ${((busySpend/teamTarget)*100).toFixed(1)}% of your entire monthly target of ${fmt(teamTarget)}. If you could replicate ${Math.ceil(teamTarget/busySpend)} days of this level, you would hit the monthly target.`);
+  }
+
+  else if(title==='Biggest Single Order'){
+    const bigSpend=parseFloat(value.replace(/[£,]/g,''))||0;
+    const pctOfTotal=totalSpend>0?((bigSpend/totalSpend)*100).toFixed(1):null;
+    html+=p(`Your largest single order this month was <strong>${fmt(bigSpend)}</strong>${ctx.supplier?' from '+ctx.supplier:''}${ctx.provider?' placed by '+ctx.provider:''}. ${pctOfTotal?'This represents '+pctOfTotal+'% of your total month spend so far.':''}`);
+    html+=p(`${bigSpend>500?'High single-order values typically indicate either a high-ticket product, a multi-unit bulk purchase, or a combined replenishment order. Large orders carry more inventory risk but can deliver stronger absolute returns if the product sells well.':'This order size is in a moderate range. Single orders of this size are common in OA where individual product prices range from £50-£300.'}`);
+    if(avgDaySpend>0) html+=p(`This order represents ${(bigSpend/avgDaySpend).toFixed(1)}x your average daily spend of ${fmt(avgDaySpend)}. In practical terms, a single order of this size carries the same capital outlay as ${(bigSpend/avgDaySpend).toFixed(1)} typical trading days.`);
+  }
+
+  else if(title==='Best Provider'){
+    const bestSpend=ctx.bestProvSpend||0;
+    const pctOfTotal=totalSpend>0?((bestSpend/totalSpend)*100).toFixed(1):null;
+    html+=p(`<strong>${value}</strong> is your top-spending provider this month with <strong>${fmt(bestSpend)}</strong> — ${pctOfTotal?pctOfTotal+'% of total team spend.':''}`);
+    html+=p(`Provider concentration is worth monitoring. ${pctOfTotal>50?'At over 50% of total spend, this provider dominates current activity. High concentration can indicate strong performance but also means overall team results are heavily dependent on one person or channel.':pctOfTotal>30?'At over 30% of total spend, this provider is a significant contributor. Healthy concentration but worth monitoring whether other providers are keeping pace with their targets.':'Spend is reasonably distributed across providers, with the top provider at under 30%. This suggests broad team activity.'}`);
+    if(teamTarget) html+=p(`${value}'s ${fmt(bestSpend)} contributes ${((bestSpend/teamTarget)*100).toFixed(1)}% toward the team's ${fmt(teamTarget)} monthly target. ${bestSpend>teamTarget*0.3?'This is a substantial individual contribution to the team target.':''}`);
+  }
+
+  else if(title==='Most Ordered ASIN'){
+    const units=ctx.topAsinUnits||0;
+    html+=p(`ASIN <strong>${value}</strong> is your most ordered product this month with <strong>${units} units</strong> purchased. Repeated ordering of the same ASIN suggests either strong margin performance, successful repricing, or active replenishment of a proven product.`);
+    html+=p(`High unit concentration on a single ASIN carries both opportunity and risk. If this product is performing well, the volume indicates conviction. However, concentration in one ASIN means inventory and margin performance is heavily tied to that single product's sell-through rate and pricing environment.`);
+    html+=p(`${units>10?'At '+units+' units, this is a significant position in a single product. For FBA this could represent weeks of inventory depending on sales velocity.':units>3?'At '+units+' units, this is a moderate multi-unit position — typical of OA buying where you take 3-6 units of a viable product.':'Single or low-unit ordering suggests testing behaviour — buying 1-2 units to validate the opportunity before committing to larger quantities.'}`);
+  }
+
+  else if(title==='Projected Month Total'){
+    const proj=parseFloat(value.replace(/[£,]/g,''))||0;
+    const gap=teamTarget-proj;
+    html+=p(`At your current daily spending rate of <strong>${fmt(avgDaySpend)}</strong>, you are projected to end the month at <strong>${fmt(proj)}</strong>. ${teamTarget?'Your target is '+fmt(teamTarget)+', leaving a gap of '+fmt(Math.abs(gap))+' — you are '+((proj/teamTarget)*100).toFixed(1)+'% of the way to target on projection.':''}`);
+    if(teamTarget&&gap>0) html+=p(`To close the ${fmt(gap)} shortfall over the ${daysLeft} remaining days, you would need to increase your daily spend from the current ${fmt(avgDaySpend)} to <strong>${fmt((teamTarget-totalSpend)/Math.max(daysLeft,1))}</strong> per day — a ${(((teamTarget-totalSpend)/Math.max(daysLeft,1)-avgDaySpend)/avgDaySpend*100).toFixed(1)}% increase on current rate.`);
+    if(teamTarget&&gap<=0) html+=p(`You are on track to exceed your target. At current pace, the overage is ${fmt(Math.abs(gap))} — representing ${((Math.abs(gap)/teamTarget)*100).toFixed(1)}% above target. Consistent above-target performance allows for more flexibility in product selection and order sizing.`);
+    html+=p(`Projection accuracy increases as the month progresses. ${progress>0.7?'With '+Math.round(progress*100)+'% of the month elapsed, this projection carries high confidence — there is limited time for the daily rate to change materially.':progress>0.4?'With '+Math.round(progress*100)+'% of the month elapsed, the projection is reasonably reliable but there is still meaningful time for the rate to shift.':'Early in the month, projections carry more uncertainty — a few high or low spend days can significantly move the projected total.'}`);
+  }
+
+  else if(title==='Target Hit Date'){
+    html+=p(`${value==="won't hit at current pace"?`At your current daily rate of <strong>${fmt(avgDaySpend)}</strong>, you will not reach your ${fmt(teamTarget)} target by month end. The shortfall at current pace is <strong>${fmt(Math.max(0,teamTarget-projected))}</strong>.`:`You are on track to hit your ${fmt(teamTarget)} target around <strong>${value}</strong> — ${daysLeft} days before month end.`}`);
+    if(value==="won't hit at current pace"){
+      const needed=(teamTarget-totalSpend)/Math.max(daysLeft,1);
+      html+=p(`To hit the target you need <strong>${fmt(needed)}</strong> per day across the remaining ${daysLeft} days — vs your current average of ${fmt(avgDaySpend)}. This requires a ${((needed/avgDaySpend-1)*100).toFixed(1)}% increase in daily spending rate.`);
+      html+=p(`Alternatively, ${Math.ceil((teamTarget-totalSpend)/avgDaySpend)} more days of trading at the current average rate would be required — but only ${daysLeft} days remain in the month.`);
+    } else {
+      html+=p(`Hitting the target with time to spare gives headroom to continue spending productively for the rest of the month, potentially pushing well above target. The question shifts from "will we hit target?" to "how far above target can we finish?"`);
+      html+=p(`At current pace beyond the target date, projected month-end spend is ${fmt(projected)} — ${fmt(projected-teamTarget)} above target, representing a ${((projected/teamTarget-1)*100).toFixed(1)}% overshoot.`);
+    }
+  }
+
+  else if(title==='Order Streak'){
+    const s=parseInt(value)||0;
+    html+=p(`You have placed orders on <strong>${s} consecutive day${s!==1?'s':''}</strong>. ${s>=7?'A streak of a week or more indicates highly consistent daily buying activity — your team is sourcing and ordering every single day without a break.':s>=3?'A multi-day streak shows good buying momentum. Maintaining this consistency helps smooth cash flow and inventory replenishment.':'Your current streak is short, which may indicate a recent restart after a weekend or sourcing gap.'}`);
+    html+=p(`Order streaks are a useful proxy for team activity and motivation. Longer streaks tend to correlate with stronger month totals as daily compounding of orders builds toward the monthly target. Breaking a streak — even for one day — means that day's potential spend is permanently lost for the month.`);
+    if(dailyTarget) html+=p(`Each additional day in the streak at your current average adds approximately ${fmt(avgDaySpend)} toward the monthly total. Maintaining the streak for the remaining ${daysLeft} days would contribute a further ${fmt(avgDaySpend*daysLeft)} — bringing projected total to ${fmt(totalSpend+avgDaySpend*daysLeft)}.`);
+  }
+
+  else if(title==='Most Orders By'){
+    html+=p(`<strong>${value}</strong> has placed the most orders this month with <strong>${ctx.totalOrders||'—'} order${(ctx.totalOrders||0)!==1?'s':''}</strong>. High order count reflects high activity level — this provider is the most active buyer on the team in terms of purchasing frequency.`);
+    html+=p(`Order count and spend don't always correlate. A provider can place many small orders or fewer large ones. Comparing this provider's order count to their spend share reveals their average order size relative to the team.`);
+    html+=p(`High-order-count providers typically have strong product sourcing activity and are comfortable making frequent purchasing decisions. This pattern is characteristic of experienced OA buyers who evaluate and act on many opportunities daily.`);
+  }
+
+  else if(label.includes('vs last month')||title.includes('vs last month')||title.includes('vs Last')){
+    const thisVal=parseFloat(value.replace(/[£,%,days]/g,'').trim())||0;
+    const prevVal=ctx.prevSpend||ctx.prevOrders||ctx.prevUnits||0;
+    const change=prevVal>0?((thisVal-prevVal)/prevVal*100):null;
+    html+=p(`Comparing <strong>${ctx.thisMonth||'this month'} day 1–${ctx.currentDay||currentDay}</strong> vs <strong>${ctx.lastMonth||'last month'} day 1–${ctx.currentDay||currentDay}</strong>: your ${label} ${change!==null?(change>=0?'increased by '+change.toFixed(1)+'%':'decreased by '+Math.abs(change).toFixed(1)+'%'):'has changed'}.`);
+    if(ctx.prevSpend&&ctx.thisMonth){
+      const spendChange=pct(ctx.spend||totalSpend,ctx.prevSpend);
+      const ordersChange=ctx.prevOrders?pct(ctx.orders||totalOrders,ctx.prevOrders):null;
+      html+=p(`Total spend is ${spendChange>0?'up '+spendChange+'%':'down '+Math.abs(spendChange)+'%'} vs the same period last month (${fmt(ctx.spend||totalSpend)} vs ${fmt(ctx.prevSpend)}). ${ordersChange!==null?'Order count is '+(ordersChange>0?'up '+ordersChange+'%':'down '+Math.abs(ordersChange)+'%')+' ('+ctx.orders+' vs '+ctx.prevOrders+').':''}`);
+    }
+    html+=p(`Month-on-month comparisons at the same day of month control for the fact that the current month is incomplete. This gives a fairer read of trajectory than comparing a partial month to a full month total. As data accumulates across months, these comparisons become increasingly meaningful for spotting trends.`);
+  }
+
+  else if(label.includes('A2A')||label.includes('OA')){
+    const v=parseFloat(value.replace(/[£,%]/g,'').trim())||0;
+    html+=p(`<strong>${label}: ${value}</strong>. ${label.includes('avg order')?`Your average ${label.includes('A2A')?'A2A':'OA'} order value of ${value} reflects the typical size of purchases through this channel. ${label.includes('A2A')&&ctx.a2aOrders?'Across '+ctx.a2aOrders+' A2A orders this period.':ctx.oaOrders?'Across '+ctx.oaOrders+' OA orders this period.':''}`:label.includes('units/order')?`At ${v.toFixed(1)} units per order, ${label.includes('A2A')?'A2A purchasing tends toward '+( v>2?'multi-unit bulk ordering':'single-unit testing behaviour'):'OA purchasing is typically '+( v>2?'higher volume':'single-unit focused')}.`:label.includes('ASINs')?`${v} unique ASINs across this channel indicates ${v>50?'broad product diversification — you are spreading risk across many different products.':v>20?'moderate product diversification with a reasonable spread of sourcing targets.':'focused sourcing — a concentrated set of products rather than a wide spread.'}`:`${label} currently at ${value}.`}`);
+    if(ctx.a2aSpend&&ctx.oaSpend){
+      const total=ctx.a2aSpend+ctx.oaSpend;
+      html+=p(`Overall channel split: A2A accounts for ${((ctx.a2aSpend/total)*100).toFixed(1)}% of spend (${fmt(ctx.a2aSpend)}) vs OA at ${((ctx.oaSpend/total)*100).toFixed(1)}% (${fmt(ctx.oaSpend)}). ${ctx.a2aSpend>ctx.oaSpend?'A2A is your dominant channel this period. This is common in Q1 when Amazon marketplace pricing tends to be more active post-Christmas.':'OA is your dominant channel, suggesting stronger offline retail sourcing activity relative to Amazon-to-Amazon flipping.'}`);
+      if(ctx.ukSpend&&ctx.euSpend) html+=p(`Within A2A, Amazon UK represents ${((ctx.ukSpend/ctx.a2aSpend)*100).toFixed(1)}% of A2A spend (${fmt(ctx.ukSpend)}) with Amazon EU at ${((ctx.euSpend/ctx.a2aSpend)*100).toFixed(1)}% (${fmt(ctx.euSpend)}). ${ctx.ukSpend>ctx.euSpend?'UK-heavy A2A suggests stronger domestic marketplace opportunities or simpler logistics preference.':'EU-heavy A2A indicates active cross-border sourcing — typically carrying higher logistics complexity but potentially stronger margins on certain product categories.'}`);
+    }
+  }
+
+  else {
+    // Generic fallback with whatever context is available
+    html+=p(`<strong>${label}: ${value}</strong>`);
+    if(totalSpend>0) html+=p(`In context of this month's total spend of ${fmt(totalSpend)} across ${totalOrders} orders, this metric reflects ${teamTarget?((totalSpend/teamTarget)*100).toFixed(1)+'% progress toward the '+fmt(teamTarget)+' monthly target.':'current purchasing activity.'}`);
+    if(dailyTarget>0) html+=p(`At a required daily rate of ${fmt(dailyTarget)} to hit the monthly target, you are currently ${avgDaySpend>=dailyTarget?'on or above pace':'below pace'} at ${fmt(avgDaySpend)} per day. ${daysLeft} days remain in the month.`);
+    if(projected>0&&teamTarget>0) html+=p(`Projected month-end spend at current rate: ${fmt(projected)} — ${projected>=teamTarget?fmt(projected-teamTarget)+' above target ('+((projected/teamTarget-1)*100).toFixed(1)+'% overshoot)':fmt(teamTarget-projected)+' short of target. Needs '+fmt((teamTarget-totalSpend)/Math.max(daysLeft,1))+'/day from here to close the gap.'}`);
+  }
+
+  el.innerHTML=html||p('No insight available for this metric.');
 }
 
-function buildOaA2a(rows,totalSpend){
-  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
-  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
-  const isEU=r=>r.supplier.trim().toLowerCase().startsWith('amazon')&&!r.supplier.trim().toLowerCase().includes('amazon uk');
-
-  const a2aRows=rows.filter(isAmazon);
-  const oaRows=rows.filter(r=>!isAmazon(r));
-  const ukRows=rows.filter(isUK);
-  const euRows=rows.filter(isEU);
-
-  const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
-  const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
-  const ukSpend=ukRows.reduce((a,r)=>a+r.spend,0);
-  const euSpend=euRows.reduce((a,r)=>a+r.spend,0);
-  const a2aUnits=a2aRows.reduce((a,r)=>a+r.qty,0);
-  const oaUnits=oaRows.reduce((a,r)=>a+r.qty,0);
-  const a2aOrders=countOrders(a2aRows);
-  const oaOrders=countOrders(oaRows);
-
-  // OA vs A2A pie
-  const c1=Chart.getChart('chartOaA2a');if(c1)c1.destroy();
-  if(a2aSpend>0||oaSpend>0){
-    new Chart(document.getElementById('chartOaA2a'),{
-      type:'doughnut',
-      data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#4f8ef7','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const pct=((ctx.parsed/totalSpend)*100).toFixed(1);return ` ${fmt(ctx.parsed)} (${pct}%)`;}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}
-    });
-  }
-  const leg1=document.getElementById('oaA2aLegend');
-  leg1.innerHTML=`<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">${fmt(a2aSpend)} (${totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0}%)</span></div><div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">${fmt(oaSpend)} (${totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`;
-
-  // UK vs EU pie
-  const c2=Chart.getChart('chartA2aRegion');if(c2)c2.destroy();
-  if(ukSpend>0||euSpend>0){
-    new Chart(document.getElementById('chartA2aRegion'),{
-      type:'doughnut',
-      data:{labels:['Amazon UK','Amazon EU'],datasets:[{data:[ukSpend,euSpend],backgroundColor:['#f97316','#a78bfa'],borderWidth:2,borderColor:'#13161c'}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const pct=a2aSpend>0?((ctx.parsed/a2aSpend)*100).toFixed(1):0;return ` ${fmt(ctx.parsed)} (${pct}% of A2A)`;}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}
-    });
-  }
-  const leg2=document.getElementById('a2aRegionLegend');
-  leg2.innerHTML=`<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">${fmt(ukSpend)} (${a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0}%)</span></div><div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">${fmt(euSpend)} (${a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0}%)</span></div>`;
-
-  // Key metrics — replaced by enhanced version below
-  const stats=document.getElementById('oaA2aStats');
-  const mkStatSimple=(label,val,sub)=>`<div class="prow-stat"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
-
-  // Provider breakdowns
-  const oaProvMap={},a2aProvMap={};
-  oaRows.forEach(r=>oaProvMap[r.provider]=(oaProvMap[r.provider]||0)+r.spend);
-  a2aRows.forEach(r=>a2aProvMap[r.provider]=(a2aProvMap[r.provider]||0)+r.spend);
-
-  function provList(map,spend,el){
-    const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
-      const color=PROVIDER_COLORS[name]||'#4f8ef7';
-      const pct=spend>0?((val/spend)*100).toFixed(1):0;
-      const barW=spend>0?(val/spend)*100:0;
-      return `<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>${name}</span><span style="font-size:11px;font-weight:600;color:${color};">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
-    }).join('');
-  }
-  provList(oaProvMap,oaSpend,'oaProviders');
-  provList(a2aProvMap,a2aSpend,'a2aProviders');
-
-  // Daily OA vs A2A chart
-  const dailyOA={},dailyA2A={};
-  const allDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
-  allDates.forEach(d=>{dailyOA[d]=0;dailyA2A[d]=0;});
-  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyOA[k]=(dailyOA[k]||0)+r.spend;});
-  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyA2A[k]=(dailyA2A[k]||0)+r.spend;});
-  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
-  if(allDates.length>0){
-    new Chart(document.getElementById('chartOaA2aDaily'),{
-      type:'bar',
-      data:{
-        labels:allDates.map(d=>{const dt=new Date(d);return dt.getDate()+'/'+(dt.getMonth()+1);}),
-        datasets:[
-          {label:'OA',data:allDates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:2},
-          {label:'A2A',data:allDates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.7)',borderRadius:2}
-        ]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        scales:{
-          x:{stacked:false,ticks:{color:'#555e6e',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
-          y:{ticks:{color:'#555e6e',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}
-        },
-        plugins:{
-          legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10}},
-          tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}
-        }
-      }
-    });
-  }
-
-  // Top ASINs per method
-  function topAsinList(rows,elId,color){
-    const asinMap={};
-    rows.filter(r=>r.asin).forEach(r=>asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend);
-    const sorted=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const total=rows.reduce((a,r)=>a+r.spend,0);
-    document.getElementById(elId).innerHTML=sorted.map(([asin,spend],i)=>{
-      const pct=total>0?((spend/total)*100).toFixed(1):0;
-      const barW=total>0?(spend/total)*100:0;
-      return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:11px;color:${color};font-weight:600;">#${i+1} ${asin}</span><span style="font-size:11px;color:var(--text);font-weight:600;">${fmt(spend)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
-    }).join('')||'<div style="font-size:11px;color:var(--muted);">no ASIN data</div>';
-  }
-  topAsinList(oaRows,'oaTopAsins','#22c55e');
-  topAsinList(a2aRows,'a2aTopAsins','#4f8ef7');
-
-  // Key metrics with more data — now 8 tiles in 2x4 grid
-  const a2aAvgBuy=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
-  const oaAvgBuy=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
-  const a2aUniqueAsins=new Set(a2aRows.filter(r=>r.asin).map(r=>r.asin)).size;
-  const oaUniqueAsins=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
-
-  const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
-  const mkStat=(label,val,sub,clickTitle,clickLabel)=>{const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});return `<div class="prow-stat stat-tile clickable" data-ctx="${id}"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;};
-
-  document.getElementById('oaA2aStats').innerHTML=
-    mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
-    mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units','OA Average Order','OA avg order value')+
-    mkStat('A2A units/order',a2aOrders>0?(a2aUnits/a2aOrders).toFixed(1):'—','avg units per A2A order','A2A Units Per Order','A2A avg units per order')+
-    mkStat('OA units/order',oaOrders>0?(oaUnits/oaOrders).toFixed(1):'—','avg units per OA order','OA Units Per Order','OA avg units per order')+
-    mkStat('A2A avg buy',a2aAvgBuy>0?fmtDec(a2aAvgBuy):'—','avg buy price per item','A2A Buy Price','A2A avg buy price')+
-    mkStat('OA avg buy',oaAvgBuy>0?fmtDec(oaAvgBuy):'—','avg buy price per item','OA Buy Price','OA avg buy price')+
-    mkStat('A2A ASINs',a2aUniqueAsins.toString(),'unique products A2A','A2A Unique ASINs','A2A unique ASINs ordered')+
-    mkStat('OA ASINs',oaUniqueAsins.toString(),'unique products OA','OA Unique ASINs','OA unique ASINs ordered')+
-    mkStat('UK % of A2A',a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(ukSpend)+' Amazon UK','Amazon UK Share','Amazon UK % of total A2A spend')+
-    mkStat('EU % of A2A',a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(euSpend)+' Amazon EU','Amazon EU Share','Amazon EU % of total A2A spend');
-}
-
-// DATE EXPLORER
-function setExplorerToday(){
-  const t=new Date().toISOString().split('T')[0];
-  document.getElementById('explorerFrom').value=t;
-  document.getElementById('explorerTo').value=t;
-}
-function setExplorerThisWeek(){
-  const now=new Date();
-  const mon=new Date(now);
-  mon.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
-  document.getElementById('explorerFrom').value=mon.toISOString().split('T')[0];
-  document.getElementById('explorerTo').value=now.toISOString().split('T')[0];
-}
-function setExplorerThisMonth(){
-  const now=new Date();
-  document.getElementById('explorerFrom').value=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
-  document.getElementById('explorerTo').value=now.toISOString().split('T')[0];
-}
-function runExplorer(){
-  const from=new Date(document.getElementById('explorerFrom').value);
-  const to=new Date(document.getElementById('explorerTo').value);
-  to.setHours(23,59,59);
-  if(isNaN(from)||isNaN(to)){alert('Please select valid dates');return;}
-
-  const rows=allRows.filter(r=>r.date>=from&&r.date<=to);
-  const results=document.getElementById('explorerResults');
-  results.style.display='block';
-
-  if(rows.length===0){
-    document.getElementById('explorerCards').innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;padding:12px 0;">No orders found in this date range</div>';
-    ['explorerProviders','explorerSuppliers','explorerAsins','explorerTable'].forEach(id=>document.getElementById(id).innerHTML='');
-    return;
-  }
-
-  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
-  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
-  const trueOrders=countOrders(rows);
-  const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin));
-  const days=new Set(rows.map(r=>r.date.toDateString())).size;
-
-  // Cards
-  document.getElementById('explorerCards').innerHTML=
-    `<div class="stat-tile c-blue"><div class="stat-tile-label">total spend</div><div class="stat-tile-value">${fmt(totalSpend)}</div><div class="stat-tile-sub">${days} day${days!==1?'s':''} · ${fmt(totalSpend/days)} avg/day</div></div>`+
-    `<div class="stat-tile c-purple"><div class="stat-tile-label">units</div><div class="stat-tile-value">${totalUnits.toLocaleString()}</div><div class="stat-tile-sub">${rows.length} SKU lines</div></div>`+
-    `<div class="stat-tile c-teal"><div class="stat-tile-label">true orders</div><div class="stat-tile-value">${trueOrders}</div><div class="stat-tile-sub">${fmt(totalSpend/trueOrders)} avg order</div></div>`+
-    `<div class="stat-tile c-amber"><div class="stat-tile-label">unique ASINs</div><div class="stat-tile-value">${uniqueAsins.size}</div><div class="stat-tile-sub">${fmt(totalSpend/uniqueAsins.size)} avg per ASIN</div></div>`;
-
-  // Providers
-  const provMap={};rows.forEach(r=>provMap[r.provider]=(provMap[r.provider]||0)+r.spend);
-  const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('explorerProviders').innerHTML=sortedProv.map(([name,val])=>{
-    const color=PROVIDER_COLORS[name]||'#4f8ef7';
-    const pct=((val/totalSpend)*100).toFixed(1);
-    const barW=(val/totalSpend)*100;
-    return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};"></span>${name}</span><span style="font-size:11px;font-weight:600;color:${color};">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
-  }).join('');
-
-  // Suppliers
-  const supMap={};rows.forEach(r=>supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend);
-  const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById('explorerSuppliers').innerHTML=sortedSup.map(([name,val],i)=>{
-    const color=SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length];
-    const pct=((val/totalSpend)*100).toFixed(1);
-    const barW=(val/totalSpend)*100;
-    return `<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};"></span>${name}</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(val)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:${barW}%;background:${color};"></div></div></div>`;
-  }).join('');
-
-  // ASINs
-  const asinMap={},asinUnits={};
-  rows.filter(r=>r.asin).forEach(r=>{asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;});
-  const sortedAsins=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const ag=document.getElementById('explorerAsins');ag.innerHTML='';
-  sortedAsins.forEach(([asin,spend],i)=>{
-    const div=document.createElement('div');div.className='asin-tile';
-    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units</div>`;
-    ag.appendChild(div);
-  });
-  if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data</div>';
-
-  // Orders table
-  const tbody=document.getElementById('explorerTable');tbody.innerHTML='';
-  rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
-    const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);">${i+1}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);">${r.supplier}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:500;color:var(--text);">${fmt(r.spend)}</td><td style="padding:8px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);">${r.qty}</td>`;
-    tbody.appendChild(tr);
-  });
-}
 
 
 function closeProvModal(){document.getElementById('provModal').style.display='none';}
@@ -1688,12 +1624,14 @@ function openProvModal(providerName){
     const pct=Math.min((totalSpend/target)*100,100);
     const pacePct=Math.min(progress*100,99);
     const label=paceLabel(totalSpend,target,progress);
+    const overPct=totalSpend>target?((totalSpend/target-1)*100).toFixed(1):null;
+    const overAmt=totalSpend>target?totalSpend-target:null;
     const extraCard=`<div class="prov-modal-card" style="grid-column:1/-1;padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
         <div class="prov-modal-card-label">target progress</div>
-        <span style="font-size:12px;font-weight:600;color:${paceCol}">${pct.toFixed(1)}% — ${label}</span>
+        <span style="font-size:12px;font-weight:600;color:${paceCol}">${pct.toFixed(1)}%${overPct?' ('+overPct+'% over target — '+fmt(overAmt)+' above)':' — '+label}</span>
       </div>
-      <div class="track-wrap"><div class="track" style="height:8px;"><div class="fill" style="width:${pct}%;background:${paceCol}"></div></div>
+      <div class="track-wrap"><div class="track" style="height:8px;"><div class="fill" style="width:${Math.min(pct,100)}%;background:${paceCol}"></div></div>
       <div class="pace-marker" style="left:${pacePct}%" data-label="pace"></div></div>
     </div>`;
     document.getElementById('provModalCards').innerHTML+=extraCard;
