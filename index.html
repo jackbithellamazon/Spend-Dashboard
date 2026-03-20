@@ -20,6 +20,34 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-1px;}
 .logo em{color:var(--accent);font-style:normal;}
 .header-right{display:flex;align-items:center;gap:20px;}
+/* PAGE NAV */
+.page-nav{display:flex;gap:4px;margin:0 20px;}
+.page-nav-btn{background:transparent;border:none;color:var(--muted2);font-family:var(--font-mono);font-size:13px;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.page-nav-btn:hover{color:var(--text);background:var(--surface2);}
+.page-nav-btn.active{color:#fff;background:var(--accent);}
+/* PAGE SECTIONS */
+#pageOverview{display:block;}
+#pageToday{display:none;}
+/* TODAY PAGE */
+.today-header{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.today-orders-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;overflow-x:auto;}
+.today-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+.today-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;}
+.today-provider-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.today-prov-card{border-radius:10px;padding:16px 18px;border:2px solid transparent;}
+.today-prov-card.active{border-color:rgba(255,255,255,0.15);}
+.today-prov-card.silent{opacity:0.4;}
+.today-prov-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.today-prov-spend{font-size:22px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;}
+.today-prov-sub{font-size:11px;color:rgba(255,255,255,0.65);}
+.today-silent-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;}
+.asin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.asin-tile{background:var(--surface2);border-radius:8px;padding:14px;}
+.asin-tile-rank{font-size:10px;color:var(--muted);margin-bottom:6px;}
+.asin-tile-asin{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;word-break:break-all;}
+.asin-tile-val{font-size:18px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;}
+.asin-tile-sub{font-size:11px;color:var(--muted2);}
+@media(max-width:960px){.today-header{grid-template-columns:1fr 1fr;}.today-provider-grid{grid-template-columns:1fr 1fr;}.asin-grid{grid-template-columns:1fr 1fr;}}
 .live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted2);background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:20px;}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
@@ -180,11 +208,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 <body>
 <header>
   <div class="logo">spend<em>.</em>dash</div>
+  <div class="page-nav">
+    <button class="page-nav-btn active" onclick="switchPage('overview')">Overview</button>
+    <button class="page-nav-btn" onclick="switchPage('today')">Today</button>
+  </div>
   <div class="header-right">
     <div class="live-pill"><span class="dot"></span> live</div>
     <span id="lastUpdated">—</span>
   </div>
 </header>
+<div id="pageOverview">
 <main>
   <div class="selectors">
     <div class="selector-group">
@@ -210,7 +243,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <span id="paceInfo"></span>
   </div>
 
-  <div class="summary-grid">
+  <div class="summary-grid" style="grid-template-columns:repeat(6,1fr);">
     <div class="card card-blue" id="cardSpendWrap">
       <div class="card-label">total spend</div>
       <div class="card-value" id="cardTotal">—</div>
@@ -225,6 +258,11 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="card-label">units bought</div>
       <div class="card-value" id="cardUnits">—</div>
       <div class="card-sub" id="cardUnitsSub"></div>
+    </div>
+    <div class="card card-rose">
+      <div class="card-label">true orders</div>
+      <div class="card-value" id="cardOrders">—</div>
+      <div class="card-sub" id="cardOrdersSub"></div>
     </div>
     <div class="card card-amber">
       <div class="card-label">avg buy price</div>
@@ -359,6 +397,84 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <div class="stats-grid-4" id="vsLastGrid"></div>
   </div>
 </main>
+</div>
+
+<!-- TODAY PAGE -->
+<div id="pageToday">
+<main>
+  <!-- HEADER STATS -->
+  <div class="today-header">
+    <div class="card card-blue">
+      <div class="card-label">spent today</div>
+      <div class="card-value" id="todaySpend">—</div>
+      <div class="card-sub" id="todaySpendSub"></div>
+    </div>
+    <div class="card card-purple">
+      <div class="card-label">units today</div>
+      <div class="card-value" id="todayUnits">—</div>
+      <div class="card-sub" id="todayUnitsSub"></div>
+    </div>
+    <div class="card card-teal">
+      <div class="card-label">orders today</div>
+      <div class="card-value" id="todayOrders">—</div>
+      <div class="card-sub" id="todayOrdersSub"></div>
+    </div>
+    <div class="card card-amber">
+      <div class="card-label">unique ASINs</div>
+      <div class="card-value" id="todayAsins">—</div>
+      <div class="card-sub" id="todayAsinsSub"></div>
+    </div>
+    <div class="card card-green" id="todayTargetCard">
+      <div class="card-label">vs daily target</div>
+      <div class="card-value" id="todayVsTarget">—</div>
+      <div class="card-sub" id="todayVsTargetSub"></div>
+    </div>
+  </div>
+
+  <!-- PROVIDER STATUS -->
+  <div class="today-section">
+    <div class="today-section-title">provider status today</div>
+    <div class="today-provider-grid" id="todayProviderGrid"></div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="today-section">
+    <div class="today-section-title">today's insights</div>
+    <div class="stats-grid-4" id="todayInsightsGrid"></div>
+  </div>
+
+  <!-- TOP ASINs BY SPEND -->
+  <div class="today-section">
+    <div class="today-section-title">top ASINs by spend today</div>
+    <div class="asin-grid" id="todayTopAsinSpend"></div>
+  </div>
+
+  <!-- TOP ASINs BY UNITS -->
+  <div class="today-section">
+    <div class="today-section-title">top ASINs by units today</div>
+    <div class="asin-grid" id="todayTopAsinUnits"></div>
+  </div>
+
+  <!-- TODAY'S ORDERS TABLE -->
+  <div class="today-orders-table">
+    <div class="today-section-title">all orders today</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;">#</th>
+          <th style="text-align:left;">provider</th>
+          <th style="text-align:left;">supplier</th>
+          <th style="text-align:left;">ASIN</th>
+          <th>spend</th>
+          <th>units</th>
+          <th>buy price</th>
+        </tr>
+      </thead>
+      <tbody id="todayOrdersTable"></tbody>
+    </table>
+  </div>
+</main>
+</div>
 <footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
 
 <script>
@@ -377,7 +493,7 @@ const QUARTER_MONTHS={
 // Month name → number
 const MONTH_MAP={'jan':1,'feb':2,'mar':3,'march':3,'apr':4,'april':4,'may':5,'jun':6,'june':6,'jul':7,'july':7,'aug':8,'august':8,'sep':9,'sept':9,'september':9,'oct':10,'october':10,'nov':11,'november':11,'dec':12,'december':12};
 
-const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14;
+const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_ORDER_ID=9,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14;
 const HEADER_ROWS=1;
 
 const PROVIDER_COLORS={
@@ -395,6 +511,20 @@ let allSortedSup=[];
 function fmt(v){return '£'+Math.round(v).toLocaleString('en-GB');}
 function fmtDec(v){return '£'+v.toFixed(2);}
 function getDIM(month,year){return month===0?92:new Date(year,month,0).getDate();}
+
+// Count true orders: unique Order IDs where present, else each blank row = 1 order
+function countOrders(rows){
+  const seen=new Set();
+  let count=0;
+  rows.forEach(r=>{
+    if(r.orderId){
+      if(!seen.has(r.orderId)){seen.add(r.orderId);count++;}
+    } else {
+      count++;
+    }
+  });
+  return count;
+}
 
 function monthProgress(month,year){
   if(month===0) return 1.0;
@@ -503,13 +633,14 @@ function parseRows(values){
     const qtyRaw=(r[COL_QTY]||'').toString().replace(/[, ]/g,'').trim();
     const qty=parseInt(qtyRaw)||1;
     const asin=(r[COL_ASIN]||'').trim();
+    const orderId=(r[COL_ORDER_ID]||'').trim();
     if(!dateStr||!provider||isNaN(spend)||spend<=0) continue;
     let date=null;
     const p=dateStr.split('/');
     if(p.length===3) date=new Date(+p[2],+p[1]-1,+p[0]);
     else date=new Date(dateStr);
     if(!date||isNaN(date)) continue;
-    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,provider,supplier,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty});
+    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,orderId,provider,supplier,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty});
   }
   return rows;
 }
@@ -583,6 +714,9 @@ function render(){
     if(r.asin) uniqueAsins.add(r.asin);
   });
 
+  const trueOrders=countOrders(rows);
+  const skuLines=orderCount;
+
   const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
   allSortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
   const sortedSupByUnits=Object.entries(supUnits).sort((a,b)=>b[1]-a[1]);
@@ -600,11 +734,14 @@ function render(){
   document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
   document.getElementById('cardTargetSub').textContent=teamTarget?((totalSpend/teamTarget*100).toFixed(1)+'% of target reached'):'no target set';
   document.getElementById('cardUnits').textContent=totalUnits.toLocaleString();
-  document.getElementById('cardUnitsSub').textContent=orderCount+' line items';
+  document.getElementById('cardUnitsSub').textContent=skuLines+' SKU lines';
   document.getElementById('cardAvgBuy').textContent=avgBuyPrice>0?fmtDec(avgBuyPrice):'—';
   document.getElementById('cardAvgBuySub').textContent=buyPriceCount+' priced items';
   document.getElementById('cardAsins').textContent=uniqueAsins.size.toLocaleString();
   document.getElementById('cardAsinsSub').textContent='distinct products';
+
+  document.getElementById('cardOrders').textContent=trueOrders.toLocaleString();
+  document.getElementById('cardOrdersSub').textContent=skuLines+' SKU lines · '+fmt(totalSpend/trueOrders)+' avg';
 
   const topSup=allSortedSup[0];
   document.getElementById('cardTopSupName').textContent=topSup?topSup[0]:'—';
@@ -953,6 +1090,176 @@ function buildVsLastMonth(rows,month,year,currentDay){
     vsRow('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
     vsRow('active days',t.days,l.days,v=>v+' days')+
     vsRow('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
+}
+
+function switchPage(page){
+  document.getElementById('pageOverview').style.display=page==='overview'?'block':'none';
+  document.getElementById('pageToday').style.display=page==='today'?'block':'none';
+  document.querySelectorAll('.page-nav-btn').forEach(b=>{
+    b.className='page-nav-btn'+(b.textContent.toLowerCase().includes(page)?' active':'');
+  });
+  if(page==='today') buildToday();
+}
+
+function buildToday(){
+  const now=new Date();
+  const todayRows=allRows.filter(r=>{
+    return r.date.getDate()===now.getDate()&&
+           r.date.getMonth()===now.getMonth()&&
+           r.date.getFullYear()===now.getFullYear();
+  });
+
+  const targets=getTargetForView(now.getMonth()+1);
+  const teamTarget=targets.team||0;
+  const dim=getDIM(now.getMonth()+1,now.getFullYear());
+  const dailyTarget=teamTarget?teamTarget/dim:0;
+
+  const totalSpend=todayRows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=todayRows.reduce((a,r)=>a+r.qty,0);
+  const totalOrders=countOrders(todayRows);
+  const skuLines=todayRows.length;
+  const uniqueAsins=new Set(todayRows.filter(r=>r.asin).map(r=>r.asin));
+
+  // Header cards
+  document.getElementById('todaySpend').textContent=fmt(totalSpend);
+  document.getElementById('todaySpendSub').textContent=totalOrders+' orders · '+skuLines+' SKU lines';
+  document.getElementById('todayUnits').textContent=totalUnits.toLocaleString();
+  document.getElementById('todayUnitsSub').textContent=skuLines+' SKU lines';
+  document.getElementById('todayOrders').textContent=totalOrders;
+  document.getElementById('todayOrdersSub').textContent=skuLines+' SKUs · '+fmt(totalOrders>0?totalSpend/totalOrders:0)+' avg';
+  document.getElementById('todayAsins').textContent=uniqueAsins.size;
+  document.getElementById('todayAsinsSub').textContent='distinct products today';
+
+  // vs daily target
+  const targetCard=document.getElementById('todayTargetCard');
+  if(dailyTarget){
+    const diff=totalSpend-dailyTarget;
+    const pct=(totalSpend/dailyTarget*100).toFixed(1);
+    const color=diff>=0?'card-green2':totalSpend/dailyTarget>=0.9?'card-amber':'card-red';
+    targetCard.className='card '+color;
+    document.getElementById('todayVsTarget').textContent=fmt(dailyTarget);
+    document.getElementById('todayVsTargetSub').textContent=(diff>=0?'+':'')+fmt(diff)+' vs daily target ('+pct+'%)';
+  } else {
+    targetCard.className='card card-slate';
+    document.getElementById('todayVsTarget').textContent='—';
+    document.getElementById('todayVsTargetSub').textContent='no target set';
+  }
+
+  // Provider status grid
+  const provSpend={},provUnits={},provOrders={},provAsins={};
+  todayRows.forEach(r=>{
+    provSpend[r.provider]=(provSpend[r.provider]||0)+r.spend;
+    provUnits[r.provider]=(provUnits[r.provider]||0)+r.qty;
+    provOrders[r.provider]=(provOrders[r.provider]||0)+1;
+    if(!provAsins[r.provider]) provAsins[r.provider]=new Set();
+    if(r.asin) provAsins[r.provider].add(r.asin);
+  });
+
+  const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
+  const allKnownProviders=new Set([...PROVIDER_ORDER,...Object.keys(provSpend)]);
+  const orderedProviders=[...PROVIDER_ORDER.filter(p=>allKnownProviders.has(p)),...Object.keys(provSpend).filter(p=>!PROVIDER_ORDER.includes(p))];
+
+  const pgrid=document.getElementById('todayProviderGrid');
+  pgrid.innerHTML='';
+  orderedProviders.forEach(name=>{
+    const spent=provSpend[name]||0;
+    const units=provUnits[name]||0;
+    const orders=provOrders[name]||0;
+    const asins=(provAsins[name]||new Set()).size;
+    const color=PROVIDER_COLORS[name]||'#4f8ef7';
+    const isActive=spent>0;
+    const div=document.createElement('div');
+    div.className='today-prov-card '+(isActive?'active':'silent');
+    div.style.background=isActive?color+'22':'var(--surface2)';
+    div.style.borderColor=isActive?color+'44':'transparent';
+    div.innerHTML=`
+      <div class="today-prov-name">
+        <span style="width:8px;height:8px;border-radius:50%;background:${isActive?color:'var(--muted)'};flex-shrink:0;"></span>
+        ${name}
+      </div>
+      ${isActive?`
+        <div class="today-prov-spend">${fmt(spent)}</div>
+        <div class="today-prov-sub">${units} units · ${orders} orders · ${asins} ASINs</div>
+      `:`<div class="today-silent-label">no orders today</div>`}`;
+    pgrid.appendChild(div);
+  });
+
+  // Insights
+  const biggestOrder=todayRows.length?todayRows.reduce((a,r)=>r.spend>a.spend?r:a,todayRows[0]):null;
+  const topProvEntry=Object.entries(provSpend).sort((a,b)=>b[1]-a[1])[0];
+  const topProvUnits=Object.entries(provUnits).sort((a,b)=>b[1]-a[1])[0];
+  const avgBuyPriceToday=todayRows.filter(r=>r.buyPrice>0).length>0?
+    todayRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/todayRows.filter(r=>r.buyPrice>0).length:0;
+
+  // Month total including today
+  const monthRows=allRows.filter(r=>r.month===now.getMonth()+1&&r.year===now.getFullYear());
+  const monthTotal=monthRows.reduce((a,r)=>a+r.spend,0);
+  const monthTarget=teamTarget;
+  const remaining=monthTarget?monthTarget-monthTotal:0;
+
+  // Silent providers today
+  const silentToday=PROVIDER_ORDER.filter(p=>!provSpend[p]);
+
+  // Avg spend per ASIN today
+  const asinSpend={},asinUnits={},asinOrders={};
+  todayRows.filter(r=>r.asin).forEach(r=>{
+    asinSpend[r.asin]=(asinSpend[r.asin]||0)+r.spend;
+    asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;
+    asinOrders[r.asin]=(asinOrders[r.asin]||0)+1;
+  });
+
+  const igrid=document.getElementById('todayInsightsGrid');
+  igrid.innerHTML=
+    statTile('biggest order today',biggestOrder?fmt(biggestOrder.spend):'—',biggestOrder?biggestOrder.supplier+' · '+biggestOrder.provider:'')+
+    statTile('top provider today',topProvEntry?topProvEntry[0]:'—',topProvEntry?fmt(topProvEntry[1])+' · '+(provOrders[topProvEntry[0]]||0)+' orders':'')+
+    statTile('top provider by units',topProvUnits?topProvUnits[0]:'—',topProvUnits?topProvUnits[1]+' units ordered':'')+
+    statTile('avg buy price today',avgBuyPriceToday>0?fmtDec(avgBuyPriceToday):'—',todayRows.filter(r=>r.buyPrice>0).length+' priced items')+
+    statTile('month total so far',fmt(monthTotal),monthTarget?(fmt(remaining)+' still needed'):'no target set')+
+    statTile('providers active',Object.keys(provSpend).length+' / '+PROVIDER_ORDER.length,silentToday.length>0?'silent: '+silentToday.slice(0,3).join(', ')+(silentToday.length>3?'...':''):'all providers active!')+
+    statTile('spend per ASIN today',uniqueAsins.size>0?fmt(totalSpend/uniqueAsins.size):'—',uniqueAsins.size+' unique ASINs')+
+    statTile('units per order today',totalOrders>0?(totalUnits/totalOrders).toFixed(1):'—',totalUnits+' units across '+totalOrders+' orders');
+
+  // Top ASINs by spend
+  const sortedAsinSpend=Object.entries(asinSpend).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const asinSpendGrid=document.getElementById('todayTopAsinSpend');
+  asinSpendGrid.innerHTML='';
+  sortedAsinSpend.forEach(([asin,spend],i)=>{
+    const div=document.createElement('div');div.className='asin-tile';
+    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units · ${asinOrders[asin]||0} orders</div>`;
+    asinSpendGrid.appendChild(div);
+  });
+  if(sortedAsinSpend.length===0) asinSpendGrid.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data for today</div>';
+
+  // Top ASINs by units
+  const sortedAsinUnits=Object.entries(asinUnits).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const asinUnitsGrid=document.getElementById('todayTopAsinUnits');
+  asinUnitsGrid.innerHTML='';
+  sortedAsinUnits.forEach(([asin,units],i)=>{
+    const div=document.createElement('div');div.className='asin-tile';
+    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${units} units</div><div class="asin-tile-sub">${fmt(asinSpend[asin]||0)} spend · ${asinOrders[asin]||0} orders</div>`;
+    asinUnitsGrid.appendChild(div);
+  });
+  if(sortedAsinUnits.length===0) asinUnitsGrid.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data for today</div>';
+
+  // Orders table
+  const tbody=document.getElementById('todayOrdersTable');tbody.innerHTML='';
+  if(todayRows.length===0){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No orders today yet</td></tr>';
+  } else {
+    todayRows.sort((a,b)=>b.spend-a.spend).forEach((r,i)=>{
+      const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td style="text-align:left;"><span class="rank">${i+1}</span></td>
+        <td style="text-align:left;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td>
+        <td style="text-align:left;font-weight:500;color:var(--text);">${r.supplier}</td>
+        <td style="text-align:left;color:var(--accent);font-size:11px;">${r.asin||'—'}</td>
+        <td class="bold">${fmt(r.spend)}</td>
+        <td>${r.qty}</td>
+        <td>${r.buyPrice>0?fmtDec(r.buyPrice):'—'}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
 }
 
 document.querySelectorAll('[data-q]').forEach(btn=>{
