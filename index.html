@@ -1100,7 +1100,7 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
         <div class="prow-stat"><div class="prow-stat-label">avg buy price</div><div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div></div>
       </div>`;
 
-    const badge=`<span class='prov-badge' style='background:${provColor}20;border:1px solid ${provColor}40;cursor:pointer;' data-prov='${name.replace(/'/g,"\\'")}' onclick='clickProv(this.dataset.prov)'><span class='prov-badge-dot' style='background:${provColor}'></span>${name}</span>`;
+    const badge=`<span class='prov-badge' style='background:${provColor}20;border:1px solid ${provColor}40;cursor:pointer;' data-prov='${name.replace(/'/g,"\\'")}' onclick="clickProv(this.dataset.prov)"><span class='prov-badge-dot' style='background:${provColor}'></span>${name}</span>`;
 
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
@@ -1199,7 +1199,10 @@ function buildDailyAvgs(rows,month,year,currentDay,progress){
     ['avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`,'Average Order Size','avg order size by spend'],
     ['trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`,'Trading Days','active trading days this month'],
   ];
-  grid.innerHTML=tiles.map((t,i)=>{const id=storeCtx({title:t[3],label:t[4],value:t[1],ctx:avgCtx});return `<div class="stat-tile ${TILE_COLORS[i]} clickable" onclick="clickTile('${id}')"><div class="stat-tile-label">${t[0]}</div><div class="stat-tile-value">${t[1]}</div><div class="stat-tile-sub">${t[2]}</div></div>`;}).join('');
+  grid.innerHTML=tiles.map((t,i)=>{
+    const id=storeCtx({title:t[3],label:t[4],value:t[1],ctx:avgCtx});
+    return '<div class="stat-tile '+TILE_COLORS[i]+' clickable" onclick="clickTile(&quot;'+id+'&quot;)"><div class="stat-tile-label">'+t[0]+'</div><div class="stat-tile-value">'+t[1]+'</div><div class="stat-tile-sub">'+t[2]+'</div></div>';
+  }).join('');
 }
 
 function buildInsights(rows,month,year,teamTarget,progress,dim){
@@ -1275,14 +1278,14 @@ function buildInsights(rows,month,year,teamTarget,progress,dim){
 
   const grid=document.getElementById('insightsGrid');
   grid.innerHTML=
-    `<div class="stat-tile c-blue clickable" onclick="clickTile('${i1}')"><div class="stat-tile-label">busiest day</div><div class="stat-tile-value">${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}</div><div class="stat-tile-sub">${busiestDay?fmt(busiestDay[1])+' spend':''}</div></div>`+
-    `<div class="stat-tile c-rose clickable" onclick="clickTile('${i2}')"><div class="stat-tile-label">biggest single order</div><div class="stat-tile-value">${fmt(biggestOrder.spend)}</div><div class="stat-tile-sub">${biggestOrder.supplier+' · '+biggestOrder.provider}</div></div>`+
-    `<div class="stat-tile c-green clickable" onclick="clickTile('${i3}')"><div class="stat-tile-label">best provider</div><div class="stat-tile-value">${bestProv?bestProv[0]:'—'}</div><div class="stat-tile-sub">${bestProv?fmt(bestProv[1])+' spent':''}</div></div>`+
-    `<div class="stat-tile c-teal clickable" onclick="clickTile('${i4}')"><div class="stat-tile-label">most ordered ASIN</div><div class="stat-tile-value" style="font-size:14px;">${topAsin?topAsin[0]:'—'}</div><div class="stat-tile-sub">${topAsin?topAsin[1]+' units':'no ASIN data'}</div></div>`+
-    `<div class="stat-tile c-indigo clickable" onclick="clickTile('${i5}')"><div class="stat-tile-label">projected month total</div><div class="stat-tile-value">${fmt(projected)}</div><div class="stat-tile-sub">${progress<1?'at current daily rate':'full month'}</div></div>`+
-    `<div class="stat-tile ${willHit?'c-green':'c-red'} clickable" onclick="clickTile('${i6}')"><div class="stat-tile-label">target hit date</div><div class="stat-tile-value" style="font-size:${willHit?'22px':'14px'};">${dayTargetHit}</div><div class="stat-tile-sub">${willHit?'based on current pace':extraNeeded?'need '+extraNeeded+'/day extra':'no target set'}</div></div>`+
-    `<div class="stat-tile c-amber clickable" onclick="clickTile('${i7}')"><div class="stat-tile-label">order streak</div><div class="stat-tile-value">${streak>0?streak+' day'+(streak!==1?'s':''):'none today'}</div><div class="stat-tile-sub">consecutive days with orders</div></div>`+
-    `<div class="stat-tile c-purple clickable" onclick="clickTile('${i8}')"><div class="stat-tile-label">most orders by</div><div class="stat-tile-value">${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}</div><div class="stat-tile-sub">${mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':''}</div></div>`;
+    `<div class="stat-tile c-blue clickable" onclick="clickTile(&quot;${i1}&quot;)"><div class="stat-tile-label">busiest day</div><div class="stat-tile-value">${busiestDay?new Date(busiestDay[0]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-'}</div><div class="stat-tile-sub">${busiestDay?fmt(busiestDay[1])+' spend':''}</div></div>`+
+    `<div class="stat-tile c-rose clickable" onclick="clickTile(&quot;${i2}&quot;)"><div class="stat-tile-label">biggest single order</div><div class="stat-tile-value">${fmt(biggestOrder.spend)}</div><div class="stat-tile-sub">${biggestOrder.supplier+' · '+biggestOrder.provider}</div></div>`+
+    `<div class="stat-tile c-green clickable" onclick="clickTile(&quot;${i3}&quot;)"><div class="stat-tile-label">best provider</div><div class="stat-tile-value">${bestProv?bestProv[0]:'—'}</div><div class="stat-tile-sub">${bestProv?fmt(bestProv[1])+' spent':''}</div></div>`+
+    `<div class="stat-tile c-teal clickable" onclick="clickTile(&quot;${i4}&quot;)"><div class="stat-tile-label">most ordered ASIN</div><div class="stat-tile-value" style="font-size:14px;">${topAsin?topAsin[0]:'—'}</div><div class="stat-tile-sub">${topAsin?topAsin[1]+' units':'no ASIN data'}</div></div>`+
+    `<div class="stat-tile c-indigo clickable" onclick="clickTile(&quot;${i5}&quot;)"><div class="stat-tile-label">projected month total</div><div class="stat-tile-value">${fmt(projected)}</div><div class="stat-tile-sub">${progress<1?'at current daily rate':'full month'}</div></div>`+
+    `<div class="stat-tile ${willHit?'c-green':'c-red'} clickable" onclick="clickTile(&quot;${i6}&quot;)"><div class="stat-tile-label">target hit date</div><div class="stat-tile-value" style="font-size:${willHit?'22px':'14px'};">${dayTargetHit}</div><div class="stat-tile-sub">${willHit?'based on current pace':extraNeeded?'need '+extraNeeded+'/day extra':'no target set'}</div></div>`+
+    `<div class="stat-tile c-amber clickable" onclick="clickTile(&quot;${i7}&quot;)"><div class="stat-tile-label">order streak</div><div class="stat-tile-value">${streak>0?streak+' day'+(streak!==1?'s':''):'none today'}</div><div class="stat-tile-sub">consecutive days with orders</div></div>`+
+    `<div class="stat-tile c-purple clickable" onclick="clickTile(&quot;${i8}&quot;)"><div class="stat-tile-label">most orders by</div><div class="stat-tile-value">${mostActiveProvOrders?mostActiveProvOrders[0]:'—'}</div><div class="stat-tile-sub">${mostActiveProvOrders?mostActiveProvOrders[1]+' orders placed':''}</div></div>`;
 }
 
 function buildVsLastMonth(rows,month,year,currentDay){
@@ -1338,7 +1341,7 @@ function buildVsLastMonth(rows,month,year,currentDay){
     const bSign=pct!==null&&pct>0?'+':'';
     const b=pct!==null?`<span class="stat-tile-badge ${bClass}">${bSign}${pct.toFixed(1)}%</span>`:'';
     const id=storeCtx({title:label+' vs last month',label:label,value:fmtFn(thisVal),ctx:vsCtx});
-    return `<div class="stat-tile clickable" onclick="clickTile('${id}')"><div class="stat-tile-label">${label}</div><div class="stat-tile-value ${cls}">${fmtFn(thisVal)}${b}</div><div class="stat-tile-sub">prev: ${fmtFn(lastVal)}</div></div>`;
+    return '<div class="stat-tile clickable" onclick="clickTile(&quot;'+id+'&quot;)"><div class="stat-tile-label">'+label+'</div><div class="stat-tile-value '+cls+'">'+fmtFn(thisVal)+b+'</div><div class="stat-tile-sub">prev: '+fmtFn(lastVal)+'</div></div>';
   }
   const grid=document.getElementById('vsLastGrid');
   grid.innerHTML=
@@ -1509,7 +1512,7 @@ function buildOaA2a(rows,totalSpend){
   const oaUniqueAsins=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
 
   const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
-  const mkStat=(label,val,sub,clickTitle,clickLabel)=>{const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});return `<div class="prow-stat stat-tile clickable" onclick="clickTile('${id}')"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;};
+  const mkStat=(label,val,sub,clickTitle,clickLabel)=>{const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});return `<div class="prow-stat stat-tile clickable" onclick="clickTile(&quot;${id}&quot;)"><div class="prow-stat-label">${label}</div><div class="prow-stat-value">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;};
 
   document.getElementById('oaA2aStats').innerHTML=
     mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
