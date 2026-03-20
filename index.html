@@ -440,20 +440,20 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
     <div id="oaA2aBody">
       <!-- Row 1: Pies + Key Metrics -->
-      <div style="display:grid;grid-template-columns:280px 280px 1fr;gap:20px;margin-bottom:20px;align-items:start;">
+      <div style="display:grid;grid-template-columns:320px 320px 1fr;gap:24px;margin-bottom:20px;align-items:start;">
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
-          <div style="position:relative;height:220px;"><canvas id="chartOaA2a"></canvas></div>
+          <div style="position:relative;height:280px;"><canvas id="chartOaA2a"></canvas></div>
           <div id="oaA2aLegend" style="display:flex;flex-direction:column;gap:6px;margin-top:14px;"></div>
         </div>
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">A2A — UK vs EU</div>
-          <div style="position:relative;height:220px;"><canvas id="chartA2aRegion"></canvas></div>
+          <div style="position:relative;height:280px;"><canvas id="chartA2aRegion"></canvas></div>
           <div id="a2aRegionLegend" style="display:flex;flex-direction:column;gap:6px;margin-top:14px;"></div>
         </div>
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">key metrics</div>
-          <div id="oaA2aStats" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;"></div>
+          <div id="oaA2aStats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
         </div>
       </div>
       <!-- Row 2: Daily chart -->
@@ -1255,8 +1255,9 @@ function buildOaA2a(rows,totalSpend){
     '<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">'+fmt(ukSpend)+' ('+(a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>'+
     '<div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">'+fmt(euSpend)+' ('+(a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>';
 
-  // Store for chart view switching
+  // Store for chart view switching + reactive channel analysis
   window._oaDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
+  window._oaAllRows=rows;
   window._oaDailyOA={};window._oaDailyA2A={};
   window._oaDates.forEach(d=>{window._oaDailyOA[d]=0;window._oaDailyA2A[d]=0;});
   oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];window._oaDailyOA[k]=(window._oaDailyOA[k]||0)+r.spend;});
@@ -1285,7 +1286,7 @@ function buildOaA2a(rows,totalSpend){
   const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
   const mkStat=(label,val,sub,clickTitle,clickLabel)=>{
     const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});
-    return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'" style="padding:8px 10px;"><div class="prow-stat-label" style="font-size:8px;letter-spacing:.06em;margin-bottom:3px;">'+label+'</div><div class="prow-stat-value" style="font-size:15px;line-height:1.1;">'+val+'</div>'+(sub?'<div style="font-size:8px;color:var(--muted2);margin-top:2px;">'+sub+'</div>':'')+'</div>';
+    return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'" style="padding:14px 12px;text-align:center;"><div class="prow-stat-label" style="font-size:9px;letter-spacing:.06em;margin-bottom:6px;">'+label+'</div><div class="prow-stat-value" style="font-size:20px;line-height:1.1;">'+val+'</div>'+(sub?'<div style="font-size:10px;color:var(--muted2);margin-top:4px;">'+sub+'</div>':'')+'</div>';
   };
   document.getElementById('oaA2aStats').innerHTML=
     mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
@@ -1332,11 +1333,29 @@ function buildOaA2a(rows,totalSpend){
   }
   provList(oaProvMap,oaSpend,'oaProviders');
   provList(a2aProvMap,a2aSpend,'a2aProviders');
+  buildChannelAnalysis(rows);
+}
 
-  // Analysis — references all key metrics shown above
+function buildChannelAnalysis(rows){
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
+  const isEU=r=>r.supplier.trim().toLowerCase().startsWith('amazon')&&!r.supplier.trim().toLowerCase().includes('amazon uk');
+  const a2aRows=rows.filter(isAmazon);
+  const oaRows=rows.filter(r=>!isAmazon(r));
+  const ukRows=rows.filter(isUK);
+  const euRows=rows.filter(isEU);
+  const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
+  const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
+  const ukSpend=ukRows.reduce((a,r)=>a+r.spend,0);
+  const euSpend=euRows.reduce((a,r)=>a+r.spend,0);
+  const a2aUnits=a2aRows.reduce((a,r)=>a+r.qty,0);
+  const oaUnits=oaRows.reduce((a,r)=>a+r.qty,0);
+  const a2aOrders=countOrders(a2aRows);
+  const oaOrders=countOrders(oaRows);
   const tot=a2aSpend+oaSpend;
-  const a2aPct=tot>0?((a2aSpend/tot)*100).toFixed(1):0;
-  const oaPct=tot>0?((oaSpend/tot)*100).toFixed(1):0;
+  if(tot===0){document.getElementById('oaA2aAnalysis').innerHTML='';return;}
+  const a2aPct=((a2aSpend/tot)*100).toFixed(1);
+  const oaPct=((oaSpend/tot)*100).toFixed(1);
   const ukPct=a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0;
   const euPct=a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0;
   const a2aAOV=a2aOrders>0?(a2aSpend/a2aOrders):0;
@@ -1398,6 +1417,11 @@ function buildOaA2aChart(view){
 
   const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
   if(!dates.length) return;
+
+  // Filter all rows to the same date range and rebuild channel analysis
+  const dateSet=new Set(dates);
+  const filteredRows=(window._oaAllRows||[]).filter(r=>dateSet.has(r.date.toISOString().split('T')[0]));
+  buildChannelAnalysis(filteredRows);
 
   new Chart(document.getElementById('chartOaA2aDaily'),{
     type:'bar',
