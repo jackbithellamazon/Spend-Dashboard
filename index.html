@@ -220,10 +220,11 @@ td.bold{color:var(--text);font-weight:500;}
 .stat-tile.clickable{cursor:pointer;transition:transform .15s,opacity .15s;}
 .stat-tile.clickable:hover{transform:translateY(-2px);opacity:.9;}
 .prov-modal-card{background:var(--surface2);border-radius:8px;padding:12px 14px;}
-#provModalTableWrap::-webkit-scrollbar{height:6px;width:6px;}
-#provModalTableWrap::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px;}
-#provModalTableWrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-#provModalTableWrap::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+#provModalTableWrap::-webkit-scrollbar,#supModalTableWrap::-webkit-scrollbar{width:3px;height:3px;}
+#provModalTableWrap::-webkit-scrollbar-track,#supModalTableWrap::-webkit-scrollbar-track{background:transparent;}
+#provModalTableWrap::-webkit-scrollbar-thumb,#supModalTableWrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+#provModalTableWrap::-webkit-scrollbar-thumb:hover,#supModalTableWrap::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2);}
+#provModalTableWrap,#supModalTableWrap{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
 .prov-modal-card-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .prov-modal-card-value{font-size:20px;font-weight:700;color:var(--text);line-height:1;}
 .prov-modal-card-sub{font-size:10px;color:var(--muted2);margin-top:4px;}
@@ -622,15 +623,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
     </div>
-    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:220px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
-      <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:480px;">
+    <div id="provModalTableWrap" style="overflow-x:hidden;overflow-y:auto;max-height:220px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
+      <table style="border-collapse:collapse;font-size:11px;width:100%;table-layout:fixed;">
         <thead><tr>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 8px 7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;width:28px;">#</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 8px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 8px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">supplier</th>
-          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 8px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
-          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 8px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
-          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 18px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">supplier</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 16px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">cost/unit</th>
         </tr></thead>
         <tbody id="provModalTable"></tbody>
       </table>
@@ -668,16 +670,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
           <button onclick="toggleCollapse('supModalTableWrap','supModalTableBtn')" id="supModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
         </div>
       </div>
-      <div id="supModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:320px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
-        <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:600px;">
+      <div id="supModalTableWrap" style="overflow-x:hidden;overflow-y:auto;max-height:320px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
+        <table style="border-collapse:collapse;font-size:11px;width:100%;table-layout:fixed;">
           <thead><tr>
-            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
-            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
-            <th style="text-align:center;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">provider</th>
-            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
-            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
-            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
-            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 18px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">cost/unit</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
+            <th style="text-align:center;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">provider</th>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">ASIN</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">spend</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">units</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:6px 16px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;">cost/unit</th>
           </tr></thead>
           <tbody id="supModalTable"></tbody>
         </table>
@@ -1320,7 +1322,7 @@ function renderSupModalTable(){
   visible.forEach((r,i)=>{
     const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:4px 8px 4px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:center;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;text-align:left;">${r.asin||'—'}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:4px 8px 4px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td><td style="padding:4px 18px 4px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
+    tr.innerHTML=`<td style="padding:5px 12px 5px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;width:30px;">${i+1}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;width:60px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:center;width:100px;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.asin||'—'}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;width:70px;">${fmt(r.spend)}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:45px;">${r.qty}</td><td style="padding:5px 16px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:72px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
     tbody.appendChild(tr);
   });
   if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">No orders</td></tr>';
@@ -2049,10 +2051,10 @@ function openProvModal(providerName){
   document.getElementById('provModalTableBtn').textContent='▲ hide orders';
   rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:4px 6px 4px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;text-align:left;">${r.supplier}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;text-align:left;">${r.asin||'—'}</td><td style="padding:4px 6px 4px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:4px 18px 4px 6px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
+    tr.innerHTML=`<td style="padding:5px 12px 5px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;width:30px;">${i+1}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;width:60px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.supplier}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.asin||'—'}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;width:70px;">${fmt(r.spend)}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:45px;">${r.qty}</td><td style="padding:5px 16px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:72px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
     tbody.appendChild(tr);
   });
-  if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
 }
 
 // Event delegation for clickable tiles and provider badges
