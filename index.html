@@ -110,11 +110,11 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-.chart-inner{display:grid;grid-template-columns:260px 1fr;gap:0;align-items:center;}
-.pie-wrap{position:relative;height:300px;flex-shrink:0;}
+.chart-inner{display:grid;grid-template-columns:1fr auto;gap:0;align-items:center;}
+.pie-wrap{position:relative;height:340px;width:340px;flex-shrink:0;}
 
 /* LEGEND — dot · name · value all tight together */
-.legend{display:flex;flex-direction:column;gap:6px;margin-left:24px;}
+.legend{display:flex;flex-direction:column;gap:6px;margin-left:20px;margin-right:8px;}
 .li{
   display:flex;
   align-items:center;
@@ -630,7 +630,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
     </div>
     <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:220px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
-      <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:580px;">
+      <table style="border-collapse:collapse;font-size:11px;width:100%;min-width:500px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 10px 7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:7px 10px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
@@ -2059,7 +2059,7 @@ function openProvModal(providerName){
   document.getElementById('provModalTableBtn').textContent='▲ hide orders';
   rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:6px 10px 6px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;">${r.supplier}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;">${r.asin||'—'}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:6px 8px 6px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
+    tr.innerHTML=`<td style="padding:6px 10px 6px 8px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${i+1}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);font-size:11px;">${r.supplier}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;">${r.asin||'—'}</td><td style="padding:6px 10px 6px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;">${fmt(r.spend)}</td><td style="padding:6px 16px 6px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;">${r.qty}</td>`;
     tbody.appendChild(tr);
   });
   if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
