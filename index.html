@@ -612,14 +612,14 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div id="provModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
     </div>
     <!-- Orders table -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
+      <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
+    </div>
     <!-- Daily spend breakdown -->
     <div style="margin-bottom:16px;">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
-      <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
     </div>
     <div id="provModalTableWrap" style="max-height:320px;overflow-y:auto;overflow-x:auto;width:100%;display:block;">
       <table style="width:100%;min-width:600px;border-collapse:collapse;font-size:11px;">
@@ -741,7 +741,22 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <thead>
         <tr>
           <th style="text-align:left;">#</th>
-          <th style="text-align:left;">pr
+          <th style="text-align:left;">provider</th>
+          <th style="text-align:left;">supplier</th>
+          <th style="text-align:left;">ASIN</th>
+          <th>spend</th>
+          <th>units</th>
+          <th>buy price</th>
+        </tr>
+      </thead>
+      <tbody id="todayOrdersTable"></tbody>
+    </table>
+  </div>
+</main>
+</div>
+<footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
+
+<script>
 const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
 const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
 
@@ -1284,21 +1299,6 @@ function buildOaA2a(rows,totalSpend){
     mkStat('UK % of A2A',a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(ukSpend)+' Amazon UK','Amazon UK Share','Amazon UK % of A2A')+
     mkStat('EU % of A2A',a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(euSpend)+' Amazon EU','Amazon EU Share','Amazon EU % of A2A');
 
-  // Providers
-  const oaProvMap={},a2aProvMap={};
-  oaRows.forEach(r=>oaProvMap[r.provider]=(oaProvMap[r.provider]||0)+r.spend);
-  a2aRows.forEach(r=>a2aProvMap[r.provider]=(a2aProvMap[r.provider]||0)+r.spend);
-  function provList(map,spend,el){
-    const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
-      const color=PROVIDER_COLORS[name]||'#4f8ef7';
-      const pct=spend>0?((val/spend)*100).toFixed(1):0;
-      return '<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:'+color+';flex-shrink:0;"></span>'+name+'</span><span style="font-size:11px;font-weight:600;color:'+color+';">'+fmt(val)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+(spend>0?(val/spend)*100:0)+'%;background:'+color+';"></div></div></div>';
-    }).join('');
-  }
-  provList(oaProvMap,oaSpend,'oaProviders');
-  provList(a2aProvMap,a2aSpend,'a2aProviders');
-
   // Daily stats row
   const tradingDays=new Set(rows.map(r=>r.date.toISOString().split('T')[0])).size;
   const allUnits=rows.reduce((a,r)=>a+r.qty,0);
@@ -1317,6 +1317,21 @@ function buildOaA2a(rows,totalSpend){
       dstat('avg SKUs/day',tradingDays>0?(allSkus/tradingDays).toFixed(1):'—',allSkus+' SKU lines')+
       dstat('avg buy price',avgBuyAll>0?fmtDec(avgBuyAll):'—',rows.filter(r=>r.buyPrice>0).length+' priced items');
   }
+
+  // Providers
+  const oaProvMap={},a2aProvMap={};
+  oaRows.forEach(r=>oaProvMap[r.provider]=(oaProvMap[r.provider]||0)+r.spend);
+  a2aRows.forEach(r=>a2aProvMap[r.provider]=(a2aProvMap[r.provider]||0)+r.spend);
+  function provList(map,spend,el){
+    const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
+      const color=PROVIDER_COLORS[name]||'#4f8ef7';
+      const pct=spend>0?((val/spend)*100).toFixed(1):0;
+      return '<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:'+color+';flex-shrink:0;"></span>'+name+'</span><span style="font-size:11px;font-weight:600;color:'+color+';">'+fmt(val)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+(spend>0?(val/spend)*100:0)+'%;background:'+color+';"></div></div></div>';
+    }).join('');
+  }
+  provList(oaProvMap,oaSpend,'oaProviders');
+  provList(a2aProvMap,a2aSpend,'a2aProviders');
 
   // Analysis — references all key metrics shown above
   const tot=a2aSpend+oaSpend;
@@ -1858,8 +1873,6 @@ function openProvModal(providerName){
   });
   if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:11px;grid-column:1/-1;">No ASIN data</div>';
 
-  // Orders table
-  const tbody=document.getElementById('provModalTable');tbody.innerHTML='';
   // Daily activity grid
   const provDailyMap={};
   rows.forEach(r=>{
@@ -1876,6 +1889,8 @@ function openProvModal(providerName){
     dailyGrid.innerHTML=sortedDays.map(([day,d])=>`<div style="background:var(--surface2);border-radius:6px;padding:8px 10px;border-left:2px solid ${color}40;"><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">${day}</div><div style="font-size:13px;font-weight:700;color:${color};">${fmt(d.spend)}</div><div style="font-size:8px;color:var(--muted2);margin-top:2px;">${d.units} units · ${d.skus} SKUs · ${d.asins.size} ASINs</div></div>`).join('');
   }
 
+  // Orders table
+  const tbody=document.getElementById('provModalTable');tbody.innerHTML='';
   // Reset collapse state
   document.getElementById('provModalTableWrap').style.display='';
   document.getElementById('provModalTableBtn').textContent='▲ hide orders';
