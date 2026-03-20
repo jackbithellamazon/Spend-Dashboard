@@ -207,6 +207,28 @@ td.bold{color:var(--text);font-weight:500;}
 .week-day-bar{height:4px;background:var(--surface);border-radius:2px;overflow:hidden;margin-top:6px;}
 .week-day-fill{height:100%;border-radius:2px;}
 .stats-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+/* MODAL CSS */
+.ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.ai-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px;max-width:620px;width:100%;max-height:85vh;overflow-y:auto;}
+.ai-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.ai-modal-title{font-size:15px;font-weight:700;color:var(--text);}
+.ai-modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;padding:0;line-height:1;}
+.ai-modal-close:hover{color:var(--text);}
+.ai-modal-metric{background:var(--surface2);border-radius:8px;padding:14px 16px;margin-bottom:16px;}
+.ai-modal-metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.ai-modal-metric-value{font-size:24px;font-weight:700;color:var(--text);}
+.ai-modal-body{font-size:13px;color:var(--muted2);line-height:1.7;}
+.ai-modal-body p{margin-bottom:12px;}
+.ai-loading{display:flex;align-items:center;gap:8px;color:var(--muted2);font-size:13px;}
+.ai-loading-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 1s infinite;}
+.ai-loading-dot:nth-child(2){animation-delay:.2s;}
+.ai-loading-dot:nth-child(3){animation-delay:.4s;}
+.stat-tile.clickable{cursor:pointer;transition:transform .15s,opacity .15s;}
+.stat-tile.clickable:hover{transform:translateY(-2px);opacity:.9;}
+.prov-modal-card{background:var(--surface2);border-radius:8px;padding:12px 14px;}
+.prov-modal-card-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.prov-modal-card-value{font-size:20px;font-weight:700;color:var(--text);line-height:1;}
+.prov-modal-card-sub{font-size:10px;color:var(--muted2);margin-top:4px;}
 .stats-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;}
 .stats-sub{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;}
 .stats-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
