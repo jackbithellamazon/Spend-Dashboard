@@ -10,7 +10,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0b0d10;--surface:#13161c;--surface2:#1a1e27;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#eef0f5;--muted:#555e6e;--muted2:#8892a0;
   --accent:#4f8ef7;--green:#22c55e;--amber:#f59e0b;--red:#f43f5e;
   --font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
@@ -25,68 +25,75 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 #lastUpdated{font-size:11px;color:var(--muted);}
 main{padding:28px 32px;max-width:1440px;margin:0 auto;}
-.selectors{display:flex;align-items:center;gap:24px;margin-bottom:28px;flex-wrap:wrap;}
+.selectors{display:flex;align-items:center;gap:24px;margin-bottom:24px;flex-wrap:wrap;}
 .selector-group{display:flex;align-items:center;gap:8px;}
 .selector-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 .btn-group{display:flex;gap:4px;}
 .tab-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .15s;}
 .tab-btn:hover{border-color:var(--border2);color:var(--text);}
 .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-.status-bar{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;font-size:12px;color:var(--muted2);margin-bottom:20px;display:none;}
-.status-bar.visible{display:block;}
-.status-bar.error{border-color:var(--red);color:var(--red);}
-/* PACE LEGEND */
-.pace-legend{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;}
+.pace-legend{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;}
 .pace-legend span{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:6px;}
 .pace-dot{width:8px;height:8px;border-radius:50%;}
 .pace-title{font-size:11px;color:var(--muted);margin-right:4px;}
-/* SUMMARY */
-.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
-.card-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
-.card-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--text);line-height:1;}
-.card-sub{font-size:11px;color:var(--muted2);margin-top:7px;}
-.card-sub.g{color:var(--green);}
-.card-sub.a{color:var(--amber);}
-.card-sub.r{color:var(--red);}
+#paceInfo{margin-left:auto;font-size:10px;color:var(--muted);}
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.card{border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;}
+.card-label{font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;font-weight:500;}
+.card-value{font-family:var(--font-head);font-size:26px;font-weight:700;color:#fff;line-height:1;}
+.card-sub{font-size:12px;color:rgba(255,255,255,0.75);margin-top:8px;font-weight:500;}
+.card-blue{background:linear-gradient(135deg,#1a3a6e,#1e4080);}
+.card-green{background:linear-gradient(135deg,#0f4a2a,#145c33);}
+.card-purple{background:linear-gradient(135deg,#2d1f5e,#3a2878);}
+.card-amber{background:linear-gradient(135deg,#5c3a0a,#7a4d0d);}
+.card-teal{background:linear-gradient(135deg,#0a3d42,#0d4f55);}
+.card-red{background:linear-gradient(135deg,#5c1a1a,#7a2020);}
 /* TEAM BAR */
 .team-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
 .team-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
 .team-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
 .team-right{display:flex;align-items:baseline;gap:10px;}
-.team-nums{font-size:12px;color:var(--muted2);}
+.team-nums{font-size:13px;color:var(--muted2);}
 .team-nums strong{color:var(--text);font-weight:500;}
-.team-pct{font-family:var(--font-head);font-size:22px;font-weight:700;}
-.track{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden;position:relative;}
-.fill{height:100%;border-radius:5px;transition:width 1s cubic-bezier(.4,0,.2,1);}
-.track-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;}
-/* pace marker */
+.team-pct{font-family:var(--font-head);font-size:24px;font-weight:700;}
 .track-wrap{position:relative;}
-.pace-marker{position:absolute;top:-4px;width:2px;height:18px;background:rgba(255,255,255,0.25);border-radius:1px;pointer-events:none;transition:left .5s;}
-.pace-marker::after{content:attr(data-label);position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap;}
+.track{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden;}
+.fill{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.track-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:7px;}
+.pace-marker{position:absolute;top:-3px;width:2px;height:18px;background:rgba(255,255,255,0.3);border-radius:1px;pointer-events:none;}
+.pace-marker::after{content:attr(data-label);position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap;}
+/* PACE STATS ROW */
+.pace-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+.pace-stat{background:var(--surface2);border-radius:6px;padding:12px 14px;}
+.pace-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.pace-stat-value{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--text);}
+.pace-stat-sub{font-size:10px;color:var(--muted2);margin-top:3px;}
 /* CHARTS */
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-.chart-inner{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center;}
+.chart-inner{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:start;}
 .pie-wrap{position:relative;height:170px;}
-.legend{display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:200px;}
-.legend::-webkit-scrollbar{width:3px;}
-.legend::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.li{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);}
+.legend-wrap{}
+.legend{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:hidden;transition:max-height .4s ease;}
+.legend.expanded{max-height:800px;}
+.li{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;font-size:11px;color:var(--muted2);}
 .li-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.li-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.li-val{color:var(--text);font-weight:500;white-space:nowrap;}
+.li-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-val{color:var(--text);font-weight:500;white-space:nowrap;text-align:right;}
+.expand-btn{margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font-mono);padding:0;display:flex;align-items:center;gap:4px;}
+.expand-btn:hover{color:#fff;}
 /* PROVIDER TARGETS */
 .targets-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
 .targets-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:18px;}
 .provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
 .prow-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
-.prow-name{font-size:12px;color:var(--text);}
-.prow-vals{font-size:11px;color:var(--muted2);}
-.prow-vals strong{color:var(--text);}
-.prow-pct{font-size:11px;margin-left:8px;font-weight:500;}
-.prow-sub{font-size:10px;color:var(--muted);margin-top:5px;}
+.prow-name{font-size:13px;color:var(--text);font-weight:500;}
+.prow-right{display:flex;align-items:baseline;gap:6px;}
+.prow-spent{font-size:13px;font-weight:500;}
+.prow-target{font-size:11px;color:var(--muted2);}
+.prow-pct{font-size:12px;font-weight:500;}
+.prow-sub{font-size:11px;margin-top:5px;}
 .no-target-label{font-size:11px;color:var(--muted);font-style:italic;}
 /* TABLE */
 .table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;}
@@ -99,13 +106,8 @@ tbody tr:hover td{color:var(--text);}
 td.bold{color:var(--text);font-weight:500;}
 .rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:var(--surface2);color:var(--muted);font-size:10px;}
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px;}
-@media(max-width:960px){
-  .summary-grid{grid-template-columns:1fr 1fr;}
-  .charts-row{grid-template-columns:1fr;}
-  .chart-inner{grid-template-columns:1fr;justify-items:center;}
-  .provider-grid{grid-template-columns:1fr;}
-  main{padding:20px 16px;}header{padding:14px 16px;}
-}
+@media(max-width:1100px){.summary-grid{grid-template-columns:repeat(3,1fr);}.pace-stats{grid-template-columns:1fr 1fr;}}
+@media(max-width:960px){.summary-grid{grid-template-columns:1fr 1fr;}.charts-row{grid-template-columns:1fr;}.chart-inner{grid-template-columns:1fr;justify-items:center;}.provider-grid{grid-template-columns:1fr;}main{padding:20px 16px;}header{padding:14px 16px;}}
 </style>
 </head>
 <body>
@@ -116,10 +118,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <span id="lastUpdated">—</span>
   </div>
 </header>
-
 <main>
-  <div class="status-bar" id="statusBar"></div>
-
   <div class="selectors">
     <div class="selector-group">
       <span class="selector-label">quarter</span>
@@ -136,35 +135,39 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
   </div>
 
-  <!-- PACE LEGEND -->
   <div class="pace-legend">
     <span class="pace-title">colour logic:</span>
     <span><span class="pace-dot" style="background:var(--green)"></span> ahead of daily pace</span>
     <span><span class="pace-dot" style="background:var(--amber)"></span> within 5% of pace</span>
     <span><span class="pace-dot" style="background:var(--red)"></span> behind pace</span>
-    <span style="margin-left:auto;color:var(--muted);font-size:10px;" id="paceInfo"></span>
+    <span id="paceInfo"></span>
   </div>
 
   <div class="summary-grid">
-    <div class="card">
+    <div class="card card-blue" id="cardSpendWrap">
       <div class="card-label">total spend</div>
       <div class="card-value" id="cardTotal">—</div>
       <div class="card-sub" id="cardTotalSub"></div>
     </div>
-    <div class="card">
+    <div class="card card-green">
       <div class="card-label">team target</div>
       <div class="card-value" id="cardTarget">—</div>
       <div class="card-sub" id="cardTargetSub"></div>
     </div>
-    <div class="card">
-      <div class="card-label">active providers</div>
-      <div class="card-value" id="cardProviders">—</div>
-      <div class="card-sub" id="cardProvidersSub"></div>
+    <div class="card card-purple">
+      <div class="card-label">units bought</div>
+      <div class="card-value" id="cardUnits">—</div>
+      <div class="card-sub" id="cardUnitsSub"></div>
     </div>
-    <div class="card">
-      <div class="card-label">orders</div>
-      <div class="card-value" id="cardOrders">—</div>
-      <div class="card-sub" id="cardOrdersSub"></div>
+    <div class="card card-amber">
+      <div class="card-label">avg buy price</div>
+      <div class="card-value" id="cardAvgBuy">—</div>
+      <div class="card-sub" id="cardAvgBuySub"></div>
+    </div>
+    <div class="card card-teal">
+      <div class="card-label">unique ASINs</div>
+      <div class="card-value" id="cardAsins">—</div>
+      <div class="card-sub" id="cardAsinsSub"></div>
     </div>
   </div>
 
@@ -177,12 +180,30 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       </div>
     </div>
     <div class="track-wrap">
-      <div class="track">
-        <div class="fill" id="teamFill" style="width:0%"></div>
-      </div>
-      <div class="pace-marker" id="teamPaceMarker" data-label="pace"></div>
+      <div class="track"><div class="fill" id="teamFill" style="width:0%"></div></div>
+      <div class="pace-marker" id="teamPaceMarker" data-label="today's pace"></div>
     </div>
-    <div class="track-label"><span id="teamGapLabel"></span><span id="teamTargetLabel">—</span></div>
+    <div class="track-labels">
+      <span id="teamGapLabel"></span>
+      <span id="teamTargetLabel">—</span>
+    </div>
+    <div class="pace-stats">
+      <div class="pace-stat">
+        <div class="pace-stat-label">daily target</div>
+        <div class="pace-stat-value" id="statDaily">—</div>
+        <div class="pace-stat-sub">per day to hit target</div>
+      </div>
+      <div class="pace-stat">
+        <div class="pace-stat-label">expected by now</div>
+        <div class="pace-stat-value" id="statExpected">—</div>
+        <div class="pace-stat-sub" id="statExpectedSub"></div>
+      </div>
+      <div class="pace-stat">
+        <div class="pace-stat-label">pace difference</div>
+        <div class="pace-stat-value" id="statDiff">—</div>
+        <div class="pace-stat-sub" id="statDiffSub"></div>
+      </div>
+    </div>
   </div>
 
   <div class="charts-row">
@@ -190,14 +211,20 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="chart-title">spend by provider</div>
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartProvider"></canvas></div>
-        <div class="legend" id="legendProvider"></div>
+        <div class="legend-wrap">
+          <div class="legend" id="legendProvider"></div>
+          <button class="expand-btn" id="expandProvider" onclick="toggleLegend('Provider')">▼ show all</button>
+        </div>
       </div>
     </div>
     <div class="chart-card">
       <div class="chart-title">spend by supplier</div>
       <div class="chart-inner">
         <div class="pie-wrap"><canvas id="chartSupplier"></canvas></div>
-        <div class="legend" id="legendSupplier"></div>
+        <div class="legend-wrap">
+          <div class="legend" id="legendSupplier"></div>
+          <button class="expand-btn" id="expandSupplier" onclick="toggleLegend('Supplier')">▼ show all</button>
+        </div>
       </div>
     </div>
   </div>
@@ -215,107 +242,128 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </table>
   </div>
 </main>
-<footer>spend.dash — live from Google Sheets · refreshes every 5 mins</footer>
+<footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
 
 <script>
-// ================================================================
-// CONFIG
-// ================================================================
-const SHEET_ID = '1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
-const API_KEY  = 'AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
+const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8v4aoaTCzrrI';
+const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
 
-const QUARTER_TABS = {
-  1: 'Q1 AMZ - OA',
-  2: 'Q2 AMZ - OA',
-  3: 'Q3 AMZ - OA',
-  4: 'Q4 AMZ - OA',
+const QUARTER_TABS={1:'Q1 AMZ - OA',2:'Q2 AMZ - OA',3:'Q3 AMZ - OA',4:'Q4 AMZ - OA'};
+const QUARTER_MONTHS={
+  1:[{num:1,label:'Jan'},{num:2,label:'Feb'},{num:3,label:'Mar'},{num:0,label:'All Q1'}],
+  2:[{num:4,label:'Apr'},{num:5,label:'May'},{num:6,label:'Jun'},{num:0,label:'All Q2'}],
+  3:[{num:7,label:'Jul'},{num:8,label:'Aug'},{num:9,label:'Sep'},{num:0,label:'All Q3'}],
+  4:[{num:10,label:'Oct'},{num:11,label:'Nov'},{num:12,label:'Dec'},{num:0,label:'All Q4'}],
 };
 
-const QUARTER_MONTHS = {
-  1:[{num:1,label:'Jan'},{num:2,label:'Feb'},{num:3,label:'Mar'}],
-  2:[{num:4,label:'Apr'},{num:5,label:'May'},{num:6,label:'Jun'}],
-  3:[{num:7,label:'Jul'},{num:8,label:'Aug'},{num:9,label:'Sep'}],
-  4:[{num:10,label:'Oct'},{num:11,label:'Nov'},{num:12,label:'Dec'}],
+const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14;
+const HEADER_ROWS=1;
+
+const TARGETS={
+  1:{team:0,'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0,'Arbi':0,'HOR':0},
+  2:{team:0,'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0,'Arbi':0,'HOR':0},
+  3:{team:60000,'Jack':20000,'VA-S':7500,'VA-A':7500,'TFTJ':20000,'Replen':0,'FFB':3000,'THC':3000,'S PP A2A':3000,'ProfitPath A2A':1000,'PS':3000,'Arbi':0,'HOR':0},
 };
 
-// Column indices (0-based): A=0, M=12, N=13, O=14
-const COL_DATE=0, COL_PROVIDER=12, COL_SUPPLIER=13, COL_SPEND=14, HEADER_ROWS=1;
-
-// Targets per month. Add new months as you go.
-// team = overall team target. 0 = no target (Replen).
-const TARGETS = {
-  1:{ team:0, 'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0 },
-  2:{ team:0, 'Jack':0,'VA-S':0,'VA-A':0,'TFTJ':0,'Replen':0,'FFB':0,'THC':0,'S PP A2A':0,'ProfitPath A2A':0,'PS':0 },
-  3:{ team:60000,'Jack':20000,'VA-S':7500,'VA-A':7500,'TFTJ':20000,'Replen':0,'FFB':3000,'THC':3000,'S PP A2A':3000,'ProfitPath A2A':1000,'PS':3000 },
-  // 4:{ team:65000, 'Jack':22000, ... },
+// Provider colours matched to your sheet
+const PROVIDER_COLORS={
+  'Jack':      '#f97316',
+  'VA-S':      '#eab308',
+  'VA-A':      '#4c1d95',
+  'Replen':    '#16a34a',
+  'TFTJ':      '#0891b2',
+  'ProfitPath A2A': '#3b82f6',
+  'FFB':       '#92400e',
+  'Arbi':      '#c084fc',
+  'THC':       '#ef4444',
+  'PS':        '#f472b6',
+  'S PP A2A':  '#67e8f9',
+  'HOR':       '#1e3a8a',
 };
-// ================================================================
 
-const PALETTE=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8'];
+const SUPPLIER_PALETTE=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8','#f97316','#67e8f9'];
 
-let activeQ=1, activeMonth=3, allRows=[];
+let activeQ=1,activeMonth=3,allRows=[];
 
-function fmt(v){ return '£'+Math.round(v).toLocaleString('en-GB'); }
+function fmt(v){return '£'+Math.round(v).toLocaleString('en-GB');}
+function fmtDec(v){return '£'+v.toFixed(2);}
 
-// PACE LOGIC
-// How far through the month are we as a fraction (0-1)?
-// If viewing a past month → 1.0 (full month). Current month → today/daysInMonth.
-function monthProgress(month, year){
+function monthProgress(month,year){
+  if(month===0) return 1.0;
   const now=new Date();
-  const curMonth=now.getMonth()+1;
-  const curYear=now.getFullYear();
-  if(year<curYear||(year===curYear&&month<curMonth)) return 1.0;
-  if(year===curYear&&month===curMonth){
-    const daysInMonth=new Date(year,month,0).getDate();
-    const dayOfMonth=now.getDate();
-    return dayOfMonth/daysInMonth;
+  const cm=now.getMonth()+1,cy=now.getFullYear();
+  if(year<cy||(year===cy&&month<cm)) return 1.0;
+  if(year===cy&&month===cm){
+    const dim=new Date(year,month,0).getDate();
+    return now.getDate()/dim;
   }
   return 0;
 }
 
-// Expected spend at current pace
-function expectedSpend(target, progress){ return target*progress; }
+function daysInMonth(month,year){
+  if(month===0) return 92;
+  return new Date(year,month,0).getDate();
+}
 
-// Colour: green=ahead of pace, yellow=within 5% below, red=more than 5% below
-function paceColor(spent, target, progress){
+function paceColor(spent,target,progress){
   if(target===0) return '#4f8ef7';
-  const expected=expectedSpend(target,progress);
-  if(expected===0) return '#22c55e'; // start of month, any spend is good
-  const ratio=spent/expected;
-  if(ratio>=1.0) return '#22c55e';       // ahead
-  if(ratio>=0.95) return '#f59e0b';      // within 5% — on track
-  return '#f43f5e';                       // behind
+  const exp=target*progress;
+  if(exp===0) return '#22c55e';
+  const r=spent/exp;
+  if(r>=1.0) return '#22c55e';
+  if(r>=0.95) return '#f59e0b';
+  return '#f43f5e';
 }
 
-function paceLabel(spent, target, progress){
+function paceLabel(spent,target,progress){
   if(target===0) return '';
-  const expected=expectedSpend(target,progress);
-  if(expected===0) return 'start of month';
-  const ratio=spent/expected;
-  if(ratio>=1.0) return fmt(spent-expected)+' ahead of pace';
-  if(ratio>=0.95) return 'on pace';
-  return fmt(expected-spent)+' behind pace';
+  const exp=target*progress;
+  if(exp===0) return 'start of month';
+  const r=spent/exp;
+  if(r>=1.0) return fmt(spent-exp)+' ahead of pace';
+  if(r>=0.95) return 'on pace ✓';
+  return fmt(exp-spent)+' behind pace';
 }
 
-function setStatus(msg,err){
-  const el=document.getElementById('statusBar');
-  el.textContent=msg;
-  el.className='status-bar visible'+(err?' error':'');
+function getTargetForView(month){
+  if(month===0){
+    const months=QUARTER_MONTHS[activeQ].filter(m=>m.num!==0).map(m=>m.num);
+    let team=0;const prov={};
+    months.forEach(m=>{
+      const t=TARGETS[m]||{};
+      team+=(t.team||0);
+      Object.entries(t).forEach(([k,v])=>{if(k!=='team') prov[k]=(prov[k]||0)+(v||0);});
+    });
+    return{team,...prov};
+  }
+  return TARGETS[month]||{};
 }
-function clearStatus(){ document.getElementById('statusBar').className='status-bar'; }
+
+function showNoData(msg){
+  ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('cardTotalSub').textContent=msg||'No data for this period';
+  document.getElementById('teamNums').innerHTML=msg||'No data for this period';
+  document.getElementById('teamPct').textContent='';
+  document.getElementById('statDaily').textContent='—';
+  document.getElementById('statExpected').textContent='—';
+  document.getElementById('statDiff').textContent='—';
+  document.getElementById('providerGrid').innerHTML=`<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">${msg||'No data yet.'}</div>`;
+  document.getElementById('supplierTable').innerHTML='';
+  document.getElementById('legendProvider').innerHTML='';
+  document.getElementById('legendSupplier').innerHTML='';
+  ['chartProvider','chartSupplier'].forEach(id=>{const c=Chart.getChart(id);if(c)c.destroy();});
+}
 
 async function fetchSheet(q){
   const tab=QUARTER_TABS[q];
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
-  setStatus('Loading from Google Sheets…');
   try{
     const res=await fetch(url);
-    if(!res.ok) throw new Error(`HTTP ${res.status} — check SHEET_ID and API_KEY`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const json=await res.json();
-    clearStatus();
     return json.values||[];
   }catch(e){
-    setStatus('Error: '+e.message,true);
+    showNoData('No data for this quarter yet.');
     return null;
   }
 }
@@ -326,32 +374,39 @@ function parseRows(values){
     const r=values[i];
     if(!r||r.length<=COL_SPEND) continue;
     const dateStr=(r[COL_DATE]||'').trim();
+    const asin=(r[COL_ASIN]||'').trim();
     const provider=(r[COL_PROVIDER]||'').trim();
     const supplier=(r[COL_SUPPLIER]||'').trim().replace(/\s+$/,'');
-    const raw=(r[COL_SPEND]||'').replace(/[£, ]/g,'');
-    const spend=parseFloat(raw);
+    const spend=parseFloat((r[COL_SPEND]||'').replace(/[£, ]/g,''));
+    const buyPrice=parseFloat((r[COL_BUY_PRICE]||'').replace(/[£, ]/g,''));
+    const qty=parseInt((r[COL_QTY]||'').replace(/[, ]/g,''))||1;
     if(!dateStr||!provider||isNaN(spend)||spend<=0) continue;
     let date=null;
     const parts=dateStr.split('/');
     if(parts.length===3) date=new Date(+parts[2],+parts[1]-1,+parts[0]);
     else date=new Date(dateStr);
     if(!date||isNaN(date)) continue;
-    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),provider,supplier,spend});
+    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,provider,supplier,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty});
   }
   return rows;
 }
 
 function buildMonthBtns(q){
-  const container=document.getElementById('monthBtns');
-  container.innerHTML='';
+  const c=document.getElementById('monthBtns');c.innerHTML='';
   QUARTER_MONTHS[q].forEach(m=>{
     const btn=document.createElement('button');
     btn.className='tab-btn'+(m.num===activeMonth?' active':'');
-    btn.dataset.month=m.num;
-    btn.textContent=m.label;
-    btn.onclick=()=>{ activeMonth=m.num; render(); };
-    container.appendChild(btn);
+    btn.dataset.month=m.num;btn.textContent=m.label;
+    btn.onclick=()=>{activeMonth=m.num;render();};
+    c.appendChild(btn);
   });
+}
+
+function toggleLegend(which){
+  const leg=document.getElementById('legend'+which);
+  const btn=document.getElementById('expand'+which);
+  const expanded=leg.classList.toggle('expanded');
+  btn.textContent=expanded?'▲ show less':'▼ show all';
 }
 
 function render(){
@@ -359,117 +414,124 @@ function render(){
     b.className='tab-btn'+(+b.dataset.month===activeMonth?' active':'');
   });
 
-  const rows=allRows.filter(r=>r.month===activeMonth);
-  const targets=TARGETS[activeMonth]||{};
-  const teamTarget=targets.team||0;
+  let rows;
+  if(activeMonth===0){
+    const months=QUARTER_MONTHS[activeQ].filter(m=>m.num!==0).map(m=>m.num);
+    rows=allRows.filter(r=>months.includes(r.month));
+  } else {
+    rows=allRows.filter(r=>r.month===activeMonth);
+  }
 
-  // Figure out year for pace calc (use most recent year in data, or current)
+  if(rows.length===0){showNoData('No data for this period yet.');return;}
+
+  const targets=getTargetForView(activeMonth);
+  const teamTarget=targets.team||0;
   const years=rows.map(r=>r.year);
   const dataYear=years.length?Math.max(...years):new Date().getFullYear();
   const progress=monthProgress(activeMonth,dataYear);
-  const daysInMonth=new Date(dataYear,activeMonth,0).getDate();
-  const currentDay=Math.round(progress*daysInMonth);
+  const dim=daysInMonth(activeMonth,dataYear);
+  const currentDay=Math.round(progress*dim);
 
-  // Update pace info
   document.getElementById('paceInfo').textContent=
-    progress<1 ? `day ${currentDay} of ${daysInMonth} — ${(progress*100).toFixed(0)}% through month` : 'full month view';
+    activeMonth===0?'full quarter view':
+    progress<1?`day ${currentDay} of ${dim} — ${(progress*100).toFixed(0)}% through month`:'full month view';
 
-  // Aggregate
-  const provMap={}, supMap={}, supCount={};
-  let totalSpend=0, orderCount=0;
+  const provMap={},supMap={},supCount={};
+  let totalSpend=0,totalUnits=0,totalBuyPrice=0,buyPriceCount=0;
+  const uniqueAsins=new Set();
   rows.forEach(r=>{
     provMap[r.provider]=(provMap[r.provider]||0)+r.spend;
     supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend;
     supCount[r.supplier]=(supCount[r.supplier]||0)+1;
-    totalSpend+=r.spend; orderCount++;
+    totalSpend+=r.spend;totalUnits+=r.qty;
+    if(r.buyPrice>0){totalBuyPrice+=r.buyPrice;buyPriceCount++;}
+    if(r.asin) uniqueAsins.add(r.asin);
   });
 
   const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
   const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
+  const avgBuyPrice=buyPriceCount>0?totalBuyPrice/buyPriceCount:0;
 
   // Summary cards
-  document.getElementById('cardTotal').textContent=fmt(totalSpend);
-  document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
-
+  const spendCard=document.getElementById('cardSpendWrap');
   if(teamTarget){
-    const color=paceColor(totalSpend,teamTarget,progress);
-    const label=paceLabel(totalSpend,teamTarget,progress);
-    const sub=document.getElementById('cardTotalSub');
-    sub.textContent=label;
-    sub.className='card-sub';
-    sub.style.color=color;
+    const r=totalSpend/(teamTarget*Math.max(progress,0.01));
+    spendCard.className=r>=1?'card card-green':r>=0.95?'card card-amber':'card card-red';
+  } else { spendCard.className='card card-blue'; }
 
-    const pct=Math.min((totalSpend/teamTarget)*100,100);
-    const targetSub=document.getElementById('cardTargetSub');
-    targetSub.textContent=pct.toFixed(1)+'% of target reached';
-    targetSub.style.color=color;
-    targetSub.className='card-sub';
-  } else {
-    document.getElementById('cardTotalSub').textContent='no target set';
-    document.getElementById('cardTotalSub').className='card-sub';
-    document.getElementById('cardTotalSub').style.color='';
-    document.getElementById('cardTargetSub').textContent='add targets in config';
-    document.getElementById('cardTargetSub').className='card-sub';
-    document.getElementById('cardTargetSub').style.color='';
-  }
-
-  document.getElementById('cardProviders').textContent=sortedProv.length;
-  document.getElementById('cardProvidersSub').textContent=orderCount+' total orders';
-  document.getElementById('cardOrders').textContent=orderCount.toLocaleString();
-  document.getElementById('cardOrdersSub').textContent=totalSpend>0?'avg '+fmt(totalSpend/orderCount)+' per order':'';
+  document.getElementById('cardTotal').textContent=fmt(totalSpend);
+  document.getElementById('cardTotalSub').textContent=teamTarget?paceLabel(totalSpend,teamTarget,progress):'';
+  document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
+  document.getElementById('cardTargetSub').textContent=teamTarget?(((totalSpend/teamTarget)*100).toFixed(1)+'% reached'):'no target set';
+  document.getElementById('cardUnits').textContent=totalUnits.toLocaleString();
+  document.getElementById('cardUnitsSub').textContent=rows.length+' line items';
+  document.getElementById('cardAvgBuy').textContent=avgBuyPrice>0?fmtDec(avgBuyPrice):'—';
+  document.getElementById('cardAvgBuySub').textContent=buyPriceCount+' priced items';
+  document.getElementById('cardAsins').textContent=uniqueAsins.size.toLocaleString();
+  document.getElementById('cardAsinsSub').textContent='distinct products';
 
   // Team bar
   if(teamTarget){
     const pct=Math.min((totalSpend/teamTarget)*100,100);
     const color=paceColor(totalSpend,teamTarget,progress);
-    document.getElementById('teamFill').style.width=pct+'%';
-    document.getElementById('teamFill').style.background=color;
+    document.getElementById('teamFill').style.cssText=`width:${pct}%;background:${color}`;
     document.getElementById('teamNums').innerHTML=`<strong>${fmt(totalSpend)}</strong> of ${fmt(teamTarget)}`;
     document.getElementById('teamPct').textContent=pct.toFixed(1)+'%';
     document.getElementById('teamPct').style.color=color;
     document.getElementById('teamTargetLabel').textContent=fmt(teamTarget);
-    // Pace marker
-    const marker=document.getElementById('teamPaceMarker');
     const pacePct=Math.min(progress*100,99);
-    marker.style.left=pacePct+'%';
-    marker.setAttribute('data-label','today\'s pace');
-    // Gap label
-    const expected=teamTarget*progress;
-    const gap=totalSpend-expected;
-    document.getElementById('teamGapLabel').textContent=
-      gap>=0 ? fmt(gap)+' ahead of pace' : fmt(Math.abs(gap))+' behind pace';
-    document.getElementById('teamGapLabel').style.color=color;
+    document.getElementById('teamPaceMarker').style.left=pacePct+'%';
+    const exp=teamTarget*progress;
+    const gap=totalSpend-exp;
+    const gl=document.getElementById('teamGapLabel');
+    gl.textContent=gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace';
+    gl.style.color=color;
+
+    // Pace stats
+    const dailyTarget=teamTarget/dim;
+    document.getElementById('statDaily').textContent=fmt(dailyTarget);
+    document.getElementById('statDaily').style.color=color;
+    document.getElementById('statExpected').textContent=fmt(exp);
+    document.getElementById('statExpected').style.color=color;
+    document.getElementById('statExpectedSub').textContent=`based on day ${currentDay} of ${dim}`;
+    const diff=totalSpend-exp;
+    document.getElementById('statDiff').textContent=(diff>=0?'+':'')+fmt(Math.abs(diff));
+    document.getElementById('statDiff').style.color=color;
+    document.getElementById('statDiffSub').textContent=diff>=0?'ahead of where you should be':'behind where you should be';
   } else {
     document.getElementById('teamFill').style.width='0%';
-    document.getElementById('teamNums').innerHTML='No target set for this month';
+    document.getElementById('teamNums').innerHTML='No target set for this period';
     document.getElementById('teamPct').textContent='';
     document.getElementById('teamTargetLabel').textContent='—';
     document.getElementById('teamGapLabel').textContent='';
     document.getElementById('teamPaceMarker').style.left='0%';
+    document.getElementById('statDaily').textContent='—';
+    document.getElementById('statExpected').textContent='—';
+    document.getElementById('statDiff').textContent='—';
   }
 
-  buildPie('chartProvider','legendProvider',sortedProv,totalSpend);
-  buildPie('chartSupplier','legendSupplier',sortedSup,totalSpend);
+  buildPie('chartProvider','legendProvider','expandProvider',sortedProv,totalSpend,true);
+  buildPie('chartSupplier','legendSupplier','expandSupplier',sortedSup,totalSpend,false);
   buildProviderTargets(provMap,targets,progress);
   buildSupplierTable(sortedSup,supCount,totalSpend);
 
   document.getElementById('lastUpdated').textContent='updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
-function buildPie(canvasId,legendId,sorted,total){
+function buildPie(canvasId,legendId,expandId,sorted,total,useProviderColors){
   const labels=sorted.map(d=>d[0]);
   const values=sorted.map(d=>d[1]);
-  const colors=labels.map((_,i)=>PALETTE[i%PALETTE.length]);
+  const colors=labels.map((name,i)=>useProviderColors?(PROVIDER_COLORS[name]||SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]):SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length]);
   const leg=document.getElementById(legendId);
-  leg.innerHTML='';
+  leg.innerHTML='';leg.classList.remove('expanded');
+  document.getElementById(expandId).textContent='▼ show all';
   sorted.forEach(([name,val],i)=>{
-    const div=document.createElement('div');
-    div.className='li';
+    const div=document.createElement('div');div.className='li';
     div.innerHTML=`<span class="li-dot" style="background:${colors[i]}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)}</span>`;
     leg.appendChild(div);
   });
-  const existing=Chart.getChart(canvasId);
-  if(existing) existing.destroy();
+  document.getElementById(expandId).style.display=sorted.length>6?'flex':'none';
+  const existing=Chart.getChart(canvasId);if(existing) existing.destroy();
   new Chart(document.getElementById(canvasId),{
     type:'doughnut',
     data:{labels,datasets:[{data:values,backgroundColor:colors,borderWidth:2,borderColor:'#13161c',hoverBorderColor:'#13161c'}]},
@@ -478,9 +540,8 @@ function buildPie(canvasId,legendId,sorted,total){
       plugins:{
         legend:{display:false},
         tooltip:{
-          callbacks:{label:ctx=>{const pct=((ctx.parsed/total)*100).toFixed(1);return ` ${fmt(ctx.parsed)} (${pct}%)`;} },
-          backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,
-          titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10
+          callbacks:{label:ctx=>{const pct=((ctx.parsed/total)*100).toFixed(1);return ` ${fmt(ctx.parsed)} (${pct}%)`;}},
+          backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10
         }
       }
     }
@@ -488,12 +549,12 @@ function buildPie(canvasId,legendId,sorted,total){
 }
 
 function buildProviderTargets(provMap,targets,progress){
-  const grid=document.getElementById('providerGrid');
-  grid.innerHTML='';
+  const grid=document.getElementById('providerGrid');grid.innerHTML='';
   const allProviders=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
   allProviders.forEach(name=>{
     const spent=provMap[name]||0;
     const target=targets[name]||0;
+    const provColor=PROVIDER_COLORS[name]||'#4f8ef7';
     const div=document.createElement('div');
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
@@ -502,8 +563,14 @@ function buildProviderTargets(provMap,targets,progress){
       const pacePct=Math.min(progress*100,99);
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name">${name}</span>
-          <span class="prow-vals"><strong style="color:${color}">${fmt(spent)}</strong> / ${fmt(target)}<span class="prow-pct" style="color:${color}">${pct.toFixed(0)}%</span></span>
+          <span class="prow-name" style="display:flex;align-items:center;gap:7px;">
+            <span style="width:10px;height:10px;border-radius:2px;background:${provColor};flex-shrink:0;"></span>${name}
+          </span>
+          <div class="prow-right">
+            <span class="prow-spent" style="color:${color}">${fmt(spent)}</span>
+            <span class="prow-target">/ ${fmt(target)}</span>
+            <span class="prow-pct" style="color:${color}">${pct.toFixed(0)}%</span>
+          </div>
         </div>
         <div class="track-wrap">
           <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
@@ -513,25 +580,28 @@ function buildProviderTargets(provMap,targets,progress){
     } else {
       div.innerHTML=`
         <div class="prow-header">
-          <span class="prow-name">${name}</span>
-          <span class="prow-vals"><strong>${fmt(spent)}</strong> <span class="no-target-label">no target</span></span>
+          <span class="prow-name" style="display:flex;align-items:center;gap:7px;">
+            <span style="width:10px;height:10px;border-radius:2px;background:${provColor};flex-shrink:0;"></span>${name}
+          </span>
+          <div class="prow-right">
+            <span class="prow-spent" style="color:${provColor}">${fmt(spent)}</span>
+            <span class="no-target-label">no target</span>
+          </div>
         </div>
-        <div class="track"><div class="fill" style="width:100%;background:var(--muted);opacity:.2"></div></div>
-        <div class="prow-sub">spend tracked — no minimum set</div>`;
+        <div class="track"><div class="fill" style="width:100%;background:${provColor};opacity:.2"></div></div>
+        <div class="prow-sub" style="color:var(--muted)">spend tracked — no minimum set</div>`;
     }
     grid.appendChild(div);
   });
 }
 
 function buildSupplierTable(sorted,countMap,total){
-  const tbody=document.getElementById('supplierTable');
-  tbody.innerHTML='';
+  const tbody=document.getElementById('supplierTable');tbody.innerHTML='';
   sorted.forEach(([name,spend],i)=>{
     const count=countMap[name]||1;
-    const avg=spend/count;
     const pct=((spend/total)*100).toFixed(1);
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="rank">${i+1}</span></td><td class="bold">${name}</td><td class="bold">${fmt(spend)}</td><td>${count}</td><td>${fmt(avg)}</td><td>${pct}%</td>`;
+    tr.innerHTML=`<td><span class="rank">${i+1}</span></td><td class="bold">${name}</td><td class="bold">${fmt(spend)}</td><td>${count}</td><td>${fmt(spend/count)}</td><td>${pct}%</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -549,22 +619,19 @@ document.querySelectorAll('[data-q]').forEach(btn=>{
 
 async function loadAndRender(q){
   const values=await fetchSheet(q);
-  if(!values) return;
+  if(!values){showNoData('No data for this quarter yet.');return;}
   allRows=parseRows(values);
+  if(allRows.length===0){showNoData('No data found — check tab name in config.');return;}
   render();
 }
 
 setInterval(()=>loadAndRender(activeQ),5*60*1000);
 
 (async()=>{
-  const now=new Date();
-  const m=now.getMonth()+1;
-  activeQ=Math.ceil(m/3);
-  activeMonth=m;
+  const now=new Date();const m=now.getMonth()+1;
+  activeQ=Math.ceil(m/3);activeMonth=m;
   buildMonthBtns(activeQ);
-  document.querySelectorAll('[data-q]').forEach(b=>{
-    b.className='tab-btn'+(+b.dataset.q===activeQ?' active':'');
-  });
+  document.querySelectorAll('[data-q]').forEach(b=>{b.className='tab-btn'+(+b.dataset.q===activeQ?' active':'');});
   await loadAndRender(activeQ);
 })();
 </script>
