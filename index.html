@@ -1196,6 +1196,105 @@ function badge(pct){
   return `<span class="stat-tile-badge ${cls}">${sign}${pct.toFixed(1)}%</span>`;
 }
 
+function buildOaA2a(rows,totalSpend){
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
+  const isEU=r=>r.supplier.trim().toLowerCase().startsWith('amazon')&&!r.supplier.trim().toLowerCase().includes('amazon uk');
+
+  const a2aRows=rows.filter(isAmazon);
+  const oaRows=rows.filter(r=>!isAmazon(r));
+  const ukRows=rows.filter(isUK);
+  const euRows=rows.filter(isEU);
+  const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
+  const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
+  const ukSpend=ukRows.reduce((a,r)=>a+r.spend,0);
+  const euSpend=euRows.reduce((a,r)=>a+r.spend,0);
+  const a2aUnits=a2aRows.reduce((a,r)=>a+r.qty,0);
+  const oaUnits=oaRows.reduce((a,r)=>a+r.qty,0);
+  const a2aOrders=countOrders(a2aRows);
+  const oaOrders=countOrders(oaRows);
+
+  const c1=Chart.getChart('chartOaA2a');if(c1)c1.destroy();
+  if(a2aSpend>0||oaSpend>0){
+    new Chart(document.getElementById('chartOaA2a'),{type:'doughnut',data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#4f8ef7','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{return ' '+fmt(ctx.parsed)+' ('+(totalSpend>0?((ctx.parsed/totalSpend)*100).toFixed(1):0)+'%)'}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
+  }
+  document.getElementById('oaA2aLegend').innerHTML=
+    '<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">'+fmt(a2aSpend)+' ('+(totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0)+'%)</span></div>'+
+    '<div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">'+fmt(oaSpend)+' ('+(totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0)+'%)</span></div>';
+
+  const c2=Chart.getChart('chartA2aRegion');if(c2)c2.destroy();
+  if(ukSpend>0||euSpend>0){
+    new Chart(document.getElementById('chartA2aRegion'),{type:'doughnut',data:{labels:['Amazon UK','Amazon EU'],datasets:[{data:[ukSpend,euSpend],backgroundColor:['#f97316','#a78bfa'],borderWidth:2,borderColor:'#13161c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{return ' '+fmt(ctx.parsed)+' ('+(a2aSpend>0?((ctx.parsed/a2aSpend)*100).toFixed(1):0)+'% of A2A)'}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
+  }
+  document.getElementById('a2aRegionLegend').innerHTML=
+    '<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">'+fmt(ukSpend)+' ('+(a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>'+
+    '<div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">'+fmt(euSpend)+' ('+(a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>';
+
+  // Daily chart
+  const allDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
+  const dailyOA={},dailyA2A={};
+  allDates.forEach(d=>{dailyOA[d]=0;dailyA2A[d]=0;});
+  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyOA[k]=(dailyOA[k]||0)+r.spend;});
+  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyA2A[k]=(dailyA2A[k]||0)+r.spend;});
+  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
+  if(allDates.length>0){
+    new Chart(document.getElementById('chartOaA2aDaily'),{type:'bar',data:{labels:allDates.map(d=>{const dt=new Date(d);return dt.getDate()+'/'+(dt.getMonth()+1);}),datasets:[{label:'OA',data:allDates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:2},{label:'A2A',data:allDates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.7)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#555e6e',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#555e6e',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+  }
+
+  // Top ASINs
+  function topAsinList(methodRows,elId,color){
+    const asinMap={};
+    methodRows.filter(r=>r.asin).forEach(r=>asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend);
+    const sorted=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const total=methodRows.reduce((a,r)=>a+r.spend,0);
+    document.getElementById(elId).innerHTML=sorted.map(([asin,spend],i)=>{
+      const pct=total>0?((spend/total)*100).toFixed(1):0;
+      return '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:'+color+';font-weight:600;">#'+(i+1)+' '+asin+'</span><span style="font-size:11px;font-weight:600;color:var(--text);">'+fmt(spend)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+(total>0?(spend/total)*100:0)+'%;background:'+color+';"></div></div></div>';
+    }).join('')||'<div style="font-size:11px;color:var(--muted);">no ASIN data</div>';
+  }
+  topAsinList(oaRows,'oaTopAsins','#22c55e');
+  topAsinList(a2aRows,'a2aTopAsins','#4f8ef7');
+
+  // Key metrics
+  const a2aAvgBuy=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
+  const oaAvgBuy=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
+  const a2aUniqueAsins=new Set(a2aRows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const oaUniqueAsins=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
+  const mkStat=(label,val,sub,clickTitle,clickLabel)=>{
+    const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});
+    return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'"><div class="prow-stat-label">'+label+'</div><div class="prow-stat-value">'+val+'</div>'+(sub?'<div style="font-size:10px;color:var(--muted2);margin-top:3px;">'+sub+'</div>':'')+'</div>';
+  };
+
+  document.getElementById('oaA2aStats').innerHTML=
+    mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
+    mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units','OA Average Order','OA avg order value')+
+    mkStat('A2A units/order',a2aOrders>0?(a2aUnits/a2aOrders).toFixed(1):'—','avg units per A2A order','A2A Units Per Order','A2A avg units per order')+
+    mkStat('OA units/order',oaOrders>0?(oaUnits/oaOrders).toFixed(1):'—','avg units per OA order','OA Units Per Order','OA avg units per order')+
+    mkStat('A2A avg buy',a2aAvgBuy>0?fmtDec(a2aAvgBuy):'—','avg buy price','A2A Buy Price','A2A avg buy price')+
+    mkStat('OA avg buy',oaAvgBuy>0?fmtDec(oaAvgBuy):'—','avg buy price','OA Buy Price','OA avg buy price')+
+    mkStat('A2A ASINs',a2aUniqueAsins.toString(),'unique products','A2A Unique ASINs','A2A unique ASINs ordered')+
+    mkStat('OA ASINs',oaUniqueAsins.toString(),'unique products','OA Unique ASINs','OA unique ASINs ordered')+
+    mkStat('UK % of A2A',a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(ukSpend)+' Amazon UK','Amazon UK Share','Amazon UK % of A2A')+
+    mkStat('EU % of A2A',a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(euSpend)+' Amazon EU','Amazon EU Share','Amazon EU % of A2A');
+
+  // Providers
+  const oaProvMap={},a2aProvMap={};
+  oaRows.forEach(r=>oaProvMap[r.provider]=(oaProvMap[r.provider]||0)+r.spend);
+  a2aRows.forEach(r=>a2aProvMap[r.provider]=(a2aProvMap[r.provider]||0)+r.spend);
+  function provList(map,spend,el){
+    const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
+      const color=PROVIDER_COLORS[name]||'#4f8ef7';
+      const pct=spend>0?((val/spend)*100).toFixed(1):0;
+      const barW=spend>0?(val/spend)*100:0;
+      return '<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:'+color+';flex-shrink:0;"></span>'+name+'</span><span style="font-size:11px;font-weight:600;color:'+color+';">'+fmt(val)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+barW+'%;background:'+color+';"></div></div></div>';
+    }).join('');
+  }
+  provList(oaProvMap,oaSpend,'oaProviders');
+  provList(a2aProvMap,a2aSpend,'a2aProviders');
+}
+
 function buildDailyAvgs(rows,month,year,currentDay,progress){
   if(month===0||rows.length===0){document.getElementById('dailyAvgsSection').style.display='none';return;}
   document.getElementById('dailyAvgsSection').style.display='';
@@ -1465,10 +1564,11 @@ function openProvModal(providerName){
     const label=paceLabel(totalSpend,target,progress);
     const overPct=totalSpend>target?((totalSpend/target-1)*100).toFixed(1):null;
     const overAmt=totalSpend>target?totalSpend-target:null;
+    const realPct=(totalSpend/target*100).toFixed(1);
     const extraCard=`<div class="prov-modal-card" style="grid-column:1/-1;padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
         <div class="prov-modal-card-label">target progress</div>
-        <span style="font-size:12px;font-weight:600;color:${paceCol}">${pct.toFixed(1)}%${overPct?' ('+overPct+'% over target — '+fmt(overAmt)+' above)':' — '+label}</span>
+        <span style="font-size:12px;font-weight:600;color:${paceCol}">${realPct}%${overPct?' ('+overPct+'% over — '+fmt(overAmt)+' above)':' — '+label}</span>
       </div>
       <div class="track-wrap"><div class="track" style="height:8px;"><div class="fill" style="width:${Math.min(pct,100)}%;background:${paceCol}"></div></div>
       <div class="pace-marker" style="left:${pacePct}%" data-label="pace"></div></div>
