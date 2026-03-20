@@ -112,7 +112,7 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 /* PROVIDER TARGETS */
 .targets-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
 .targets-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:20px;}
-.provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
+.provider-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;grid-auto-flow:column;grid-template-rows:repeat(6,auto);}
 .prow-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .prow-right{display:flex;align-items:baseline;gap:8px;}
 .prow-spent{font-size:14px;font-weight:600;font-family:var(--font-mono);}
@@ -241,7 +241,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
     <div class="card card-slate">
       <div class="card-label">avg order value</div>
-      <div class="card-value" id="cardAvgOrder">—</div>
+      <div class="card-value" id="cardAvgOrder" style="font-size:42px;">—</div>
       <div class="card-sub" id="cardAvgOrderSub"></div>
     </div>
   </div>
@@ -672,7 +672,7 @@ function buildPie(canvasId,legendId,sorted,total,useProvColors,limitLegend){
 
 function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend){
   const grid=document.getElementById('providerGrid');grid.innerHTML='';
-  const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','FFB','Replen','THC','ProfitPath A2A','PS','Arbi','HOR'];
+  const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
   const allProvidersSet=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
   const allProviders=[...PROVIDER_ORDER.filter(p=>allProvidersSet.has(p)),...[...allProvidersSet].filter(p=>!PROVIDER_ORDER.includes(p))];
   allProviders.forEach(name=>{
