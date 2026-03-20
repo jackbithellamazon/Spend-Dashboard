@@ -110,7 +110,7 @@ main{padding:28px 32px;max-width:1440px;margin:0 auto;}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
 .chart-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;}
-.chart-inner{display:grid;grid-template-columns:300px 1fr;gap:6px;align-items:center;}
+.chart-inner{display:grid;grid-template-columns:300px 1fr;gap:0;align-items:center;}
 .pie-wrap{position:relative;height:300px;flex-shrink:0;}
 
 /* LEGEND — fixed alignment using CSS grid */
@@ -210,7 +210,7 @@ td.bold{color:var(--text);font-weight:500;}
 /* MODAL CSS */
 .ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
 .ai-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;max-width:800px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;}
-.ai-modal-inner{padding:28px;overflow-y:auto;overflow-x:hidden;flex:1;}
+.ai-modal-inner{padding:28px;overflow-y:auto;overflow-x:clip;flex:1;}
 .ai-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
 .ai-modal-title{font-size:15px;font-weight:700;color:var(--text);}
 .ai-modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;padding:0;line-height:1;}
@@ -420,7 +420,10 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   </div>
 
   <div class="table-card">
-    <div class="table-title">supplier breakdown</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="table-title" style="margin-bottom:0;">supplier breakdown</div>
+      <button id="supplierTableBtn" onclick="toggleSupplierTable()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;display:none;">▼ show all</button>
+    </div>
     <table>
       <thead>
         <tr>
@@ -627,8 +630,8 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">daily activity</div>
       <div id="provModalDailyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
     </div>
-    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:280px;border:1px solid var(--border);border-radius:6px;">
-      <table style="width:max-content;min-width:100%;border-collapse:collapse;font-size:11px;">
+    <div id="provModalTableWrap" style="overflow-x:auto;overflow-y:auto;max-height:280px;border:1px solid var(--border);border-radius:6px;display:block;width:100%;box-sizing:border-box;">
+      <table style="border-collapse:collapse;font-size:11px;width:max-content;min-width:650px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">#</th>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 16px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;">date</th>
@@ -1060,8 +1063,9 @@ function render(){
     document.getElementById('teamTargetLabel').textContent=fmt(teamTarget);
     document.getElementById('teamPaceMarker').style.left=Math.min(progress*100,99)+'%';
     const exp=teamTarget*progress,gap=totalSpend-exp;
+    const pacePct=exp>0?((totalSpend/exp)*100).toFixed(1):null;
     const gl=document.getElementById('teamGapLabel');
-    gl.textContent=gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace';
+    gl.innerHTML=(gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace')+(pacePct?` <span style="font-size:11px;font-weight:600;opacity:0.85;">(${pacePct}% of expected)</span>`:'');
     gl.style.color=color;
     const daily=teamTarget/dim;
     document.getElementById('statDaily').textContent=fmt(daily);
@@ -1194,9 +1198,20 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
   });
 }
 
+let supplierTableExpanded=false;
+let _lastSupplierArgs=null;
+function toggleSupplierTable(){
+  supplierTableExpanded=!supplierTableExpanded;
+  document.getElementById('supplierTableBtn').textContent=supplierTableExpanded?'▲ show less':'▼ show all';
+  if(_lastSupplierArgs) buildSupplierTable(..._lastSupplierArgs);
+}
 function buildSupplierTable(sorted,supUnits,supOrders,total){
+  _lastSupplierArgs=[sorted,supUnits,supOrders,total];
   const tbody=document.getElementById('supplierTable');tbody.innerHTML='';
-  sorted.forEach(([name,spend],i)=>{
+  const btn=document.getElementById('supplierTableBtn');
+  if(sorted.length>10){btn.style.display='';} else {btn.style.display='none';}
+  const visible=supplierTableExpanded?sorted:sorted.slice(0,10);
+  visible.forEach(([name,spend],i)=>{
     const units=supUnits[name]||0;
     const orders=supOrders[name]||1;
     const tr=document.createElement('tr');
@@ -2041,18 +2056,18 @@ function buildToday(){
   const dowMinSpend=hmin(dowDays,d=>d.spend);
   const dowAvgUnits=havg(dowDays,d=>d.units);
   const dowCount=dowDays.length;
-  const dowTotals=Array.from({length:7},(_,i)=>{
-    const days=allDays.filter(d=>d.date.getDay()===i);
-    return{dow:i,avg:havg(days,d=>d.spend),count:days.length};
-  });
-  const bestDOW=dowTotals.reduce((a,b)=>b.avg>a.avg?b:a,dowTotals[0]);
+  const bestDOWDay=dowDays.length?dowDays.reduce((a,b)=>b.spend>a.spend?b:a,dowDays[0]):null;
+  const worstDOWDay=dowDays.length?dowDays.reduce((a,b)=>b.spend<a.spend?b:a,dowDays[0]):null;
+  const fmtDate=d=>d.date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
   const spendPctVsDOW=dowAvgSpend>0?((totalSpend-dowAvgSpend)/dowAvgSpend*100):null;
   const dowBadge=spendPctVsDOW!==null?`<span class="stat-tile-badge ${spendPctVsDOW>5?'badge-up':spendPctVsDOW<-5?'badge-down':'badge-neutral'}">${spendPctVsDOW>0?'+':''}${spendPctVsDOW.toFixed(1)}%</span>`:'';
+  // Rank today vs all previous same-DOW days
+  const todayDOWRank=dowDays.filter(d=>d.spend>totalSpend).length+1;
   document.getElementById('dowGrid').innerHTML=
     `<div class="stat-tile c-blue"><div class="stat-tile-label">avg ${DOW_NAMES[todayDOW]} spend</div><div class="stat-tile-value">${dowAvgSpend>0?fmt(dowAvgSpend):'no data'}</div><div class="stat-tile-sub">across ${dowCount} ${DOW_NAMES[todayDOW]}s in data</div></div>`+
     `<div class="stat-tile c-green"><div class="stat-tile-label">today vs avg ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${fmt(totalSpend)}${dowBadge}</div><div class="stat-tile-sub">${spendPctVsDOW!==null?(spendPctVsDOW>=0?'ahead of':'behind')+' your typical '+DOW_NAMES[todayDOW]:'not enough history yet'}</div></div>`+
-    `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${dowMaxSpend>0?fmt(dowMaxSpend):'—'}</div><div class="stat-tile-sub">worst: ${dowMinSpend>0?fmt(dowMinSpend):'—'} · avg units: ${dowAvgUnits.toFixed(1)}</div></div>`+
-    `<div class="stat-tile c-amber"><div class="stat-tile-label">your biggest spend day</div><div class="stat-tile-value">${DOW_NAMES[bestDOW.dow]}</div><div class="stat-tile-sub">avg ${fmt(bestDOW.avg)} · ${bestDOW.count} data points</div></div>`;
+    `<div class="stat-tile c-rose"><div class="stat-tile-label">best ever ${DOW_NAMES[todayDOW]}</div><div class="stat-tile-value">${dowMaxSpend>0?fmt(dowMaxSpend):'—'}</div><div class="stat-tile-sub">${bestDOWDay?fmtDate(bestDOWDay)+' · worst: '+fmt(dowMinSpend)+' ('+fmtDate(worstDOWDay)+')':'not enough data'}</div></div>`+
+    `<div class="stat-tile c-indigo"><div class="stat-tile-label">${DOW_NAMES[todayDOW]} spend rank</div><div class="stat-tile-value">#${todayDOWRank} / ${dowCount+1}</div><div class="stat-tile-sub">${dowCount>0?(todayDOWRank===1?'🏆 best '+DOW_NAMES[todayDOW]+' ever!':todayDOWRank<=Math.ceil((dowCount+1)/3)?'top third of '+DOW_NAMES[todayDOW]+'s':'avg units: '+dowAvgUnits.toFixed(1)):'first '+DOW_NAMES[todayDOW]+' in data'}</div></div>`;
 
   // Provider status
   const provSpend={},provUnits={},provOrders={},provAsins={};
