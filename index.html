@@ -460,12 +460,18 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">daily spend — OA vs A2A</div>
-          <div style="display:flex;gap:6px;" id="oaChartViewBtns">
-            <button onclick="setOaChartView('full')" id="oaViewFull" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-family:var(--font-mono);">full month</button>
-            <button onclick="setOaChartView('w1')" id="oaViewW1" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 1</button>
-            <button onclick="setOaChartView('w2')" id="oaViewW2" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 2</button>
-            <button onclick="setOaChartView('w3')" id="oaViewW3" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 3</button>
-            <button onclick="setOaChartView('w4')" id="oaViewW4" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">week 4</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;" id="oaChartViewBtns">
+            <button onclick="setOaChartView('full')" id="oaView_full" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-family:var(--font-mono);">MTD</button>
+            <button onclick="setOaChartView('today')" id="oaView_today" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">today</button>
+            <button onclick="setOaChartView('7d')" id="oaView_7d" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">last 7 days</button>
+            <button onclick="setOaChartView('14d')" id="oaView_14d" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">last 14 days</button>
+            <button onclick="setOaChartView('custom')" id="oaView_custom" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-mono);">custom</button>
+          </div>
+          <div id="oaCustomDates" style="display:none;align-items:center;gap:8px;margin-top:8px;">
+            <input type="date" id="oaCustomFrom" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:4px 8px;border-radius:4px;outline:none;">
+            <span style="color:var(--muted);font-size:11px;">to</span>
+            <input type="date" id="oaCustomTo" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:4px 8px;border-radius:4px;outline:none;">
+            <button onclick="buildOaA2aChart('custom')" style="font-size:10px;padding:4px 10px;border-radius:4px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:var(--font-mono);">go</button>
           </div>
         </div>
         <div style="position:relative;height:260px;"><canvas id="chartOaA2aDaily"></canvas></div>
@@ -608,8 +614,8 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
       <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
     </div>
-    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;overflow-x:auto;min-width:0;">
+      <table style="width:100%;min-width:600px;border-collapse:collapse;font-size:11px;">
         <thead><tr>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">#</th>
           <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">date</th>
@@ -1225,6 +1231,7 @@ function buildOaA2a(rows,totalSpend){
   const a2aOrders=countOrders(a2aRows);
   const oaOrders=countOrders(oaRows);
 
+  // Pies
   const c1=Chart.getChart('chartOaA2a');if(c1)c1.destroy();
   if(a2aSpend>0||oaSpend>0){
     new Chart(document.getElementById('chartOaA2a'),{type:'doughnut',data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#4f8ef7','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{return ' '+fmt(ctx.parsed)+' ('+(totalSpend>0?((ctx.parsed/totalSpend)*100).toFixed(1):0)+'%)'}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
@@ -1241,75 +1248,13 @@ function buildOaA2a(rows,totalSpend){
     '<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">'+fmt(ukSpend)+' ('+(a2aSpend>0?((ukSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>'+
     '<div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">'+fmt(euSpend)+' ('+(a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>';
 
-  // Daily chart
-  const allDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
-  const dailyOA={},dailyA2A={};
-  allDates.forEach(d=>{dailyOA[d]=0;dailyA2A[d]=0;});
-  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyOA[k]=(dailyOA[k]||0)+r.spend;});
-  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];dailyA2A[k]=(dailyA2A[k]||0)+r.spend;});
-  // Store data globally for week filter
-  window._oaDates=allDates;
-  window._oaDailyOA=dailyOA;
-  window._oaDailyA2A=dailyA2A;
+  // Store for chart view switching
+  window._oaDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
+  window._oaDailyOA={};window._oaDailyA2A={};
+  window._oaDates.forEach(d=>{window._oaDailyOA[d]=0;window._oaDailyA2A[d]=0;});
+  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];window._oaDailyOA[k]=(window._oaDailyOA[k]||0)+r.spend;});
+  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];window._oaDailyA2A[k]=(window._oaDailyA2A[k]||0)+r.spend;});
   buildOaA2aChart('full');
-}
-
-function setOaChartView(view){
-  ['full','w1','w2','w3','w4'].forEach(v=>{
-    const btn=document.getElementById('oaView'+v.charAt(0).toUpperCase()+v.slice(1));
-    if(btn){btn.style.background=v===view?'var(--accent)':'transparent';btn.style.color=v===view?'#fff':'var(--muted2)';btn.style.borderColor=v===view?'var(--accent)':'var(--border)';}
-  });
-  buildOaA2aChart(view);
-}
-
-function buildOaA2aChart(view){
-  const allDates=window._oaDates||[];
-  const dailyOA=window._oaDailyOA||{};
-  const dailyA2A=window._oaDailyA2A||{};
-  if(!allDates.length) return;
-
-  let dates=allDates;
-  if(view!=='full'){
-    const wNum=parseInt(view.replace('w',''));
-    const start=(wNum-1)*7+1;
-    const end=wNum*7;
-    dates=allDates.filter(d=>{const day=new Date(d).getDate();return day>=start&&day<=end;});
-  }
-
-  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
-  if(dates.length===0){
-    const el=document.getElementById('chartOaA2aDaily');
-    const ctx2=el.getContext('2d');ctx2.clearRect(0,0,el.width,el.height);
-    return;
-  }
-
-  new Chart(document.getElementById('chartOaA2aDaily'),{
-    type:'bar',
-    data:{
-      labels:dates.map(d=>{const dt=new Date(d);return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()]+' '+dt.getDate()+'/'+(dt.getMonth()+1);}),
-      datasets:[
-        {label:'OA',data:dates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.75)',borderRadius:3,borderSkipped:false},
-        {label:'A2A',data:dates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.75)',borderRadius:3,borderSkipped:false}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      scales:{
-        x:{ticks:{color:'#6b7584',font:{size:view==='full'?9:11},maxRotation:view==='full'?45:0},grid:{color:'rgba(255,255,255,0.04)'},barPercentage:0.7,categoryPercentage:0.8},
-        y:{ticks:{color:'#6b7584',font:{size:11},callback:v=>v>=1000?'£'+Math.round(v/1000)+'k':'£'+v},grid:{color:'rgba(255,255,255,0.04)'}}
-      },
-      plugins:{
-        legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10,padding:16}},
-        tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:12,callbacks:{
-          title:items=>{const d=new Date(dates[items[0].dataIndex]);return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1);},
-          label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y),
-          afterBody:items=>{const d=dates[items[0].dataIndex];const tot=(dailyOA[d]||0)+(dailyA2A[d]||0);return tot>0?['','Total: '+fmt(tot)]:[]}
-        }}
-      }
-    }
-  });
-// dummy closing - actual end of buildOaA2a was moved up
-function _dummy(){
 
   // Top ASINs
   function topAsinList(methodRows,elId,color){
@@ -1335,7 +1280,6 @@ function _dummy(){
     const id=storeCtx({title:clickTitle||label,label:clickLabel||label,value:val,ctx:ctxData});
     return '<div class="prow-stat stat-tile clickable" data-ctx="'+id+'"><div class="prow-stat-label">'+label+'</div><div class="prow-stat-value">'+val+'</div>'+(sub?'<div style="font-size:10px;color:var(--muted2);margin-top:3px;">'+sub+'</div>':'')+'</div>';
   };
-
   document.getElementById('oaA2aStats').innerHTML=
     mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
     mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units','OA Average Order','OA avg order value')+
@@ -1357,8 +1301,7 @@ function _dummy(){
     document.getElementById(el).innerHTML=sorted.map(([name,val])=>{
       const color=PROVIDER_COLORS[name]||'#4f8ef7';
       const pct=spend>0?((val/spend)*100).toFixed(1):0;
-      const barW=spend>0?(val/spend)*100:0;
-      return '<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:'+color+';flex-shrink:0;"></span>'+name+'</span><span style="font-size:11px;font-weight:600;color:'+color+';">'+fmt(val)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+barW+'%;background:'+color+';"></div></div></div>';
+      return '<div style="margin-bottom:4px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:'+color+';flex-shrink:0;"></span>'+name+'</span><span style="font-size:11px;font-weight:600;color:'+color+';">'+fmt(val)+' <span style="color:var(--muted);font-weight:400;">'+pct+'%</span></span></div><div class="track" style="height:4px;"><div class="fill" style="width:'+(spend>0?(val/spend)*100:0)+'%;background:'+color+';"></div></div></div>';
     }).join('');
   }
   provList(oaProvMap,oaSpend,'oaProviders');
@@ -1377,21 +1320,83 @@ function _dummy(){
   const a2aAvgBuyAnal=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
   const oaAvgBuyAnal=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
   const dom=a2aSpend>oaSpend?'A2A':'OA';
-  const analysis=`<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">channel analysis</div>`+
-    `<p style="font-size:13px;color:var(--muted2);line-height:1.7;margin:0;">`+
-    `<strong>${dom} is your dominant channel</strong> this period at ${dom==='A2A'?a2aPct:oaPct}% of total spend `+
-    `(${dom==='A2A'?fmt(a2aSpend):fmt(oaSpend)} vs ${dom==='A2A'?fmt(oaSpend):fmt(a2aSpend)} ${dom==='A2A'?'OA':'A2A'}). `+
-    `Within A2A, <strong>Amazon UK accounts for ${ukPct}%</strong> (${fmt(ukSpend)}) and Amazon EU for ${euPct}% (${fmt(euSpend)}). `+
-    (a2aAOV>0&&oaAOV>0?`Average order value differs by channel: <strong>A2A at ${fmt(a2aAOV)}</strong> vs <strong>OA at ${fmt(oaAOV)}</strong> — `+
-    (a2aAOV>oaAOV?`A2A orders are ${((a2aAOV/oaAOV-1)*100).toFixed(0)}% larger on average, typical of bulk or replen buying.`:`OA orders are ${((oaAOV/a2aAOV-1)*100).toFixed(0)}% larger on average, suggesting higher-ticket product sourcing.`)+' ':'')+
-    (a2aUPO>0&&oaUPO>0?`Units per order: <strong>${a2aUPO.toFixed(1)} A2A</strong> vs <strong>${oaUPO.toFixed(1)} OA</strong> — `+
-    (a2aUPO>oaUPO?'A2A buying is more multi-unit, consistent with bulk purchasing patterns.':'OA buying has higher unit volume per order.')+' ':'')+
-    (a2aAvgBuyAnal>0&&oaAvgBuyAnal>0?`Buy price averages ${fmtDec(a2aAvgBuyAnal)} A2A vs ${fmtDec(oaAvgBuyAnal)} OA. `+
-    (Math.abs(a2aAvgBuyAnal-oaAvgBuyAnal)>5?`The ${fmtDec(Math.abs(a2aAvgBuyAnal-oaAvgBuyAnal))} differential suggests ${a2aAvgBuyAnal>oaAvgBuyAnal?'A2A products carry a higher unit cost — check margins are holding vs OA alternatives.':'OA products carry a higher unit cost — typical where OA sources premium branded goods not available A2A.'}`:'')+' ':'')+
-    `</p>`;
+  const analysis='<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">channel analysis</div>'+
+    '<p style="font-size:13px;color:var(--muted2);line-height:1.7;margin:0;">'+
+    '<strong>'+dom+' is your dominant channel</strong> this period at '+(dom==='A2A'?a2aPct:oaPct)+'% of total spend '+
+    '('+( dom==='A2A'?fmt(a2aSpend):fmt(oaSpend))+' vs '+(dom==='A2A'?fmt(oaSpend):fmt(a2aSpend))+' '+(dom==='A2A'?'OA':'A2A')+'). '+
+    'Within A2A, <strong>Amazon UK accounts for '+ukPct+'%</strong> ('+fmt(ukSpend)+') and Amazon EU for '+euPct+'% ('+fmt(euSpend)+'). '+
+    (a2aAOV>0&&oaAOV>0?'Average order value: <strong>A2A at '+fmt(a2aAOV)+'</strong> vs <strong>OA at '+fmt(oaAOV)+'</strong> — '+(a2aAOV>oaAOV?'A2A orders are '+((a2aAOV/oaAOV-1)*100).toFixed(0)+'% larger on average, typical of bulk or replen buying.':'OA orders are '+((oaAOV/a2aAOV-1)*100).toFixed(0)+'% larger, suggesting higher-ticket product sourcing.')+' ':'')+
+    (a2aUPO>0&&oaUPO>0?'Units per order: <strong>'+a2aUPO.toFixed(1)+' A2A</strong> vs <strong>'+oaUPO.toFixed(1)+' OA</strong>. ':'')+
+    (a2aAvgBuyAnal>0&&oaAvgBuyAnal>0?'Buy price avg: '+fmtDec(a2aAvgBuyAnal)+' A2A vs '+fmtDec(oaAvgBuyAnal)+' OA.':'')+
+    '</p>';
   const analysisEl=document.getElementById('oaA2aAnalysis');
   if(analysisEl) analysisEl.innerHTML=analysis;
 }
+
+function setOaChartView(view){
+  ['full','today','7d','14d','custom'].forEach(v=>{
+    const btn=document.getElementById('oaView_'+v);
+    if(btn){btn.style.background=v===view?'var(--accent)':'transparent';btn.style.color=v===view?'#fff':'var(--muted2)';btn.style.borderColor=v===view?'var(--accent)':'var(--border)';}
+  });
+  const customRow=document.getElementById('oaCustomDates');
+  if(customRow) customRow.style.display=view==='custom'?'flex':'none';
+  if(view!=='custom') buildOaA2aChart(view);
+}
+
+function buildOaA2aChart(view){
+  const allDates=window._oaDates||[];
+  const dailyOA=window._oaDailyOA||{};
+  const dailyA2A=window._oaDailyA2A||{};
+  if(!allDates.length) return;
+
+  let dates=allDates;
+  const now=new Date();
+  const todayStr=now.toISOString().split('T')[0];
+
+  if(view==='today'){
+    dates=allDates.filter(d=>d===todayStr);
+  } else if(view==='7d'){
+    const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-6);
+    const cutStr=cutoff.toISOString().split('T')[0];
+    dates=allDates.filter(d=>d>=cutStr);
+  } else if(view==='14d'){
+    const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-13);
+    const cutStr=cutoff.toISOString().split('T')[0];
+    dates=allDates.filter(d=>d>=cutStr);
+  } else if(view==='custom'){
+    const from=document.getElementById('oaCustomFrom').value;
+    const to=document.getElementById('oaCustomTo').value;
+    if(from&&to) dates=allDates.filter(d=>d>=from&&d<=to);
+  }
+
+  const dc=Chart.getChart('chartOaA2aDaily');if(dc)dc.destroy();
+  if(!dates.length) return;
+
+  new Chart(document.getElementById('chartOaA2aDaily'),{
+    type:'bar',
+    data:{
+      labels:dates.map(d=>{const dt=new Date(d);return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()]+' '+dt.getDate()+'/'+(dt.getMonth()+1);}),
+      datasets:[
+        {label:'OA',data:dates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.75)',borderRadius:3},
+        {label:'A2A',data:dates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.75)',borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        x:{ticks:{color:'#6b7584',font:{size:dates.length>14?9:11},maxRotation:dates.length>14?45:0},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#6b7584',font:{size:11},callback:v=>v>=1000?'£'+Math.round(v/1000)+'k':'£'+v},grid:{color:'rgba(255,255,255,0.04)'}}
+      },
+      plugins:{
+        legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10,padding:16}},
+        tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:12,callbacks:{
+          title:items=>{const d=new Date(dates[items[0].dataIndex]);return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1);},
+          label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y),
+          afterBody:items=>{const d=dates[items[0].dataIndex];const tot=(dailyOA[d]||0)+(dailyA2A[d]||0);return tot>0?['','Total: '+fmt(tot)]:[]}
+        }}
+      }
+    }
+  });
 }
 
 
