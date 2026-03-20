@@ -835,7 +835,7 @@ const PROVIDER_COLORS={
   'FFB':'#92400e','Arbi':'#c084fc','THC':'#ef4444',
   'PS':'#f472b6','S PP A2A':'#67e8f9','HOR':'#1e3a8a',
 };
-const SUPPLIER_PALETTE=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8','#f97316','#67e8f9'];
+const SUPPLIER_PALETTE=['#f59e0b','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#84cc16','#38bdf8','#facc15','#34d399','#f472b6','#818cf8','#f97316','#67e8f9'];
 
 const CTX_STORE={};
 let ctxId=0;
@@ -1326,7 +1326,7 @@ function renderSupModalTable(){
   visible.forEach((r,i)=>{
     const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="padding:5px 12px 5px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;width:30px;">${i+1}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;width:60px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:center;width:100px;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.asin||'—'}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;width:70px;">${fmt(r.spend)}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:45px;">${r.qty}</td><td style="padding:5px 16px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:72px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
+    tr.innerHTML=`<td style="padding:5px 12px 5px 10px;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;width:30px;">${i+1}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;white-space:nowrap;width:60px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:center;width:100px;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.asin||'—'}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);font-size:11px;width:70px;">${fmt(r.spend)}</td><td style="padding:5px 12px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:45px;">${r.qty}</td><td style="padding:5px 16px 5px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:11px;width:72px;">${r.qty>0?fmtDec(r.spend/r.qty):'—'}</td>`;
     tbody.appendChild(tr);
   });
   if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">No orders</td></tr>';
@@ -1376,10 +1376,10 @@ function buildOaA2a(rows,totalSpend){
   // Pies
   const c1=Chart.getChart('chartOaA2a');if(c1)c1.destroy();
   if(a2aSpend>0||oaSpend>0){
-    new Chart(document.getElementById('chartOaA2a'),{type:'doughnut',data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#4f8ef7','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{return ' '+fmt(ctx.parsed)+' ('+(totalSpend>0?((ctx.parsed/totalSpend)*100).toFixed(1):0)+'%)'}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
+    new Chart(document.getElementById('chartOaA2a'),{type:'doughnut',data:{labels:['A2A','OA'],datasets:[{data:[a2aSpend,oaSpend],backgroundColor:['#f59e0b','#22c55e'],borderWidth:2,borderColor:'#13161c'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{return ' '+fmt(ctx.parsed)+' ('+(totalSpend>0?((ctx.parsed/totalSpend)*100).toFixed(1):0)+'%)'}},backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
   }
   document.getElementById('oaA2aLegend').innerHTML=
-    '<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">'+fmt(a2aSpend)+' ('+(totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0)+'%)</span></div>'+
+    '<div class="li"><span class="li-dot" style="background:#f59e0b"></span><span class="li-name">A2A</span><span class="li-val">'+fmt(a2aSpend)+' ('+(totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0)+'%)</span></div>'+
     '<div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">'+fmt(oaSpend)+' ('+(totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0)+'%)</span></div>';
 
   const c2=Chart.getChart('chartA2aRegion');if(c2)c2.destroy();
@@ -1564,7 +1564,7 @@ function buildOaA2aChart(view){
       labels:dates.map(d=>{const dt=new Date(d);return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()]+' '+dt.getDate()+'/'+(dt.getMonth()+1);}),
       datasets:[
         {label:'OA',data:dates.map(d=>dailyOA[d]||0),backgroundColor:'rgba(34,197,94,0.75)',borderRadius:3},
-        {label:'A2A',data:dates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(79,142,247,0.75)',borderRadius:3}
+        {label:'A2A',data:dates.map(d=>dailyA2A[d]||0),backgroundColor:'rgba(245,158,11,0.75)',borderRadius:3}
       ]
     },
     options:{
@@ -2007,7 +2007,7 @@ function openProvModal(providerName){
   const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
   const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
   document.getElementById('provModalMethod').innerHTML=
-    `<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">${fmt(a2aSpend)} (${totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`+
+    `<div class="li"><span class="li-dot" style="background:#f59e0b"></span><span class="li-name">A2A</span><span class="li-val">${fmt(a2aSpend)} (${totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`+
     `<div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">${fmt(oaSpend)} (${totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`+
     `<div class="li"><span class="li-dot" style="background:var(--muted)"></span><span class="li-name">units/order</span><span class="li-val">${trueOrders>0?(totalUnits/trueOrders).toFixed(1):' —'}</span></div>`;
 
@@ -2229,7 +2229,7 @@ function buildToday(){
   const otherSpend=sortedStores.slice(4).reduce((a,[,v])=>a+v,0);
   const storeGrid=document.getElementById('todayStoreGrid');
   storeGrid.innerHTML='';
-  const STORE_COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4'];
+  const STORE_COLORS=['#f59e0b','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4'];
   topStores.forEach(([name,spend],i)=>{
     const color=STORE_COLORS[i%STORE_COLORS.length];
     const div=document.createElement('div');
