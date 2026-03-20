@@ -541,6 +541,55 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   </div>
 
 </main>
+
+<!-- PROVIDER MODAL -->
+<div id="provModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeProvModal()">
+  <div class="ai-modal" style="max-width:800px;width:100%;">
+    <div class="ai-modal-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="provModalDot" style="width:12px;height:12px;border-radius:3px;flex-shrink:0;"></span>
+        <div class="ai-modal-title" id="provModalTitle">provider</div>
+      </div>
+      <button class="ai-modal-close" onclick="closeProvModal()">✕</button>
+    </div>
+    <!-- Summary cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;" id="provModalCards"></div>
+    <!-- OA vs A2A split -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">method split</div>
+        <div id="provModalMethod" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">top suppliers</div>
+        <div id="provModalSuppliers" style="display:flex;flex-direction:column;gap:5px;"></div>
+      </div>
+    </div>
+    <!-- Top ASINs -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">top ASINs</div>
+      <div id="provModalAsins" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+    </div>
+    <!-- Orders table -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">all orders this period</div>
+      <button onclick="toggleCollapse('provModalTableWrap','provModalTableBtn')" id="provModalTableBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;">▲ hide orders</button>
+    </div>
+    <div id="provModalTableWrap" style="max-height:300px;overflow-y:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">#</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">date</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">supplier</th>
+          <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">ASIN</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--border);">spend</th>
+          <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:0 0 8px 0;border-bottom:1px solid var(--border);">units</th>
+        </tr></thead>
+        <tbody id="provModalTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 <!-- AI INSIGHT MODAL -->
 <div id="aiModal" style="display:none;" class="ai-modal-overlay" onclick="if(event.target===this)closeAiModal()">
   <div class="ai-modal">
@@ -1051,7 +1100,7 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
         <div class="prow-stat"><div class="prow-stat-label">avg buy price</div><div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div></div>
       </div>`;
 
-    const badge=provBadge(name);
+    const badge=`<span class='prov-badge' style='background:${provColor}20;border:1px solid ${provColor}40;cursor:pointer;' onclick="openProvModal('${name}')"><span class='prov-badge-dot' style='background:${provColor}'></span>${name}</span>`;
 
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
@@ -1139,17 +1188,18 @@ function buildDailyAvgs(rows,month,year,currentDay,progress){
   document.getElementById('dailyAvgsSub').textContent=`based on ${activeDays} active trading day${activeDays!==1?'s':''}`;
   const grid=document.getElementById('dailyAvgsGrid');
   const TILE_COLORS=['c-blue','c-purple','c-teal','c-amber','c-green','c-rose','c-indigo','c-blue'];
+  const avgCtx={totalSpend,totalUnits,totalOrders,activeDays,days,uniqueAsins,avgSpendPerDay:totalSpend/days,avgSpendActiveDays:totalSpend/activeDays};
   const tiles=[
-    ['avg spend / day',fmt(totalSpend/days),`${fmt(totalSpend/activeDays)} on active days`],
-    ['avg units / day',(totalUnits/days).toFixed(1),`${(totalUnits/activeDays).toFixed(1)} on active days`],
-    ['avg orders / day',(totalOrders/days).toFixed(1),`${(totalOrders/activeDays).toFixed(1)} on active days`],
-    ['avg ASINs / day',(uniqueAsins/days).toFixed(1),`${uniqueAsins} unique ASINs total`],
-    ['avg spend / order',fmt(totalSpend/totalOrders),`across ${totalOrders} orders`],
-    ['avg units / order',(totalUnits/totalOrders).toFixed(1),`${totalUnits} units total`],
-    ['avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`],
-    ['trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`],
+    ['avg spend / day',fmt(totalSpend/days),`${fmt(totalSpend/activeDays)} on active days`,'Daily Spend Average','avg spend per calendar day'],
+    ['avg units / day',(totalUnits/days).toFixed(1),`${(totalUnits/activeDays).toFixed(1)} on active days`,'Daily Units Average','avg units per calendar day'],
+    ['avg orders / day',(totalOrders/days).toFixed(1),`${(totalOrders/activeDays).toFixed(1)} on active days`,'Daily Orders Average','avg orders per calendar day'],
+    ['avg ASINs / day',(uniqueAsins/days).toFixed(1),`${uniqueAsins} unique ASINs total`,'Daily ASINs Average','avg unique ASINs per day'],
+    ['avg spend / order',fmt(totalSpend/totalOrders),`across ${totalOrders} orders`,'Average Order Value','avg spend per order'],
+    ['avg units / order',(totalUnits/totalOrders).toFixed(1),`${totalUnits} units total`,'Units Per Order','avg units per order'],
+    ['avg order size',fmt(totalSpend/totalOrders),`${totalOrders} orders placed`,'Average Order Size','avg order size by spend'],
+    ['trading days',activeDays+' / '+days,`${days-activeDays} days with no orders`,'Trading Days','active trading days this month'],
   ];
-  grid.innerHTML=tiles.map((t,i)=>`<div class="stat-tile ${TILE_COLORS[i]}"><div class="stat-tile-label">${t[0]}</div><div class="stat-tile-value">${t[1]}</div><div class="stat-tile-sub">${t[2]}</div></div>`).join('');
+  grid.innerHTML=tiles.map((t,i)=>`<div class="stat-tile ${TILE_COLORS[i]} clickable" onclick="openAiModal('${t[3]}','${t[4]}','${t[1]}',${JSON.stringify(avgCtx)})"><div class="stat-tile-label">${t[0]}</div><div class="stat-tile-value">${t[1]}</div><div class="stat-tile-sub">${t[2]}</div></div>`).join('');
 }
 
 function buildInsights(rows,month,year,teamTarget,progress,dim){
@@ -1272,16 +1322,25 @@ function buildVsLastMonth(rows,month,year,currentDay){
   }
 
   const t=calc(thisRows),l=calc(lastRows);
+  const vsCtx={thisMonth:monthName(month),lastMonth:monthName(lastMonth),currentDay,...t,prevSpend:l.spend,prevUnits:l.units,prevOrders:l.orders};
+  function vsRowClick(label,thisVal,lastVal,fmtFn,higherIsBetter=true){
+    const pct=lastVal>0?((thisVal-lastVal)/lastVal*100):null;
+    const cls=pct===null?'neutral':higherIsBetter?(pct>5?'up':pct<-5?'down':'neutral'):(pct<-5?'up':pct>5?'down':'neutral');
+    const bClass=cls==='up'?'badge-up':cls==='down'?'badge-down':'badge-neutral';
+    const bSign=pct!==null&&pct>0?'+':'';
+    const b=pct!==null?`<span class="stat-tile-badge ${bClass}">${bSign}${pct.toFixed(1)}%</span>`:'';
+    return `<div class="stat-tile clickable" onclick="openAiModal('${label} vs last month','${label}','${fmtFn(thisVal)}',${JSON.stringify(vsCtx)})"><div class="stat-tile-label">${label}</div><div class="stat-tile-value ${cls}">${fmtFn(thisVal)}${b}</div><div class="stat-tile-sub">prev: ${fmtFn(lastVal)}</div></div>`;
+  }
   const grid=document.getElementById('vsLastGrid');
   grid.innerHTML=
-    vsRow('total spend',t.spend,l.spend,fmt)+
-    vsRow('total units',t.units,l.units,v=>v.toLocaleString())+
-    vsRow('total orders',t.orders,l.orders,v=>v.toString())+
-    vsRow('unique ASINs',t.asins,l.asins,v=>v.toString())+
-    vsRow('avg order value',t.avgOrder,l.avgOrder,fmt)+
-    vsRow('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
-    vsRow('active days',t.days,l.days,v=>v+' days')+
-    vsRow('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
+    vsRowClick('total spend',t.spend,l.spend,fmt)+
+    vsRowClick('total units',t.units,l.units,v=>v.toLocaleString())+
+    vsRowClick('total orders',t.orders,l.orders,v=>v.toString())+
+    vsRowClick('unique ASINs',t.asins,l.asins,v=>v.toString())+
+    vsRowClick('avg order value',t.avgOrder,l.avgOrder,fmt)+
+    vsRowClick('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
+    vsRowClick('active days',t.days,l.days,v=>v+' days')+
+    vsRowClick('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
 }
 
 function toggleCollapse(bodyId,btnId){
@@ -1452,6 +1511,8 @@ function buildOaA2a(rows,totalSpend){
   document.getElementById('oaA2aStats').innerHTML=
     mkStat('A2A avg order',a2aOrders>0?fmt(a2aSpend/a2aOrders):'—',a2aOrders+' orders · '+a2aUnits+' units','A2A Average Order','A2A avg order value')+
     mkStat('OA avg order',oaOrders>0?fmt(oaSpend/oaOrders):'—',oaOrders+' orders · '+oaUnits+' units','OA Average Order','OA avg order value')+
+    mkStat('A2A units/order',a2aOrders>0?(a2aUnits/a2aOrders).toFixed(1):'—','avg units per A2A order','A2A Units Per Order','A2A avg units per order')+
+    mkStat('OA units/order',oaOrders>0?(oaUnits/oaOrders).toFixed(1):'—','avg units per OA order','OA Units Per Order','OA avg units per order')+
     mkStat('A2A avg buy',a2aAvgBuy>0?fmtDec(a2aAvgBuy):'—','avg buy price per item','A2A Buy Price','A2A avg buy price')+
     mkStat('OA avg buy',oaAvgBuy>0?fmtDec(oaAvgBuy):'—','avg buy price per item','OA Buy Price','OA avg buy price')+
     mkStat('A2A ASINs',a2aUniqueAsins.toString(),'unique products A2A','A2A Unique ASINs','A2A unique ASINs ordered')+
@@ -1547,6 +1608,106 @@ function runExplorer(){
     tr.innerHTML=`<td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);">${i+1}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:11px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);">${r.supplier}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td style="padding:8px 14px 8px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:500;color:var(--text);">${fmt(r.spend)}</td><td style="padding:8px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);">${r.qty}</td>`;
     tbody.appendChild(tr);
   });
+}
+
+
+function closeProvModal(){document.getElementById('provModal').style.display='none';}
+
+function openProvModal(providerName){
+  const color=PROVIDER_COLORS[providerName]||'#4f8ef7';
+  document.getElementById('provModalDot').style.background=color;
+  document.getElementById('provModalTitle').textContent=providerName;
+  document.getElementById('provModal').style.display='flex';
+
+  // Get rows for this provider in current view
+  let rows;
+  if(activeMonth===0){
+    const months=QUARTER_MONTHS[activeQ].filter(m=>m.num!==0).map(m=>m.num);
+    rows=allRows.filter(r=>months.includes(r.month)&&r.provider===providerName);
+  } else {
+    rows=allRows.filter(r=>r.month===activeMonth&&r.provider===providerName);
+  }
+
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(rows);
+  const skuLines=rows.length;
+  const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const avgBuy=rows.filter(r=>r.buyPrice>0).length>0?rows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/rows.filter(r=>r.buyPrice>0).length:0;
+  const avgOrder=trueOrders>0?totalSpend/trueOrders:0;
+
+  // Summary cards
+  const targets=getTargetForView(activeMonth);
+  const target=targets[providerName]||0;
+  const dataYear=rows.length?Math.max(...rows.map(r=>r.year)):new Date().getFullYear();
+  const progress=monthProgress(activeMonth,dataYear);
+  const paceCol=target?paceColor(totalSpend,target,progress):'var(--accent)';
+
+  document.getElementById('provModalCards').innerHTML=
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">total spend</div><div class="prov-modal-card-value" style="color:${color}">${fmt(totalSpend)}</div><div class="prov-modal-card-sub">${target?fmt(target)+' target':' no target'}</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">units bought</div><div class="prov-modal-card-value">${totalUnits.toLocaleString()}</div><div class="prov-modal-card-sub">${skuLines} SKU lines</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">true orders</div><div class="prov-modal-card-value">${trueOrders}</div><div class="prov-modal-card-sub">${fmt(avgOrder)} avg order</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">unique ASINs</div><div class="prov-modal-card-value">${uniqueAsins}</div><div class="prov-modal-card-sub">${avgBuy>0?fmtDec(avgBuy)+' avg buy':''}</div></div>`;
+
+  // If target, show pace bar
+  if(target){
+    const pct=Math.min((totalSpend/target)*100,100);
+    const pacePct=Math.min(progress*100,99);
+    const label=paceLabel(totalSpend,target,progress);
+    const extraCard=`<div class="prov-modal-card" style="grid-column:1/-1;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+        <div class="prov-modal-card-label">target progress</div>
+        <span style="font-size:12px;font-weight:600;color:${paceCol}">${pct.toFixed(1)}% — ${label}</span>
+      </div>
+      <div class="track-wrap"><div class="track" style="height:8px;"><div class="fill" style="width:${pct}%;background:${paceCol}"></div></div>
+      <div class="pace-marker" style="left:${pacePct}%" data-label="pace"></div></div>
+    </div>`;
+    document.getElementById('provModalCards').innerHTML+=extraCard;
+  }
+
+  // Method split
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const a2aRows=rows.filter(isAmazon);
+  const oaRows=rows.filter(r=>!isAmazon(r));
+  const a2aSpend=a2aRows.reduce((a,r)=>a+r.spend,0);
+  const oaSpend=oaRows.reduce((a,r)=>a+r.spend,0);
+  document.getElementById('provModalMethod').innerHTML=
+    `<div class="li"><span class="li-dot" style="background:#4f8ef7"></span><span class="li-name">A2A</span><span class="li-val">${fmt(a2aSpend)} (${totalSpend>0?((a2aSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`+
+    `<div class="li"><span class="li-dot" style="background:#22c55e"></span><span class="li-name">OA</span><span class="li-val">${fmt(oaSpend)} (${totalSpend>0?((oaSpend/totalSpend)*100).toFixed(1):0}%)</span></div>`+
+    `<div class="li"><span class="li-dot" style="background:var(--muted)"></span><span class="li-name">units/order</span><span class="li-val">${trueOrders>0?(totalUnits/trueOrders).toFixed(1):' —'}</span></div>`;
+
+  // Top suppliers
+  const supMap={};rows.forEach(r=>supMap[r.supplier]=(supMap[r.supplier]||0)+r.spend);
+  const sortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('provModalSuppliers').innerHTML=sortedSup.map(([name,val],i)=>{
+    const c=SUPPLIER_PALETTE[i%SUPPLIER_PALETTE.length];
+    const pct=totalSpend>0?((val/totalSpend)*100).toFixed(1):0;
+    return `<div class="li"><span class="li-dot" style="background:${c}"></span><span class="li-name">${name}</span><span class="li-val">${fmt(val)} <span style="color:var(--muted);font-size:10px;">${pct}%</span></span></div>`;
+  }).join('');
+
+  // Top ASINs
+  const asinMap={},asinUnits={};
+  rows.filter(r=>r.asin).forEach(r=>{asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;});
+  const sortedAsins=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ag=document.getElementById('provModalAsins');ag.innerHTML='';
+  sortedAsins.forEach(([asin,spend],i)=>{
+    const div=document.createElement('div');div.className='asin-tile';
+    div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units</div>`;
+    ag.appendChild(div);
+  });
+  if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:11px;grid-column:1/-1;">No ASIN data</div>';
+
+  // Orders table
+  const tbody=document.getElementById('provModalTable');tbody.innerHTML='';
+  // Reset collapse state
+  document.getElementById('provModalTableWrap').style.display='';
+  document.getElementById('provModalTableBtn').textContent='▲ hide orders';
+  rows.sort((a,b)=>b.date-a.date||b.spend-a.spend).forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="padding:7px 12px 7px 0;border-bottom:1px solid var(--border);color:var(--muted2);">${i+1}</td><td style="padding:7px 12px 7px 0;border-bottom:1px solid var(--border);color:var(--muted2);font-size:10px;">${r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td><td style="padding:7px 12px 7px 0;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);">${r.supplier}</td><td style="padding:7px 12px 7px 0;border-bottom:1px solid var(--border);color:var(--accent);font-size:10px;">${r.asin||'—'}</td><td style="padding:7px 12px 7px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--text);">${fmt(r.spend)}</td><td style="padding:7px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);">${r.qty}</td>`;
+    tbody.appendChild(tr);
+  });
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
 }
 
 function switchPage(page){
