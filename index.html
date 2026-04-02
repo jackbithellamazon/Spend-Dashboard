@@ -28,6 +28,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 /* PAGE SECTIONS */
 #pageOverview{display:block;}
 #pageToday{display:none;}
+#pageGrowth{display:none;}
 /* TODAY PAGE */
 .today-header{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
 .today-orders-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;overflow-x:auto;}
@@ -266,6 +267,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
   <div class="page-nav">
     <button class="page-nav-btn active" onclick="switchPage('overview')">Overview</button>
     <button class="page-nav-btn" onclick="switchPage('today')">Today</button>
+    <button class="page-nav-btn" onclick="switchPage('growth')">Trends</button>
   </div>
   <div class="header-right">
     <div class="live-pill"><span class="dot"></span> live</div>
@@ -320,7 +322,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="card-sub" id="cardOrdersSub"></div>
     </div>
     <div class="card card-amber">
-      <div class="card-label">avg buy price</div>
+      <div class="card-label">avg cost / unit</div>
       <div class="card-value" id="cardAvgBuy">—</div>
       <div class="card-sub" id="cardAvgBuySub"></div>
     </div>
@@ -506,6 +508,72 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">A2A — top providers</div>
           <div id="a2aProviders" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S&S SECTION -->
+  <div class="stats-section" id="snsSection" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="stats-section-title" style="margin-bottom:0;">S&S <span class="stats-sub">subscribe & save — within A2A</span></div>
+      <button onclick="toggleCollapse('snsBody','snsToggle')" id="snsToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;">▲ collapse</button>
+    </div>
+    <div id="snsBody">
+      <!-- Summary tiles — 8 tiles, 4 per row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="snsSummary"></div>
+      <!-- UK vs EU + Top ASINs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div style="background:var(--surface2);border-radius:8px;padding:16px 20px;">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">S&S — UK vs EU</div>
+          <div id="snsRegionSplit" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:16px 20px;">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">top S&S ASINs</div>
+          <div id="snsTopAsins" style="display:flex;flex-direction:column;gap:7px;"></div>
+        </div>
+      </div>
+      <!-- Provider breakdown -->
+      <div style="background:var(--surface2);border-radius:8px;padding:16px 20px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">S&S by provider</div>
+        <div id="snsProviders"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVERAGES SECTION -->
+  <div class="stats-section" id="averagesSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="stats-section-title" style="margin-bottom:0;">averages <span class="stats-sub">spend patterns & buying behaviour</span></div>
+      <button onclick="toggleCollapse('averagesBody','averagesToggle')" id="averagesToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;">▲ collapse</button>
+    </div>
+    <div id="averagesBody">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="averagesGrid"></div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT SECTION -->
+  <div class="stats-section" id="accountSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="stats-section-title" style="margin-bottom:0;">spend by account <span class="stats-sub">breakdown by Amazon account</span></div>
+      <button onclick="toggleCollapse('accountBody','accountToggle')" id="accountToggle" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer;">▲ collapse</button>
+    </div>
+    <div id="accountBody">
+      <!-- Summary cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="accountSummary"></div>
+      <!-- Account table -->
+      <div style="background:var(--surface2);border-radius:8px;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr>
+            <th style="text-align:left;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">account</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">spend</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">units</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">orders</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">avg order</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">cost/unit</th>
+            <th style="text-align:right;font-size:9px;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);">% spend</th>
+          </tr></thead>
+          <tbody id="accountTable"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -810,6 +878,155 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 </div>
 <footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
 
+<!-- TRENDS PAGE -->
+<div id="pageGrowth" style="display:none;">
+<main>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);">Trends & Insights</div>
+    <button id="growthViewY" style="background:var(--accent);border:1px solid var(--accent);color:#fff;font-family:var(--font-mono);font-size:11px;padding:5px 14px;border-radius:4px;cursor:default;">Full Year</button>
+  </div>
+
+  <!-- S1: Year at a glance -->
+  <div id="trendsHero" style="background:linear-gradient(135deg,var(--surface),#1a1e2f);border:1px solid var(--border2);border-radius:12px;padding:22px 28px;margin-bottom:20px;border-left:4px solid var(--accent);"></div>
+
+  <!-- S1b: KPI strip -->
+  <div id="trendsKpiStrip" style="display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:20px;"></div>
+
+  <!-- S2: Monthly cards -->
+  <div id="trendsMonthCards" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;"></div>
+
+  <!-- S3: Spend trajectory + trend line -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);">spend trajectory</div><div style="font-size:11px;color:var(--muted2);margin-top:2px;">bars = actual vs target · green = hit · red = miss · line = trend</div></div>
+      <div id="trendsChartSub" style="font-size:11px;color:var(--muted2);"></div>
+    </div>
+    <div style="position:relative;height:280px;"><canvas id="growthChart"></canvas></div>
+  </div>
+
+  <!-- S4: Auto trend report -->
+  <div id="trendsAnalysis" style="background:var(--surface2);border-radius:10px;padding:22px 26px;margin-bottom:20px;border-left:3px solid var(--accent);"></div>
+
+  <!-- S5: Insight tiles -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;" id="trendsInsightTiles"></div>
+
+  <!-- S6: Provider trends table -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">provider trends</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:16px;">spend per provider per month · arrows show vs previous month</div>
+    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;" id="providerTrendsTable"></table></div>
+  </div>
+
+  <!-- S7: Provider callouts -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;" id="trendsProvCallouts"></div>
+
+  <!-- S8: Channel mix + S&S -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">OA vs A2A shift</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">how your channel mix is changing month on month</div>
+      <div style="position:relative;height:220px;"><canvas id="growthOaA2aChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">A2A — UK vs EU split</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">Amazon UK vs EU weighting over time</div>
+      <div style="position:relative;height:220px;"><canvas id="trendsUKEUChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- S9: Cost & efficiency -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">avg cost / unit</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">paying more or less per unit over time?</div>
+      <div style="position:relative;height:200px;"><canvas id="growthAvgBuyChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">avg order value</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">transaction size trending up or down?</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsAOVChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">units per order</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">buying in bigger or smaller batches?</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsUPOChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- S10: Orders + ASINs + SKUs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">orders per month</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">order frequency over time</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsOrdersChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">unique ASINs / month</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">breadth of sourcing over time</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsAsinChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">new vs repeat ASINs</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">new sourcing vs repeat buying each month</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsNewAsinChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- S11: VA performance -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">VA spend — month on month</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">VA-A vs VA-S side by side</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsVAChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">VA cost / unit comparison</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">who is sourcing more efficiently each month?</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsVACostChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- S12: DOW + Velocity -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">spend by day of week</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">avg spend per weekday across all data</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsDOWChart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">spend velocity — day of month</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">early vs late month heavy — avg spend by day 1–31</div>
+      <div style="position:relative;height:200px;"><canvas id="trendsDOMChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- S13: Top suppliers per month + replen ASINs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">top repeat ASINs</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">ordered across most months — replen candidates</div>
+      <div id="trendsRepeatAsins" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">supplier loyalty</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">suppliers used most consistently across months</div>
+      <div id="trendsSupplierLoyalty" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+  </div>
+
+  <!-- S14: Account trends -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">account usage trends</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:16px;">which accounts are growing or shrinking in usage</div>
+    <div style="position:relative;height:240px;"><canvas id="trendsAccountChart"></canvas></div>
+  </div>
+
+  <!-- S15: Projected month end -->
+  <div id="trendsProjection" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;"></div>
+
+</main>
+</div>
+
 <script>
 const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
 const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
@@ -826,7 +1043,7 @@ const QUARTER_MONTHS={
 // Month name → number
 const MONTH_MAP={'jan':1,'feb':2,'mar':3,'march':3,'apr':4,'april':4,'may':5,'jun':6,'june':6,'jul':7,'july':7,'aug':8,'august':8,'sep':9,'sept':9,'september':9,'oct':10,'october':10,'nov':11,'november':11,'dec':12,'december':12};
 
-const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_ORDER_ID=9,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14;
+const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_ORDER_ID=9,COL_ACCOUNT=11,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14,COL_SNS=28;
 const HEADER_ROWS=1;
 
 const PROVIDER_COLORS={
@@ -847,7 +1064,7 @@ let activeQ=1,activeMonth=3,allRows=[],liveTargets={};
 let supplierExpanded=false;
 let allSortedSup=[];
 
-function fmt(v){return '£'+Math.round(v).toLocaleString('en-GB');}
+function fmt(v){return '£'+(+v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDec(v){return '£'+v.toFixed(2);}
 function getDIM(month,year){return month===0?92:new Date(year,month,0).getDate();}
 
@@ -868,21 +1085,39 @@ function countOrders(rows){
 function monthProgress(month,year){
   if(month===0) return 1.0;
   const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  // Past year or past month this year — fully complete, lock at 1.0
   if(year<cy||(year===cy&&month<cm)) return 1.0;
-  if(year===cy&&month===cm) return now.getDate()/getDIM(month,year);
-  return 0;
+  // Future month
+  if(year>cy||(year===cy&&month>cm)) return 0;
+  // Current month — progress by day
+  return now.getDate()/getDIM(month,year);
 }
 
-function paceColor(spent,target,progress){
+function isMonthPast(month,year){
+  if(month===0) return false;
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  return year<cy||(year===cy&&month<cm);
+}
+
+function paceColor(spent,target,progress,month,year){
   if(!target) return '#4f8ef7';
+  // Past month — final verdict only
+  if(month!==undefined&&year!==undefined&&isMonthPast(month,year)){
+    return spent>=target?'#22c55e':'#f43f5e';
+  }
   const exp=target*progress;
   if(exp===0) return '#22c55e';
   const r=spent/exp;
   return r>=1?'#22c55e':r>=0.90?'#f59e0b':'#f43f5e';
 }
 
-function paceLabel(spent,target,progress){
+function paceLabel(spent,target,progress,month,year){
   if(!target) return '';
+  // Past month — final verdict only
+  if(month!==undefined&&year!==undefined&&isMonthPast(month,year)){
+    if(spent>=target) return 'target hit ✓ '+fmt(spent-target)+' over';
+    return 'missed by '+fmt(target-spent);
+  }
   const exp=target*progress;
   if(exp===0) return 'start of month';
   const r=spent/exp;
@@ -973,13 +1208,15 @@ function parseRows(values){
     const qty=parseInt(qtyRaw)||1;
     const asin=(r[COL_ASIN]||'').trim();
     const orderId=(r[COL_ORDER_ID]||'').trim();
+    const account=(r[COL_ACCOUNT]||'').trim();
+    const sns=(r[COL_SNS]||'').trim().toLowerCase()==='yes';
     if(!dateStr||!provider||isNaN(spend)||spend<=0) continue;
     let date=null;
     const p=dateStr.split('/');
     if(p.length===3) date=new Date(+p[2],+p[1]-1,+p[0]);
     else date=new Date(dateStr);
     if(!date||isNaN(date)) continue;
-    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,orderId,provider,supplier,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty});
+    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,orderId,provider,supplier,account,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty,sns});
   }
   return rows;
 }
@@ -1059,23 +1296,28 @@ function render(){
   const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
   allSortedSup=Object.entries(supMap).sort((a,b)=>b[1]-a[1]);
   const sortedSupByUnits=Object.entries(supUnits).sort((a,b)=>b[1]-a[1]);
-  const avgBuyPrice=buyPriceCount>0?totalBuyPrice/buyPriceCount:0;
+  const avgBuyPrice=totalUnits>0?totalSpend/totalUnits:0;
 
   // Spend card colour
   const spendCard=document.getElementById('cardSpendWrap');
   if(teamTarget&&progress>0){
-    const r=totalSpend/(teamTarget*progress);
-    spendCard.className=r>=1?'card card-green2':r>=0.90?'card card-orange':'card card-red';
+    const past=isMonthPast(activeMonth,dataYear);
+    if(past){
+      spendCard.className=totalSpend>=teamTarget?'card card-green2':'card card-red';
+    } else {
+      const r=totalSpend/(teamTarget*progress);
+      spendCard.className=r>=1?'card card-green2':r>=0.90?'card card-orange':'card card-red';
+    }
   } else { spendCard.className='card card-blue'; }
 
   document.getElementById('cardTotal').textContent=fmt(totalSpend);
-  document.getElementById('cardTotalSub').textContent=teamTarget?paceLabel(totalSpend,teamTarget,progress):'';
+  document.getElementById('cardTotalSub').textContent=teamTarget?paceLabel(totalSpend,teamTarget,progress,activeMonth,dataYear):'';
   document.getElementById('cardTarget').textContent=teamTarget?fmt(teamTarget):'—';
   document.getElementById('cardTargetSub').textContent=teamTarget?((totalSpend/teamTarget*100).toFixed(1)+'% of target reached'):'no target set';
   document.getElementById('cardUnits').textContent=totalUnits.toLocaleString();
   document.getElementById('cardUnitsSub').textContent=skuLines+' SKU lines';
   document.getElementById('cardAvgBuy').textContent=avgBuyPrice>0?fmtDec(avgBuyPrice):'—';
-  document.getElementById('cardAvgBuySub').textContent=buyPriceCount+' priced items';
+  document.getElementById('cardAvgBuySub').textContent=totalUnits+' units bought';
   document.getElementById('cardAsins').textContent=uniqueAsins.size.toLocaleString();
   document.getElementById('cardAsinsSub').textContent='distinct products';
 
@@ -1103,27 +1345,34 @@ function render(){
   // Team bar
   if(teamTarget){
     const pct=Math.min((totalSpend/teamTarget)*100,100);
-    const color=paceColor(totalSpend,teamTarget,progress);
+    const color=paceColor(totalSpend,teamTarget,progress,activeMonth,dataYear);
+    const past=isMonthPast(activeMonth,dataYear);
     document.getElementById('teamFill').style.cssText=`width:${pct}%;background:${color}`;
     document.getElementById('teamNums').innerHTML=`<strong>${fmt(totalSpend)}</strong> of ${fmt(teamTarget)}`;
     document.getElementById('teamPct').textContent=pct.toFixed(1)+'%';
     document.getElementById('teamPct').style.color=color;
     document.getElementById('teamTargetLabel').textContent=fmt(teamTarget);
-    document.getElementById('teamPaceMarker').style.left=Math.min(progress*100,99)+'%';
-    const exp=teamTarget*progress,gap=totalSpend-exp;
-    const pacePct=exp>0?((totalSpend/exp)*100).toFixed(1):null;
+    document.getElementById('teamPaceMarker').style.left=past?'100%':Math.min(progress*100,99)+'%';
     const gl=document.getElementById('teamGapLabel');
-    gl.innerHTML=(gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace')+(pacePct?` <span style="font-size:11px;font-weight:600;opacity:0.85;">(${pacePct}% of expected)</span>`:'');
+    if(past){
+      const hit=totalSpend>=teamTarget;
+      gl.innerHTML=hit?`✅ target hit — ${fmt(totalSpend-teamTarget)} over`:`❌ missed by ${fmt(teamTarget-totalSpend)}`;
+    } else {
+      const exp=teamTarget*progress,gap=totalSpend-exp;
+      const pacePct=exp>0?((totalSpend/exp)*100).toFixed(1):null;
+      gl.innerHTML=(gap>=0?fmt(gap)+' ahead of pace':fmt(Math.abs(gap))+' behind pace')+(pacePct?` <span style="font-size:11px;font-weight:600;opacity:0.85;">(${pacePct}% of expected)</span>`:'');
+    }
     gl.style.color=color;
     const daily=teamTarget/dim;
     document.getElementById('statDaily').textContent=fmt(daily);
     document.getElementById('statDaily').style.color=color;
-    document.getElementById('statExpected').textContent=fmt(exp);
+    const exp=teamTarget*progress,gap=totalSpend-exp;
+    document.getElementById('statExpected').textContent=past?fmt(teamTarget):fmt(exp);
     document.getElementById('statExpected').style.color=color;
-    document.getElementById('statExpectedSub').textContent=`based on day ${currentDay} of ${dim}`;
-    document.getElementById('statDiff').textContent=(gap>=0?'+':'-')+fmt(Math.abs(gap));
+    document.getElementById('statExpectedSub').textContent=past?'final target':'based on day '+currentDay+' of '+dim;
+    document.getElementById('statDiff').textContent=(gap>=0?'+':'')+fmt(gap);
     document.getElementById('statDiff').style.color=color;
-    document.getElementById('statDiffSub').textContent=gap>=0?'ahead of where you should be':'behind where you should be';
+    document.getElementById('statDiffSub').textContent=past?(totalSpend>=teamTarget?'target hit':'target missed'):(gap>=0?'ahead of where you should be':'behind where you should be');
   } else {
     document.getElementById('teamFill').style.width='0%';
     document.getElementById('teamNums').innerHTML='No target set for this period';
@@ -1138,9 +1387,12 @@ function render(){
   buildPie('chartProvider','legendProvider',sortedProv,totalSpend,true,false);
   buildPie('chartSupplier','legendSupplier',allSortedSup,totalSpend,false,false);
 
-  buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend);
+  buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend,activeMonth,dataYear);
   buildSupplierTable(allSortedSup,supUnits,supOrders,totalSpend);
   buildOaA2a(rows,totalSpend);
+  buildSns(rows);
+  buildAverages(rows);
+  buildAccounts(rows);
   buildDailyAvgs(rows,activeMonth,dataYear,currentDay,progress);
   buildInsights(rows,activeMonth,dataYear,teamTarget,progress,dim);
   buildVsLastMonth(rows,activeMonth,dataYear,currentDay);
@@ -1182,7 +1434,7 @@ function buildPie(canvasId,legendId,sorted,total,useProvColors,limitLegend){
   });
 }
 
-function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend){
+function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCount,targets,progress,totalSpend,month,year){
   const grid=document.getElementById('providerGrid');grid.innerHTML='';
   const PROVIDER_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
   const allProvidersSet=new Set([...Object.keys(targets).filter(k=>k!=='team'),...Object.keys(provMap)]);
@@ -1200,15 +1452,15 @@ function buildProviderTargets(provMap,provUnits,provAsins,provBuyTotal,provBuyCo
       <div class="prow-stats">
         <div class="prow-stat"><div class="prow-stat-label">units bought</div><div class="prow-stat-value">${units.toLocaleString()}</div></div>
         <div class="prow-stat"><div class="prow-stat-label">unique ASINs</div><div class="prow-stat-value">${asins}</div></div>
-        <div class="prow-stat"><div class="prow-stat-label">avg buy price</div><div class="prow-stat-value">${avgBuy>0?fmtDec(avgBuy):'—'}</div></div>
+        <div class="prow-stat"><div class="prow-stat-label">avg cost/unit</div><div class="prow-stat-value">${units>0?fmtDec(spent/units):'—'}</div></div>
       </div>`;
 
     const badge=`<span class='prov-badge' style='background:${provColor}20;border:1px solid ${provColor}40;cursor:pointer;' data-prov="${name}"><span class='prov-badge-dot' style='background:${provColor}'></span>${name}</span>`;
 
     if(target>0){
       const pct=Math.min((spent/target)*100,100);
-      const color=paceColor(spent,target,progress);
-      const label=paceLabel(spent,target,progress);
+      const color=paceColor(spent,target,progress,month,year);
+      const label=paceLabel(spent,target,progress,month,year);
       const pacePct=Math.min(progress*100,99);
       div.innerHTML=`
         <div class="prow-header">
@@ -1414,8 +1666,8 @@ function buildOaA2a(rows,totalSpend){
   topAsinList(a2aRows,'a2aTopAsins','#4f8ef7');
 
   // Key metrics
-  const a2aAvgBuy=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
-  const oaAvgBuy=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
+  const a2aAvgBuy=a2aUnits>0?a2aSpend/a2aUnits:0;
+  const oaAvgBuy=oaUnits>0?oaSpend/oaUnits:0;
   const a2aUniqueAsins=new Set(a2aRows.filter(r=>r.asin).map(r=>r.asin)).size;
   const oaUniqueAsins=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
   const ctxData={totalSpend,a2aSpend,oaSpend,a2aOrders,oaOrders,a2aUnits,oaUnits,ukSpend,euSpend};
@@ -1441,7 +1693,7 @@ function buildOaA2a(rows,totalSpend){
   const allOrders=countOrders(rows);
   const allAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
   const allSkus=rows.length;
-  const avgBuyAll=rows.filter(r=>r.buyPrice>0).length>0?rows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/rows.filter(r=>r.buyPrice>0).length:0;
+  const avgBuyAll=rows.reduce((a,r)=>a+r.qty,0)>0?rows.reduce((a,r)=>a+r.spend,0)/rows.reduce((a,r)=>a+r.qty,0):0;
   const dailyStatsEl=document.getElementById('oaDailyStats');
   if(dailyStatsEl){
     const dstat=(label,val,sub)=>`<div style="background:var(--surface2);border-radius:8px;padding:12px 14px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;">${label}</div><div style="font-size:18px;font-weight:700;color:var(--text);line-height:1;">${val}</div>${sub?`<div style="font-size:10px;color:var(--muted2);margin-top:3px;">${sub}</div>`:''}</div>`;
@@ -1451,7 +1703,7 @@ function buildOaA2a(rows,totalSpend){
       dstat('avg orders/day',tradingDays>0?(allOrders/tradingDays).toFixed(1):'—',allOrders+' true orders')+
       dstat('avg ASINs/day',tradingDays>0?(allAsins/tradingDays).toFixed(1):'—',allAsins+' unique ASINs')+
       dstat('avg SKUs/day',tradingDays>0?(allSkus/tradingDays).toFixed(1):'—',allSkus+' SKU lines')+
-      dstat('avg buy price',avgBuyAll>0?fmtDec(avgBuyAll):'—',rows.filter(r=>r.buyPrice>0).length+' priced items');
+      dstat('avg cost/unit',avgBuyAll>0?fmtDec(avgBuyAll):'—',allUnits+' total units');
   }
 
   // Providers
@@ -1497,16 +1749,22 @@ function buildChannelAnalysis(rows){
   const oaAOV=oaOrders>0?(oaSpend/oaOrders):0;
   const a2aUPO=a2aOrders>0?(a2aUnits/a2aOrders):0;
   const oaUPO=oaOrders>0?(oaUnits/oaOrders):0;
-  const a2aAvgBuyC=a2aRows.filter(r=>r.buyPrice>0).length>0?a2aRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/a2aRows.filter(r=>r.buyPrice>0).length:0;
-  const oaAvgBuyC=oaRows.filter(r=>r.buyPrice>0).length>0?oaRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/oaRows.filter(r=>r.buyPrice>0).length:0;
+  const a2aAvgBuyC=a2aUnits>0?a2aSpend/a2aUnits:0;
+  const oaAvgBuyC=oaUnits>0?oaSpend/oaUnits:0;
   const a2aAsinCnt=new Set(a2aRows.filter(r=>r.asin).map(r=>r.asin)).size;
   const oaAsinCnt=new Set(oaRows.filter(r=>r.asin).map(r=>r.asin)).size;
   const dom=a2aSpend>oaSpend?'A2A':'OA';
   const aovDiff=a2aAOV>0&&oaAOV>0?((Math.max(a2aAOV,oaAOV)/Math.min(a2aAOV,oaAOV)-1)*100).toFixed(0):null;
   const buyDiff=a2aAvgBuyC>0&&oaAvgBuyC>0?Math.abs(a2aAvgBuyC-oaAvgBuyC).toFixed(2):null;
+  // S&S within A2A
+  const snsRows=a2aRows.filter(r=>r.sns);
+  const snsSpend=snsRows.reduce((a,r)=>a+r.spend,0);
+  const snsPct=a2aSpend>0?((snsSpend/a2aSpend)*100).toFixed(1):0;
+
   let para='';
   para+='<strong>'+dom+' dominates at '+(dom==='A2A'?a2aPct:oaPct)+'% of spend</strong> — '+fmt(a2aSpend)+' A2A ('+a2aOrders+' orders) vs '+fmt(oaSpend)+' OA ('+oaOrders+' orders). ';
   para+='Within A2A: <strong>Amazon UK '+ukPct+'%</strong> ('+fmt(ukSpend)+') · Amazon EU '+euPct+'% ('+fmt(euSpend)+')'+(parseFloat(ukPct)>parseFloat(euPct)?' — UK-led':' — EU-heavy')+'. ';
+  if(snsSpend>0) para+='<strong>S&S accounts for '+snsPct+'% of A2A</strong> ('+fmt(snsSpend)+') — subscribe & save orders within Amazon. ';
   if(a2aAOV>0&&oaAOV>0){const aovNote=aovDiff?(' ('+aovDiff+'% '+(oaAOV>a2aAOV?'higher OA — higher-ticket sourcing':'higher A2A — bulk/replen pattern')+')'):'';para+='AOV: <strong>'+fmt(a2aAOV)+' A2A vs '+fmt(oaAOV)+' OA</strong>'+aovNote+'. ';}
   if(a2aUPO>0&&oaUPO>0) para+='Units/order: <strong>'+a2aUPO.toFixed(1)+' A2A vs '+oaUPO.toFixed(1)+' OA</strong> — '+(a2aUPO>oaUPO?'A2A more multi-unit':'OA runs higher units per order')+'. ';
   if(a2aAvgBuyC>0&&oaAvgBuyC>0){const buyNote=(buyDiff&&parseFloat(buyDiff)>2)?' (£'+buyDiff+' gap — '+(a2aAvgBuyC>oaAvgBuyC?'A2A carries higher unit cost':'OA carries higher unit cost')+')':'';const asinNote=(a2aAsinCnt&&oaAsinCnt)?'. Unique ASINs: '+a2aAsinCnt+' A2A vs '+oaAsinCnt+' OA.':'.';para+='Avg buy price: '+fmtDec(a2aAvgBuyC)+' A2A vs '+fmtDec(oaAvgBuyC)+' OA'+buyNote+asinNote;}
@@ -1733,7 +1991,7 @@ function buildVsLastMonth(rows,month,year,currentDay){
     const orders=arr.length;
     const asins=new Set(arr.filter(r=>r.asin).map(r=>r.asin)).size;
     const avgOrder=orders>0?spend/orders:0;
-    const avgBuy=arr.filter(r=>r.buyPrice>0).length>0?arr.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/arr.filter(r=>r.buyPrice>0).length:0;
+    const avgBuy=units>0?spend/units:0;
     const days=new Set(arr.map(r=>r.date.toDateString())).size;
     return{spend,units,orders,asins,avgOrder,avgBuy,days};
   }
@@ -1768,7 +2026,7 @@ function buildVsLastMonth(rows,month,year,currentDay){
     vsRowClick('total orders',t.orders,l.orders,v=>v.toString())+
     vsRowClick('unique ASINs',t.asins,l.asins,v=>v.toString())+
     vsRowClick('avg order value',t.avgOrder,l.avgOrder,fmt)+
-    vsRowClick('avg buy price',t.avgBuy,l.avgBuy,fmtDec)+
+    vsRowClick('avg cost/unit',t.avgBuy,l.avgBuy,fmtDec)+
     vsRowClick('active days',t.days,l.days,v=>v+' days')+
     vsRowClick('spend per day',t.days>0?t.spend/t.days:0,l.days>0?l.spend/l.days:0,fmt);
 }
@@ -1965,7 +2223,7 @@ function openProvModal(providerName){
   const trueOrders=countOrders(rows);
   const skuLines=rows.length;
   const uniqueAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
-  const avgBuy=rows.filter(r=>r.buyPrice>0).length>0?rows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/rows.filter(r=>r.buyPrice>0).length:0;
+  const avgBuy=totalUnits>0?totalSpend/totalUnits:0;
   const avgOrder=trueOrders>0?totalSpend/trueOrders:0;
 
   // Summary cards
@@ -1973,19 +2231,19 @@ function openProvModal(providerName){
   const target=targets[providerName]||0;
   const dataYear=rows.length?Math.max(...rows.map(r=>r.year)):new Date().getFullYear();
   const progress=monthProgress(activeMonth,dataYear);
-  const paceCol=target?paceColor(totalSpend,target,progress):'var(--accent)';
+  const paceCol=target?paceColor(totalSpend,target,progress,activeMonth,dataYear):'var(--accent)';
 
   document.getElementById('provModalCards').innerHTML=
     `<div class="prov-modal-card"><div class="prov-modal-card-label">total spend</div><div class="prov-modal-card-value" style="color:${color}">${fmt(totalSpend)}</div><div class="prov-modal-card-sub">${target?fmt(target)+' target':' no target'}</div></div>`+
     `<div class="prov-modal-card"><div class="prov-modal-card-label">units bought</div><div class="prov-modal-card-value">${totalUnits.toLocaleString()}</div><div class="prov-modal-card-sub">${skuLines} SKU lines</div></div>`+
     `<div class="prov-modal-card"><div class="prov-modal-card-label">true orders</div><div class="prov-modal-card-value">${trueOrders}</div><div class="prov-modal-card-sub">${fmt(avgOrder)} avg order</div></div>`+
-    `<div class="prov-modal-card"><div class="prov-modal-card-label">unique ASINs</div><div class="prov-modal-card-value">${uniqueAsins}</div><div class="prov-modal-card-sub">${avgBuy>0?fmtDec(avgBuy)+' avg buy':''}</div></div>`;
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">unique ASINs</div><div class="prov-modal-card-value">${uniqueAsins}</div><div class="prov-modal-card-sub">${avgBuy>0?fmtDec(avgBuy)+' avg cost/unit':''}</div></div>`;
 
   // If target, show pace bar
   if(target){
     const pct=Math.min((totalSpend/target)*100,100);
     const pacePct=Math.min(progress*100,99);
-    const label=paceLabel(totalSpend,target,progress);
+    const label=paceLabel(totalSpend,target,progress,activeMonth,dataYear);
     const overPct=totalSpend>target?((totalSpend/target-1)*100).toFixed(1):null;
     const overAmt=totalSpend>target?totalSpend-target:null;
     const realPct=(totalSpend/target*100).toFixed(1);
@@ -2072,10 +2330,30 @@ document.addEventListener('click',function(e){
 function switchPage(page){
   document.getElementById('pageOverview').style.display=page==='overview'?'block':'none';
   document.getElementById('pageToday').style.display=page==='today'?'block':'none';
+  document.getElementById('pageGrowth').style.display=page==='growth'?'block':'none';
   document.querySelectorAll('.page-nav-btn').forEach(b=>{
     b.className='page-nav-btn'+(b.textContent.toLowerCase().includes(page)?' active':'');
   });
   if(page==='today') buildToday();
+  if(page==='growth') loadAllAndBuildGrowth();
+}
+
+let allYearRows=[];
+async function loadAllAndBuildGrowth(){
+  // Show loading state
+  const hero=document.getElementById('trendsHero');
+  if(hero) hero.innerHTML='<div style="color:var(--muted);font-size:13px;">Loading all data...</div>';
+  // Load all 4 quarters and combine
+  const allParsed=[];
+  for(let q=1;q<=4;q++){
+    try{
+      const vals=await fetchTab(QUARTER_TABS[q]);
+      const rows=parseRows(vals);
+      allParsed.push(...rows);
+    }catch(e){/* quarter has no data yet */}
+  }
+  allYearRows=allParsed;
+  buildGrowth();
 }
 
 function buildToday(){
@@ -2251,7 +2529,7 @@ function buildToday(){
   const biggestOrder=todayRows.length?todayRows.reduce((a,r)=>r.spend>a.spend?r:a,todayRows[0]):null;
   const topProvEntry=Object.entries(provSpend).sort((a,b)=>b[1]-a[1])[0];
   const topProvUnits=Object.entries(provUnits).sort((a,b)=>b[1]-a[1])[0];
-  const avgBuyPriceToday=todayRows.filter(r=>r.buyPrice>0).length>0?todayRows.filter(r=>r.buyPrice>0).reduce((a,r)=>a+r.buyPrice,0)/todayRows.filter(r=>r.buyPrice>0).length:0;
+  const avgBuyPriceToday=totalUnits>0?totalSpend/totalUnits:0;
   const silentToday=PROV_ORDER.filter(p=>!provSpend[p]);
   const asinSpend={},asinUnits={},asinOrders={};
   todayRows.filter(r=>r.asin).forEach(r=>{asinSpend[r.asin]=(asinSpend[r.asin]||0)+r.spend;asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;asinOrders[r.asin]=(asinOrders[r.asin]||0)+1;});
@@ -2260,7 +2538,7 @@ function buildToday(){
     `<div class="stat-tile c-rose"><div class="stat-tile-label">biggest order today</div><div class="stat-tile-value">${biggestOrder?fmt(biggestOrder.spend):'—'}</div><div class="stat-tile-sub">${biggestOrder?biggestOrder.supplier+' · '+biggestOrder.provider:''}</div></div>`+
     `<div class="stat-tile c-blue"><div class="stat-tile-label">top provider today</div><div class="stat-tile-value">${topProvEntry?topProvEntry[0]:'—'}</div><div class="stat-tile-sub">${topProvEntry?fmt(topProvEntry[1])+' · '+(provOrders[topProvEntry[0]]||0)+' SKUs':''}</div></div>`+
     `<div class="stat-tile c-purple"><div class="stat-tile-label">top by units</div><div class="stat-tile-value">${topProvUnits?topProvUnits[0]:'—'}</div><div class="stat-tile-sub">${topProvUnits?topProvUnits[1]+' units':''}</div></div>`+
-    `<div class="stat-tile c-amber"><div class="stat-tile-label">avg buy price today</div><div class="stat-tile-value">${avgBuyPriceToday>0?fmtDec(avgBuyPriceToday):'—'}</div><div class="stat-tile-sub">${todayRows.filter(r=>r.buyPrice>0).length} priced items</div></div>`+
+    `<div class="stat-tile c-amber"><div class="stat-tile-label">avg cost/unit today</div><div class="stat-tile-value">${avgBuyPriceToday>0?fmtDec(avgBuyPriceToday):'—'}</div><div class="stat-tile-sub">${totalUnits} units bought</div></div>`+
     `<div class="stat-tile c-green"><div class="stat-tile-label">month total so far</div><div class="stat-tile-value">${fmt(monthTotal)}</div><div class="stat-tile-sub">${teamTarget?(fmt(remaining)+' still needed'):'no target set'}</div></div>`+
     `<div class="stat-tile c-teal"><div class="stat-tile-label">providers active</div><div class="stat-tile-value">${Object.keys(provSpend).length} / ${PROV_ORDER.length}</div><div class="stat-tile-sub">${silentToday.length>0?'silent: '+silentToday.slice(0,3).join(', ')+(silentToday.length>3?'...':''):'all active!'}</div></div>`+
     `<div class="stat-tile c-indigo"><div class="stat-tile-label">spend per ASIN</div><div class="stat-tile-value">${uniqueAsins.size>0?fmt(totalSpend/uniqueAsins.size):'—'}</div><div class="stat-tile-sub">${uniqueAsins.size} unique ASINs</div></div>`+
@@ -2322,6 +2600,583 @@ async function loadAndRender(q){
   render();
 }
 
+// ── S&S SECTION ─────────────────────────────────────────────────
+function buildSns(rows){
+  const snsRows=rows.filter(r=>r.sns);
+  const el=document.getElementById('snsSection');
+  if(!el) return;
+  if(snsRows.length===0){el.style.display='none';return;}
+  el.style.display='';
+
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
+
+  const totalSpend=snsRows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=snsRows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(snsRows);
+  const skuLines=snsRows.length;
+  const uniqueAsins=new Set(snsRows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const allA2aSpend=rows.filter(isAmazon).reduce((a,r)=>a+r.spend,0);
+  const pctOfA2a=allA2aSpend>0?((totalSpend/allA2aSpend)*100).toFixed(1):0;
+  const avgCostPerUnit=totalUnits>0?totalSpend/totalUnits:0;
+  const avgUnitsPerOrder=trueOrders>0?totalUnits/trueOrders:0;
+  const avgSpendPerOrder=trueOrders>0?totalSpend/trueOrders:0;
+
+  // Best provider
+  const provMap={};snsRows.forEach(r=>provMap[r.provider]=(provMap[r.provider]||0)+r.spend);
+  const bestProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // Summary tiles — 8 tiles
+  document.getElementById('snsSummary').innerHTML=
+    `<div class="prov-modal-card" style="background:linear-gradient(135deg,#2d1f5e,#3a2878);"><div class="prov-modal-card-label">S&S total spend</div><div class="prov-modal-card-value" style="color:#a78bfa;">${fmt(totalSpend)}</div><div class="prov-modal-card-sub">${pctOfA2a}% of all A2A</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">units bought</div><div class="prov-modal-card-value">${totalUnits.toLocaleString()}</div><div class="prov-modal-card-sub">${skuLines} SKU lines</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">unique ASINs</div><div class="prov-modal-card-value">${uniqueAsins}</div><div class="prov-modal-card-sub">${skuLines} total SKUs</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">true orders</div><div class="prov-modal-card-value">${trueOrders}</div><div class="prov-modal-card-sub">${fmt(avgSpendPerOrder)} avg order</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">units per order</div><div class="prov-modal-card-value">${avgUnitsPerOrder.toFixed(1)}</div><div class="prov-modal-card-sub">avg across ${trueOrders} orders</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">cost per unit</div><div class="prov-modal-card-value">${fmtDec(avgCostPerUnit)}</div><div class="prov-modal-card-sub">avg across all units</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">best provider</div><div class="prov-modal-card-value" style="font-size:16px;">${bestProv?bestProv[0]:'—'}</div><div class="prov-modal-card-sub">${bestProv?fmt(bestProv[1])+' S&S spend':'—'}</div></div>`+
+    `<div class="prov-modal-card"><div class="prov-modal-card-label">S&S % of A2A</div><div class="prov-modal-card-value" style="color:#a78bfa;">${pctOfA2a}%</div><div class="prov-modal-card-sub">${fmt(allA2aSpend)} total A2A</div></div>`;
+
+  // UK vs EU split
+  const ukSpend=snsRows.filter(isUK).reduce((a,r)=>a+r.spend,0);
+  const euSpend=snsRows.filter(r=>isAmazon(r)&&!isUK(r)).reduce((a,r)=>a+r.spend,0);
+  const ukUnits=snsRows.filter(isUK).reduce((a,r)=>a+r.qty,0);
+  const euUnits=snsRows.filter(r=>isAmazon(r)&&!isUK(r)).reduce((a,r)=>a+r.qty,0);
+  const ukPct=totalSpend>0?((ukSpend/totalSpend)*100).toFixed(1):0;
+  const euPct=totalSpend>0?((euSpend/totalSpend)*100).toFixed(1):0;
+  document.getElementById('snsRegionSplit').innerHTML=
+    `<div class="li"><span class="li-dot" style="background:#f97316"></span><span class="li-name">Amazon UK</span><span class="li-val">${fmt(ukSpend)} <span style="color:var(--muted);font-weight:400;font-size:10px;">${ukPct}% · ${ukUnits} units</span></span></div>`+
+    `<div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">${fmt(euSpend)} <span style="color:var(--muted);font-weight:400;font-size:10px;">${euPct}% · ${euUnits} units</span></span></div>`;
+
+  // Top ASINs
+  const asinMap={},asinUnits={},asinOrders={};
+  snsRows.filter(r=>r.asin).forEach(r=>{
+    asinMap[r.asin]=(asinMap[r.asin]||0)+r.spend;
+    asinUnits[r.asin]=(asinUnits[r.asin]||0)+r.qty;
+    asinOrders[r.asin]=(asinOrders[r.asin]||0)+1;
+  });
+  const topAsins=Object.entries(asinMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('snsTopAsins').innerHTML=topAsins.map(([asin,spend],i)=>
+    `<div class="li"><span style="font-size:10px;color:var(--muted);width:20px;flex-shrink:0;">#${i+1}</span><span class="li-name" style="color:var(--accent);">${asin}</span><span class="li-val">${fmt(spend)} <span style="color:var(--muted);font-weight:400;font-size:10px;">${asinUnits[asin]} units</span></span></div>`
+  ).join('');
+
+  // Provider breakdown — only providers with S&S orders
+  const sortedProv=Object.entries(provMap).sort((a,b)=>b[1]-a[1]);
+  const provUnitsMap={};snsRows.forEach(r=>provUnitsMap[r.provider]=(provUnitsMap[r.provider]||0)+r.qty);
+  const provOrdersMap={};
+  const provRowsMap={};snsRows.forEach(r=>{if(!provRowsMap[r.provider])provRowsMap[r.provider]=[];provRowsMap[r.provider].push(r);});
+  Object.entries(provRowsMap).forEach(([p,rs])=>provOrdersMap[p]=countOrders(rs));
+
+  document.getElementById('snsProviders').innerHTML=sortedProv.map(([name,spend])=>{
+    const color=PROVIDER_COLORS[name]||'#4f8ef7';
+    const pct=totalSpend>0?((spend/totalSpend)*100).toFixed(1):0;
+    const units=provUnitsMap[name]||0;
+    const orders=provOrdersMap[name]||0;
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+        <span style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;">
+          <span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span>${name}
+          <span style="font-size:10px;color:var(--muted2);">${orders} orders · ${units} units</span>
+        </span>
+        <span style="font-size:12px;font-weight:600;color:${color};">${fmt(spend)} <span style="color:var(--muted);font-weight:400;">${pct}%</span></span>
+      </div>
+      <div class="track" style="height:5px;"><div class="fill" style="width:${pct}%;background:${color};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── AVERAGES SECTION ────────────────────────────────────────────
+function buildAverages(rows){
+  const el=document.getElementById('averagesGrid');
+  if(!el||rows.length===0) return;
+
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const totalUnits=rows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(rows);
+  const skuLines=rows.length;
+
+  // Cost per unit
+  const avgCostPerUnit=totalUnits>0?totalSpend/totalUnits:0;
+  // Avg order total
+  const avgOrderTotal=trueOrders>0?totalSpend/trueOrders:0;
+  // Avg units per order
+  const avgUnitsPerOrder=trueOrders>0?totalUnits/trueOrders:0;
+  // ASIN repeat rate
+  const asinCount={};rows.filter(r=>r.asin).forEach(r=>asinCount[r.asin]=(asinCount[r.asin]||0)+1);
+  const totalAsins=Object.keys(asinCount).length;
+  const repeatAsins=Object.values(asinCount).filter(c=>c>1).length;
+  const repeatRate=totalAsins>0?((repeatAsins/totalAsins)*100).toFixed(1):0;
+  // Spend concentration — top 3 providers
+  const provSpend={};rows.forEach(r=>provSpend[r.provider]=(provSpend[r.provider]||0)+r.spend);
+  const top3=Object.values(provSpend).sort((a,b)=>b-a).slice(0,3).reduce((a,b)=>a+b,0);
+  const concentration=totalSpend>0?((top3/totalSpend)*100).toFixed(1):0;
+  const top3Names=Object.entries(provSpend).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n).join(', ');
+  // Peak spend day
+  const dowSpend=Array(7).fill(0),dowCount=Array(7).fill(0);
+  const byDay={};
+  rows.forEach(r=>{const k=r.date.toDateString();if(!byDay[k]){byDay[k]={dow:r.date.getDay(),spend:0};}byDay[k].spend+=r.spend;});
+  Object.values(byDay).forEach(d=>{dowSpend[d.dow]+=d.spend;dowCount[d.dow]++;});
+  const dowAvg=dowSpend.map((s,i)=>dowCount[i]>0?s/dowCount[i]:0);
+  const peakDow=dowAvg.indexOf(Math.max(...dowAvg));
+  const DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  // Avg SKUs per order
+  const avgSkusPerOrder=trueOrders>0?skuLines/trueOrders:0;
+
+  const tile=(label,val,sub,col)=>`<div style="background:var(--surface2);border-radius:8px;padding:16px 20px;border-left:3px solid ${col};"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">${label}</div><div style="font-size:22px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;">${val}</div><div style="font-size:11px;color:var(--muted2);">${sub}</div></div>`;
+
+  el.innerHTML=
+    tile('avg cost / unit',fmtDec(avgCostPerUnit),'total spend ÷ total units','#4f8ef7')+
+    tile('avg order total',fmt(avgOrderTotal),'total spend ÷ true orders','#22c55e')+
+    tile('avg units / order',avgUnitsPerOrder.toFixed(1),'total units ÷ true orders','#f59e0b')+
+    tile('avg SKUs / order',avgSkusPerOrder.toFixed(1),'SKU lines ÷ true orders','#a78bfa')+
+    tile('ASIN repeat rate',repeatRate+'%',repeatAsins+' of '+totalAsins+' ASINs ordered 2+ times','#f472b6')+
+    tile('spend concentration',concentration+'%','top 3: '+top3Names,'#06b6d4');
+}
+
+// ── ACCOUNT SECTION ─────────────────────────────────────────────
+function buildAccounts(rows){
+  const el=document.getElementById('accountTable');
+  if(!el) return;
+
+  const totalSpend=rows.reduce((a,r)=>a+r.spend,0);
+  const acctMap={};
+  rows.forEach(r=>{
+    const a=r.account||'Unknown';
+    if(!acctMap[a]) acctMap[a]={spend:0,units:0,rows:[]};
+    acctMap[a].spend+=r.spend;
+    acctMap[a].units+=r.qty;
+    acctMap[a].rows.push(r);
+  });
+  const sorted=Object.entries(acctMap).sort((a,b)=>b[1].spend-a[1].spend);
+
+  // Summary cards — top 4 accounts
+  const ACCT_COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9'];
+  document.getElementById('accountSummary').innerHTML=sorted.slice(0,4).map(([name,d],i)=>{
+    const color=ACCT_COLORS[i];
+    const pct=totalSpend>0?((d.spend/totalSpend)*100).toFixed(1):0;
+    return `<div class="prov-modal-card" style="border-top:2px solid ${color};"><div class="prov-modal-card-label">${name}</div><div class="prov-modal-card-value" style="color:${color};">${fmt(d.spend)}</div><div class="prov-modal-card-sub">${pct}% · ${d.units} units</div></div>`;
+  }).join('');
+
+  // Table
+  el.innerHTML='';
+  sorted.forEach(([name,d],i)=>{
+    const color=ACCT_COLORS[i%ACCT_COLORS.length];
+    const orders=countOrders(d.rows);
+    const pct=totalSpend>0?((d.spend/totalSpend)*100).toFixed(1):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);"><span style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};flex-shrink:0;"></span><span style="font-weight:600;color:var(--text);font-size:12px;">${name}</span></span></td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;font-weight:700;color:var(--text);font-size:12px;">${fmt(d.spend)}</td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:12px;">${d.units.toLocaleString()}</td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:12px;">${orders}</td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:12px;">${orders>0?fmt(d.spend/orders):'—'}</td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;color:var(--muted2);font-size:12px;">${d.units>0?fmtDec(d.spend/d.units):'—'}</td>`+
+      `<td style="padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;color:${color};font-weight:600;font-size:12px;">${pct}%</td>`;
+    el.appendChild(tr);
+  });
+}
+
+// ── TRENDS TAB ───────────────────────────────────────────────────
+let growthView='year';
+function setGrowthView(v){growthView=v;buildGrowth();}
+
+function buildGrowth(){
+  const rows=allYearRows;
+  if(!rows||rows.length===0){
+    const h=document.getElementById('trendsHero');
+    if(h) h.innerHTML='<div style="color:var(--muted);font-size:13px;">No data loaded yet. Visit another tab first.</div>';
+    return;
+  }
+
+  const isAmazon=r=>r.supplier.trim().toLowerCase().startsWith('amazon');
+  const isUK=r=>r.supplier.trim().toLowerCase().includes('amazon uk');
+  const isEU=r=>isAmazon(r)&&!isUK(r);
+  const MN={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'};
+  const now=new Date();
+
+  // Build monthly stats
+  const allKeys=[...new Set(rows.map(r=>`${r.year}-${String(r.month).padStart(2,'0')}` ))].sort();
+  if(!allKeys.length) return;
+
+  const ms=allKeys.map(k=>{
+    const [y,m]=k.split('-').map(Number);
+    const mr=rows.filter(r=>r.month===m&&r.year===y);
+    const spend=mr.reduce((a,r)=>a+r.spend,0);
+    const units=mr.reduce((a,r)=>a+r.qty,0);
+    const orders=countOrders(mr);
+    const skus=mr.length;
+    const asins=new Set(mr.filter(r=>r.asin).map(r=>r.asin)).size;
+    const a2aR=mr.filter(isAmazon); const oaR=mr.filter(r=>!isAmazon(r));
+    const a2a=a2aR.reduce((a,r)=>a+r.spend,0);
+    const oa=oaR.reduce((a,r)=>a+r.spend,0);
+    const uk=mr.filter(isUK).reduce((a,r)=>a+r.spend,0);
+    const eu=mr.filter(isEU).reduce((a,r)=>a+r.spend,0);
+    const sns=mr.filter(r=>r.sns).reduce((a,r)=>a+r.spend,0);
+    const cpu=units>0?spend/units:0;
+    const aov=orders>0?spend/orders:0;
+    const upo=orders>0?units/orders:0;
+    const target=(liveTargets[m]||{}).team||0;
+    const past=isMonthPast(m,y);
+    const hit=target>0?(spend>=target):null;
+    const vaA=mr.filter(r=>r.provider==='VA-A').reduce((a,r)=>a+r.spend,0);
+    const vaS=mr.filter(r=>r.provider==='VA-S').reduce((a,r)=>a+r.spend,0);
+    const vaAUnits=mr.filter(r=>r.provider==='VA-A').reduce((a,r)=>a+r.qty,0);
+    const vaSUnits=mr.filter(r=>r.provider==='VA-S').reduce((a,r)=>a+r.qty,0);
+    return{k,m,y,mr,spend,units,orders,skus,asins,a2a,oa,uk,eu,sns,cpu,aov,upo,target,past,hit,vaA,vaS,vaAUnits,vaSUnits,label:MN[m]};
+  });
+
+  const labels=ms.map(s=>s.label);
+  const ytdSpend=ms.reduce((a,s)=>a+s.spend,0);
+  const ytdUnits=ms.reduce((a,s)=>a+s.units,0);
+  const ytdOrders=ms.reduce((a,s)=>a+s.orders,0);
+  const hitCount=ms.filter(s=>s.hit===true).length;
+  const missCount=ms.filter(s=>s.hit===false).length;
+  const avgMonthly=ytdSpend/ms.length;
+  const latest=ms[ms.length-1];
+  const prev=ms[ms.length-2];
+  const diffPct=prev&&prev.spend>0?((latest.spend-prev.spend)/prev.spend*100):null;
+  let streak=0; for(let i=ms.length-1;i>=0;i--){if(ms[i].hit===true)streak++;else break;}
+  let missStreak=0; for(let i=ms.length-1;i>=0;i--){if(ms[i].hit===false)missStreak++;else break;}
+  const growthRates=ms.slice(1).map((s,i)=>ms[i].spend>0?((s.spend-ms[i].spend)/ms[i].spend*100):null).filter(v=>v!==null);
+  const avgGrowth=growthRates.length?growthRates.reduce((a,b)=>a+b,0)/growthRates.length:null;
+  const bestM=ms.reduce((a,b)=>b.spend>a.spend?b:a,ms[0]);
+  const worstM=ms.filter(s=>s.past).length?ms.filter(s=>s.past).reduce((a,b)=>b.spend<a.spend?b:a,ms.filter(s=>s.past)[0]):ms[0];
+
+  // ── S1: HERO ──
+  const heroLines=[];
+  if(diffPct!==null){
+    const col=diffPct>=0?'var(--green)':'var(--red)';
+    const sign=diffPct>=0?'+':'';
+    heroLines.push(`Spend is <strong style="color:${col}">${sign}${diffPct.toFixed(1)}% vs last month</strong> — ${fmt(latest.spend)} in ${latest.label} vs ${fmt(prev.spend)} in ${prev.label}.`);
+  }
+  if(hitCount+missCount>0){
+    let sNote='';
+    if(streak>1) sNote=` Currently on a <strong style="color:var(--green)">${streak}-month hit streak.</strong>`;
+    else if(missStreak>1) sNote=` <strong style="color:var(--red)">${missStreak} consecutive misses</strong> — worth reviewing targets or strategy.`;
+    heroLines.push(`Target performance: <strong>${hitCount}/${hitCount+missCount} months hit</strong> (${((hitCount/(hitCount+missCount))*100).toFixed(0)}% hit rate).${sNote}`);
+  }
+  if(avgGrowth!==null){
+    const col=avgGrowth>=0?'var(--green)':'var(--red)';
+    const sign=avgGrowth>=0?'+':'';
+    heroLines.push(`Average monthly growth rate: <strong style="color:${col}">${sign}${avgGrowth.toFixed(1)}%</strong> month on month.`);
+  }
+  const cpuTrend=ms.length>=2?latest.cpu-ms[0].cpu:0;
+  if(cpuTrend!==0&&ms[0].cpu>0){
+    const col=cpuTrend>0?'var(--red)':'var(--green)';
+    heroLines.push(`Avg cost/unit has <strong style="color:${col}">${cpuTrend>0?'risen':'fallen'} ${fmtDec(Math.abs(cpuTrend))}</strong> since ${ms[0].label} — ${cpuTrend>0?'costs are increasing.':'you are paying less per unit.'}`);
+  }
+  document.getElementById('trendsHero').innerHTML=heroLines.map(l=>`<div style="font-size:13px;color:var(--muted2);line-height:1.9;border-bottom:1px solid var(--border);padding:6px 0;">${l}</div>`).join('');
+
+  // ── S1b: KPI STRIP ──
+  const kTile=(l,v,s,c)=>`<div style="background:var(--surface2);border-radius:8px;padding:14px 16px;border-top:2px solid ${c};"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">${l}</div><div style="font-size:18px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;">${v}</div><div style="font-size:10px;color:var(--muted2);">${s}</div></div>`;
+  document.getElementById('trendsKpiStrip').innerHTML=
+    kTile('YTD spend',fmt(ytdSpend),ms.length+' months','var(--accent)')+
+    kTile('avg/month',fmt(avgMonthly),'monthly average','#4f8ef7')+
+    kTile('best month',bestM.label,fmt(bestM.spend),'var(--green)')+
+    kTile('worst month',worstM.label,fmt(worstM.spend),'var(--red)')+
+    kTile('hit rate',hitCount+'/'+(hitCount+missCount),hitCount+missCount>0?((hitCount/(hitCount+missCount))*100).toFixed(0)+'% of months':'-',hitCount>missCount?'var(--green)':'var(--red)')+
+    kTile('YTD units',ytdUnits.toLocaleString(),ytdOrders+' true orders','#a78bfa')+
+    kTile('avg cost/unit',fmtDec(ytdUnits>0?ytdSpend/ytdUnits:0),ms.length+' months avg','#f59e0b');
+
+  // ── S2: MONTHLY CARDS ──
+  document.getElementById('trendsMonthCards').innerHTML=ms.map((s,i)=>{
+    const p2=ms[i-1];
+    const d=p2?s.spend-p2.spend:null;
+    const dp=d!==null&&p2.spend>0?((d/p2.spend)*100):null;
+    const bCol=s.hit===true?'var(--green)':s.hit===false?'var(--red)':'var(--border)';
+    const hBadge=s.hit===true?'<span style="background:rgba(34,197,94,.15);color:var(--green);font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;">HIT</span>':s.hit===false?'<span style="background:rgba(244,63,94,.15);color:var(--red);font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;">MISS</span>':'';
+    const dpStr=dp!==null?`<div style="font-size:11px;color:${dp>=0?'var(--green)':'var(--red)'};margin-bottom:4px;">${dp>=0?'+':''}${dp.toFixed(1)}% vs prev</div>`:'';
+    return `<div style="flex-shrink:0;width:175px;background:var(--surface);border:1px solid ${bCol};border-radius:10px;padding:16px;cursor:pointer;" onclick="switchToMonth(${s.m},${s.y})">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">${s.label} ${s.y}</div>${hBadge}</div>
+      <div style="font-size:21px;font-weight:800;color:var(--text);line-height:1;margin-bottom:6px;">${fmt(s.spend)}</div>
+      ${dpStr}
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:2px;">${s.units} units · ${s.orders} orders</div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;">${fmtDec(s.cpu)} / unit</div>
+      ${s.target>0?`<div style="height:3px;background:var(--surface2);border-radius:2px;"><div style="height:3px;background:${bCol};border-radius:2px;width:${Math.min((s.spend/s.target)*100,100).toFixed(0)}%;transition:width .5s;"></div></div>`:''}
+    </div>`;
+  }).join('');
+
+  // ── S3: SPEND TRAJECTORY ──
+  document.getElementById('trendsChartSub').textContent=ms.length+' months · click a bar to jump to that month in Overview';
+  const gc=Chart.getChart('growthChart');if(gc)gc.destroy();
+  // Trend line data
+  const trendData=ms.map((s,i)=>{
+    if(ms.length<2) return s.spend;
+    const xMean=(ms.length-1)/2;
+    const yMean=ms.reduce((a,s)=>a+s.spend,0)/ms.length;
+    const num=ms.reduce((a,s2,j)=>a+(j-xMean)*(s2.spend-yMean),0);
+    const den=ms.reduce((a,_,j)=>a+(j-xMean)**2,0);
+    const slope=den?num/den:0;
+    return yMean+slope*(i-xMean);
+  });
+  new Chart(document.getElementById('growthChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Spend',data:ms.map(s=>s.spend),backgroundColor:ms.map(s=>s.hit===true?'rgba(34,197,94,.75)':s.hit===false?'rgba(244,63,94,.75)':'rgba(79,142,247,.75)'),borderRadius:6,borderSkipped:false,order:2},
+      {label:'Target',data:ms.map(s=>s.target||null),type:'line',borderColor:'rgba(255,255,255,.2)',borderDash:[5,4],borderWidth:2,pointRadius:0,fill:false,tension:0,order:1},
+      {label:'Trend',data:trendData,type:'line',borderColor:'rgba(167,139,250,.6)',borderWidth:2,pointRadius:0,fill:false,tension:0.4,borderDash:[],order:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,onClick:(_,els)=>{if(els[0]){const s=ms[els[0].index];switchToMonth(s.m,s.y);}},
+      scales:{x:{ticks:{color:'#6b7584',font:{size:11}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:11},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},
+      plugins:{legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:10,padding:16}},
+        tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:12,
+          callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y),
+            afterBody:items=>{const s=ms[items[0].dataIndex];const out=[];if(s.target)out.push('Target: '+fmt(s.target));if(s.hit===true)out.push('✅ Hit — '+fmt(s.spend-s.target)+' over');else if(s.past&&s.hit===false)out.push('❌ Missed by '+fmt(s.target-s.spend));else if(!s.past)out.push('In progress');return out;}}}
+      }
+    }
+  });
+
+  // ── S4: TREND ANALYSIS ──
+  let analysis='<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">auto trend report</div>';
+  const paras=[];
+  if(ms.length===1){
+    paras.push(`Only ${ms[0].label} data is available. ${ms[0].hit===false?'Behind target this month — '+fmtDec((ms[0].target-ms[0].spend)/getDIM(ms[0].m,ms[0].y))+' per day needed to close the gap.':ms[0].hit===true?'Target hit in the first month — great start.':'Month in progress.'}`);
+  } else {
+    if(diffPct!==null){
+      const trend=Math.abs(diffPct)>20?'a significant':'a';
+      const dir=diffPct>=0?'growth':'decline';
+      paras.push(`<strong>Month on month:</strong> ${latest.label} shows ${trend} <strong>${dir} of ${diffPct>=0?'+':''}${diffPct.toFixed(1)}%</strong> vs ${prev.label}. Spend moved from ${fmt(prev.spend)} to ${fmt(latest.spend)}. ${diffPct>=0?'Positive momentum — sourcing activity is increasing.':'Spend pulled back — could reflect intentional slowing or sourcing opportunity gap.'}`);
+    }
+    if(hitCount+missCount>0){
+      const rate=((hitCount/(hitCount+missCount))*100).toFixed(0);
+      paras.push(`<strong>Target track record:</strong> ${hitCount} of ${hitCount+missCount} months hit (${rate}%). ${streak>1?'Currently on a '+streak+'-month winning streak.':missStreak>1?missStreak+' missed in a row — worth reviewing whether targets are realistic or sourcing needs adjusting.':hitCount===0?'No targets hit yet this year — targets may be set too high or spend needs to increase.':''} Best month was ${bestM.label} at ${fmt(bestM.spend)}${bestM.target?(' vs '+fmt(bestM.target)+' target'):'.'}.`);
+    }
+    const cpuFirst=ms[0].cpu, cpuLast=latest.cpu;
+    if(cpuFirst>0&&cpuLast>0){
+      const cpuChg=((cpuLast-cpuFirst)/cpuFirst*100).toFixed(1);
+      paras.push(`<strong>Cost per unit:</strong> Started the year at ${fmtDec(cpuFirst)}, now at ${fmtDec(cpuLast)} — a <strong>${cpuChg>=0?'+':''}${cpuChg}%</strong> change. ${cpuChg>5?'Costs are rising — check if supplier pricing has increased or if order mix is shifting toward higher-ticket items.':cpuChg<-5?'Costs are falling — either better deals are being struck or the product mix is moving toward cheaper items.':'Cost per unit is broadly stable.'}`);
+    }
+    const a2aPcts=ms.map(s=>s.spend>0?(s.a2a/s.spend*100):0);
+    if(a2aPcts.length>=2&&Math.abs(a2aPcts[a2aPcts.length-1]-a2aPcts[0])>2){
+      const shift=a2aPcts[a2aPcts.length-1]-a2aPcts[0];
+      paras.push(`<strong>Channel mix:</strong> A2A has ${shift>0?'grown':'shrunk'} from ${a2aPcts[0].toFixed(1)}% to ${a2aPcts[a2aPcts.length-1].toFixed(1)}% of spend since ${ms[0].label} — a ${shift>=0?'+':''}${shift.toFixed(1)}pp shift. ${shift>5?'The portfolio is becoming more Amazon-to-Amazon heavy.':shift<-5?'More spend is moving toward OA suppliers.':'The channel split is fairly stable.'}`);
+    }
+    const aovChg=ms.length>=2&&ms[0].aov>0?((latest.aov-ms[0].aov)/ms[0].aov*100):null;
+    if(aovChg!==null&&Math.abs(aovChg)>5){
+      paras.push(`<strong>Order behaviour:</strong> Average order value has ${aovChg>0?'risen':'fallen'} from ${fmt(ms[0].aov)} to ${fmt(latest.aov)} — ${aovChg>=0?'+':''}${aovChg.toFixed(1)}% since ${ms[0].label}. Units per order ${ms[0].upo>0?((latest.upo-ms[0].upo)/ms[0].upo*100)>=0?'also increased':'decreased':''}. ${aovChg>10?'Buying in larger batches or sourcing higher-ticket products.':aovChg<-10?'Smaller, more frequent orders — may indicate more cautious buying or testing new products.':''}`);
+    }
+    // VA analysis
+    const vaTotA=ms.reduce((a,s)=>a+s.vaA,0), vaTotS=ms.reduce((a,s)=>a+s.vaS,0);
+    if(vaTotA>0&&vaTotS>0){
+      const leader=vaTotA>vaTotS?'VA-A':'VA-S';
+      const ratio=(Math.max(vaTotA,vaTotS)/Math.min(vaTotA,vaTotS)).toFixed(1);
+      paras.push(`<strong>VA comparison:</strong> ${leader} is the higher spender YTD (${fmt(Math.max(vaTotA,vaTotS))} vs ${fmt(Math.min(vaTotA,vaTotS))} — ${ratio}x more). Combined VA spend: ${fmt(vaTotA+vaTotS)} (${((vaTotA+vaTotS)/ytdSpend*100).toFixed(1)}% of total).`);
+    }
+  }
+  analysis+=paras.map(p=>`<p style="font-size:13px;color:var(--muted2);line-height:1.85;margin:0 0 12px 0;padding-bottom:12px;border-bottom:1px solid var(--border);">${p}</p>`).join('');
+  document.getElementById('trendsAnalysis').innerHTML=analysis;
+
+  // ── S5: INSIGHT TILES ──
+  const iTile=(l,v,s,c)=>`<div style="background:var(--surface2);border-radius:8px;padding:16px;border-top:2px solid ${c};"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">${l}</div><div style="font-size:19px;font-weight:700;color:var(--text);line-height:1;margin-bottom:5px;">${v}</div><div style="font-size:10px;color:var(--muted2);">${s}</div></div>`;
+  const snsTot=ms.reduce((a,s)=>a+s.sns,0);
+  document.getElementById('trendsInsightTiles').innerHTML=
+    iTile('best month',bestM.label,fmt(bestM.spend),'var(--green)')+
+    iTile('worst month',worstM.label,fmt(worstM.spend),'var(--red)')+
+    iTile('avg monthly',fmt(avgMonthly),ms.length+' months','var(--accent)')+
+    iTile('avg growth',avgGrowth!==null?(avgGrowth>=0?'+':'')+avgGrowth.toFixed(1)+'%':'—','month on month',avgGrowth===null?'var(--muted)':avgGrowth>=0?'var(--green)':'var(--red)')+
+    iTile('hit rate',hitCount+'/'+(hitCount+missCount)+' months',hitCount===hitCount+missCount?'perfect!':missCount+' missed',hitCount>=missCount?'var(--green)':'var(--red)');
+
+  // ── S6: PROVIDER TRENDS TABLE ──
+  const PROV_ORDER=['Jack','VA-A','VA-S','S PP A2A','TFTJ','Replen','FFB','Arbi','THC','PS','ProfitPath A2A','HOR'];
+  const ptable=document.getElementById('providerTrendsTable');
+  const thS='font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:right;';
+  const thL='font-size:9px;text-transform:uppercase;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:left;';
+  ptable.innerHTML=`<thead><tr><th style="${thL}">provider</th>${labels.map(l=>`<th style="${thS}">${l}</th>`).join('')}<th style="${thS}">total</th><th style="${thS}">trend</th></tr></thead>`;
+  const ptb=document.createElement('tbody');
+  const allProviders=[...new Set(rows.map(r=>r.provider))];
+  const ordered=[...PROV_ORDER.filter(p=>allProviders.includes(p)),...allProviders.filter(p=>!PROV_ORDER.includes(p))];
+  ordered.forEach(prov=>{
+    const color=PROVIDER_COLORS[prov]||'#4f8ef7';
+    const mSpends=ms.map(s=>s.mr.filter(r=>r.provider===prov).reduce((a,r)=>a+r.spend,0));
+    const total=mSpends.reduce((a,b)=>a+b,0);
+    if(total===0) return;
+    const maxS=Math.max(...mSpends,1);
+    const gr=mSpends.filter(s=>s>0);
+    const provGrowth=gr.length>=2?((gr[gr.length-1]-gr[0])/gr[0]*100):null;
+    const arrow=provGrowth===null?'—':provGrowth>=10?'↑↑':provGrowth>=0?'↑':provGrowth>=-10?'↓':'↓↓';
+    const arrowCol=provGrowth===null?'var(--muted)':provGrowth>=0?'var(--green)':'var(--red)';
+    const tr=document.createElement('tr');
+    tr.innerHTML=
+      `<td style="padding:8px 12px;border-bottom:1px solid var(--border);"><span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};"></span><span style="font-size:12px;font-weight:500;color:var(--text);">${prov}</span></span></td>`+
+      mSpends.map((s,i)=>{
+        const prev2=mSpends[i-1];
+        const chg=prev2&&prev2>0?((s-prev2)/prev2*100):null;
+        const chgStr=chg!==null&&Math.abs(chg)>1?`<span style="font-size:8px;color:${chg>=0?'var(--green)':'var(--red)'};">${chg>=0?'+':''}${chg.toFixed(0)}%</span>`:'';
+        return `<td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:right;"><div style="font-size:11px;font-weight:${s>0?600:400};color:${s>0?color:'var(--muted)'};">${s>0?fmt(s):'—'}</div>${s>0&&chgStr?chgStr:''}</td>`;
+      }).join('')+
+      `<td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:right;font-size:12px;font-weight:700;color:${color};">${fmt(total)}</td>`+
+      `<td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:right;font-size:14px;font-weight:700;color:${arrowCol};">${arrow}${provGrowth!==null?`<span style="font-size:9px;"> ${provGrowth>=0?'+':''}${provGrowth.toFixed(0)}%</span>`:''}</td>`;
+    ptb.appendChild(tr);
+  });
+  // Totals row
+  const totRow=document.createElement('tr');
+  totRow.style.background='rgba(255,255,255,0.03)';
+  totRow.innerHTML=`<td style="padding:8px 12px;font-size:11px;font-weight:700;color:var(--text);">TOTAL</td>`+
+    ms.map(s=>`<td style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--text);">${fmt(s.spend)}</td>`).join('')+
+    `<td style="padding:8px 12px;text-align:right;font-size:12px;font-weight:800;color:var(--accent);">${fmt(ytdSpend)}</td><td></td>`;
+  ptb.appendChild(totRow);
+  ptable.appendChild(ptb);
+
+  // ── S7: PROVIDER CALLOUTS ──
+  const provTotals={};ordered.forEach(p=>{provTotals[p]=ms.reduce((a,s)=>a+s.mr.filter(r=>r.provider===p).reduce((b,r)=>b+r.spend,0),0);});
+  const sortedPT=Object.entries(provTotals).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const topProv=sortedPT[0];
+  // Biggest grower
+  let bigGrower=null, bigGrowth=-Infinity;
+  ordered.forEach(prov=>{
+    const mS=ms.map(s=>s.mr.filter(r=>r.provider===prov).reduce((a,r)=>a+r.spend,0));
+    const active=mS.filter(s=>s>0);
+    if(active.length>=2){const g=(active[active.length-1]-active[0])/active[0]*100;if(g>bigGrowth){bigGrowth=g;bigGrower={prov,g};}}
+  });
+  // Biggest dropper
+  let bigDropper=null, bigDrop=Infinity;
+  ordered.forEach(prov=>{
+    const mS=ms.map(s=>s.mr.filter(r=>r.provider===prov).reduce((a,r)=>a+r.spend,0));
+    const active=mS.filter(s=>s>0);
+    if(active.length>=2){const g=(active[active.length-1]-active[0])/active[0]*100;if(g<bigDrop){bigDrop=g;bigDropper={prov,g};}}
+  });
+  const callout=(title,name,val,sub,col)=>`<div style="background:var(--surface2);border-radius:8px;padding:16px 20px;border-left:3px solid ${col};"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">${title}</div><div style="font-size:16px;font-weight:700;color:${col};margin-bottom:4px;">${name}</div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">${val}</div><div style="font-size:10px;color:var(--muted2);">${sub}</div></div>`;
+  document.getElementById('trendsProvCallouts').innerHTML=
+    (topProv?callout('top provider YTD',topProv[0],fmt(topProv[1]),((topProv[1]/ytdSpend)*100).toFixed(1)+'% of total spend',PROVIDER_COLORS[topProv[0]]||'#4f8ef7'):'<div></div>')+
+    (bigGrower?callout('biggest grower',bigGrower.prov,'+'+bigGrower.g.toFixed(1)+'% spend increase','since '+ms[0].label,'var(--green)'):'<div></div>')+
+    (bigDropper&&bigDropper.prov!==bigGrower?.prov?callout('biggest decline',bigDropper.prov,bigDropper.g.toFixed(1)+'% spend change','since '+ms[0].label,'var(--red)'):'<div></div>');
+
+  // ── CHART HELPER ──
+  const lineChart=(id,label,data,col)=>{const c=Chart.getChart(id);if(c)c.destroy();new Chart(document.getElementById(id),{type:'line',data:{labels,datasets:[{label,data,borderColor:col,backgroundColor:col.replace(')',',0.08)').replace('rgb','rgba'),borderWidth:2,pointRadius:4,pointBackgroundColor:col,fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});};
+
+  // ── S8: OA vs A2A + UK/EU ──
+  const oa2=Chart.getChart('growthOaA2aChart');if(oa2)oa2.destroy();
+  new Chart(document.getElementById('growthOaA2aChart'),{type:'bar',data:{labels,datasets:[
+    {label:'A2A',data:ms.map(s=>s.a2a),backgroundColor:'rgba(234,179,8,.75)',borderRadius:4,stack:'s'},
+    {label:'OA',data:ms.map(s=>s.oa),backgroundColor:'rgba(34,197,94,.75)',borderRadius:4,stack:'s'},
+    ...(ms.some(s=>s.sns>0)?[{label:'S&S',data:ms.map(s=>s.sns),backgroundColor:'rgba(167,139,250,.75)',borderRadius:4,stack:'s'}]:[])
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+
+  const ukeu=Chart.getChart('trendsUKEUChart');if(ukeu)ukeu.destroy();
+  new Chart(document.getElementById('trendsUKEUChart'),{type:'bar',data:{labels,datasets:[
+    {label:'Amazon UK',data:ms.map(s=>s.uk),backgroundColor:'rgba(249,115,22,.75)',borderRadius:4,stack:'s'},
+    {label:'Amazon EU',data:ms.map(s=>s.eu),backgroundColor:'rgba(167,139,250,.75)',borderRadius:4,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+
+  // ── S9: Cost & efficiency ──
+  lineChart('growthAvgBuyChart','Avg Cost/Unit',ms.map(s=>+s.cpu.toFixed(2)),'#a78bfa');
+  lineChart('trendsAOVChart','Avg Order Value',ms.map(s=>+s.aov.toFixed(2)),'#4f8ef7');
+  lineChart('trendsUPOChart','Units per Order',ms.map(s=>+s.upo.toFixed(2)),'#f59e0b');
+
+  // ── S10: Orders + ASINs + New vs Repeat ──
+  lineChart('trendsOrdersChart','Orders',ms.map(s=>s.orders),'#22c55e');
+  lineChart('trendsAsinChart','Unique ASINs',ms.map(s=>s.asins),'#f472b6');
+
+  // New vs repeat ASINs
+  const seenAsins=new Set();
+  const newCounts=[], repeatCounts=[];
+  ms.forEach(s=>{
+    const monthAsins=new Set(s.mr.filter(r=>r.asin).map(r=>r.asin));
+    let newC=0,repC=0;
+    monthAsins.forEach(a=>{seenAsins.has(a)?repC++:newC++;seenAsins.add(a);});
+    newCounts.push(newC);repeatCounts.push(repC);
+  });
+  const naChart=Chart.getChart('trendsNewAsinChart');if(naChart)naChart.destroy();
+  new Chart(document.getElementById('trendsNewAsinChart'),{type:'bar',data:{labels,datasets:[
+    {label:'New ASINs',data:newCounts,backgroundColor:'rgba(34,197,94,.7)',borderRadius:4,stack:'s'},
+    {label:'Repeat ASINs',data:repeatCounts,backgroundColor:'rgba(79,142,247,.7)',borderRadius:4,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10}}}});
+
+  // ── S11: VA charts ──
+  const vaC=Chart.getChart('trendsVAChart');if(vaC)vaC.destroy();
+  new Chart(document.getElementById('trendsVAChart'),{type:'bar',data:{labels,datasets:[
+    {label:'VA-A',data:ms.map(s=>s.vaA),backgroundColor:'rgba(76,29,149,.8)',borderRadius:4},
+    {label:'VA-S',data:ms.map(s=>s.vaS),backgroundColor:'rgba(234,179,8,.8)',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+
+  const vacC=Chart.getChart('trendsVACostChart');if(vacC)vacC.destroy();
+  new Chart(document.getElementById('trendsVACostChart'),{type:'line',data:{labels,datasets:[
+    {label:'VA-A cost/unit',data:ms.map(s=>s.vaAUnits>0?+(s.vaA/s.vaAUnits).toFixed(2):null),borderColor:'rgba(76,29,149,.9)',backgroundColor:'rgba(76,29,149,.08)',borderWidth:2,pointRadius:4,pointBackgroundColor:'rgba(76,29,149,.9)',fill:false,tension:0.3},
+    {label:'VA-S cost/unit',data:ms.map(s=>s.vaSUnits>0?+(s.vaS/s.vaSUnits).toFixed(2):null),borderColor:'rgba(234,179,8,.9)',backgroundColor:'rgba(234,179,8,.08)',borderWidth:2,pointRadius:4,pointBackgroundColor:'rgba(234,179,8,.9)',fill:false,tension:0.3}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+v.toFixed(0)},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' '+ctx.dataset.label+': £'+ctx.parsed.y.toFixed(2)}}}}});
+
+  // ── S12: DOW + Velocity ──
+  const dowSpend=Array(7).fill(0),dowCnt=Array(7).fill(0);
+  const byDay={};
+  rows.forEach(r=>{const k=r.date.toDateString();if(!byDay[k]){byDay[k]={dow:r.date.getDay(),dom:r.date.getDate(),spend:0};}byDay[k].spend+=r.spend;});
+  Object.values(byDay).forEach(d=>{dowSpend[d.dow]+=d.spend;dowCnt[d.dow]++;});
+  const dowAvg=dowSpend.map((s,i)=>dowCnt[i]>0?+(s/dowCnt[i]).toFixed(2):0);
+  const dowC=Chart.getChart('trendsDOWChart');if(dowC)dowC.destroy();
+  const DOW_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const maxDOW=Math.max(...dowAvg);
+  new Chart(document.getElementById('trendsDOWChart'),{type:'bar',data:{labels:DOW_NAMES,datasets:[{label:'Avg Spend',data:dowAvg,backgroundColor:dowAvg.map(v=>v===maxDOW?'rgba(34,197,94,.8)':'rgba(79,142,247,.6)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' Avg: '+fmt(ctx.parsed.y)}}}}});
+
+  const domSpend=Array(31).fill(0),domCnt=Array(31).fill(0);
+  Object.values(byDay).forEach(d=>{if(d.dom>=1&&d.dom<=31){domSpend[d.dom-1]+=d.spend;domCnt[d.dom-1]++;}});
+  const domAvg=domSpend.map((s,i)=>domCnt[i]>0?+(s/domCnt[i]).toFixed(2):0);
+  const domC=Chart.getChart('trendsDOMChart');if(domC)domC.destroy();
+  new Chart(document.getElementById('trendsDOMChart'),{type:'bar',data:{labels:Array.from({length:31},(_,i)=>i+1),datasets:[{label:'Avg Spend',data:domAvg,backgroundColor:'rgba(167,139,250,.65)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7584',font:{size:9},maxRotation:0},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{title:items=>'Day '+items[0].label+' of month',label:ctx=>' Avg: '+fmt(ctx.parsed.y)}}}}});
+
+  // ── S13: Repeat ASINs + Supplier loyalty ──
+  const asinMonths={},asinSpendT={},asinUnitsT={};
+  ms.forEach(s=>{
+    const seen=new Set();
+    s.mr.filter(r=>r.asin).forEach(r=>{
+      if(!seen.has(r.asin)){asinMonths[r.asin]=(asinMonths[r.asin]||0)+1;seen.add(r.asin);}
+      asinSpendT[r.asin]=(asinSpendT[r.asin]||0)+r.spend;
+      asinUnitsT[r.asin]=(asinUnitsT[r.asin]||0)+r.qty;
+    });
+  });
+  const repeatAsins=Object.entries(asinMonths).filter(([,c])=>c>1).sort((a,b)=>b[1]-a[1]||b[0]-a[0]).slice(0,10);
+  const raEl=document.getElementById('trendsRepeatAsins');
+  raEl.innerHTML=repeatAsins.length?repeatAsins.map(([asin,cnt])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-size:11px;font-weight:500;">${asin}</span><span style="display:flex;gap:10px;align-items:center;"><span style="font-size:10px;color:var(--muted2);">${cnt}/${ms.length} months</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(asinSpendT[asin])}</span></span></div>`).join(''):'<div style="color:var(--muted);font-size:12px;">Need 2+ months of data</div>';
+
+  const supMonths={},supSpendT={};
+  ms.forEach(s=>{
+    const seen=new Set();
+    s.mr.forEach(r=>{if(!seen.has(r.supplier)){supMonths[r.supplier]=(supMonths[r.supplier]||0)+1;seen.add(r.supplier);}supSpendT[r.supplier]=(supSpendT[r.supplier]||0)+r.spend;});
+  });
+  const loyalSups=Object.entries(supMonths).filter(([s,c])=>s&&c>1).sort((a,b)=>b[1]-a[1]||supSpendT[b[0]]-supSpendT[a[0]]).slice(0,10);
+  document.getElementById('trendsSupplierLoyalty').innerHTML=loyalSups.map(([sup,cnt])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;font-weight:500;color:var(--text);">${sup}</span><span style="display:flex;gap:10px;align-items:center;"><span style="font-size:10px;color:var(--muted2);">${cnt}/${ms.length} months</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(supSpendT[sup])}</span></span></div>`).join('');
+
+  // ── S14: ACCOUNT TRENDS ──
+  const allAccounts=[...new Set(rows.map(r=>r.account||'Unknown'))];
+  const ACCT_COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#f43f5e','#06b6d4','#fb923c','#e879f9','#f97316'];
+  const acChart=Chart.getChart('trendsAccountChart');if(acChart)acChart.destroy();
+  new Chart(document.getElementById('trendsAccountChart'),{type:'bar',data:{labels,datasets:allAccounts.map((a,i)=>({label:a,data:ms.map(s=>s.mr.filter(r=>(r.account||'Unknown')===a).reduce((t,r)=>t+r.spend,0)),backgroundColor:ACCT_COLORS[i%ACCT_COLORS.length]+'CC',borderRadius:3,stack:'s'}))},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{color:'#6b7584',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:10},boxWidth:10,padding:10}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#8892a0',padding:10,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}}});
+
+  // ── S15: PROJECTED MONTH END ──
+  const projEl=document.getElementById('trendsProjection');
+  if(!latest.past&&latest.target){
+    const daysInMonth=getDIM(latest.m,latest.y);
+    const dayOfMonth=latest.m===now.getMonth()+1&&latest.y===now.getFullYear()?now.getDate():daysInMonth;
+    const dailyRate=dayOfMonth>0?latest.spend/dayOfMonth:0;
+    const projected=dailyRate*daysInMonth;
+    const gapToTarget=latest.target-projected;
+    const neededPerDay=(latest.target-latest.spend)>0?(latest.target-latest.spend)/(daysInMonth-dayOfMonth):0;
+    const projCol=projected>=latest.target?'var(--green)':projected>=latest.target*0.9?'var(--amber)':'var(--red)';
+    projEl.innerHTML=
+      `<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">projected month end — ${latest.label}</div>`+
+      `<div style="font-size:11px;color:var(--muted2);margin-bottom:16px;">based on ${dayOfMonth} days of data at ${fmtDec(dailyRate)}/day</div>`+
+      `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">`+
+      `<div style="background:var(--surface2);border-radius:8px;padding:14px;border-top:2px solid ${projCol};"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">projected total</div><div style="font-size:22px;font-weight:800;color:${projCol};line-height:1;">${fmt(projected)}</div><div style="font-size:10px;color:var(--muted2);margin-top:4px;">vs ${fmt(latest.target)} target</div></div>`+
+      `<div style="background:var(--surface2);border-radius:8px;padding:14px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">gap to target</div><div style="font-size:22px;font-weight:800;color:${gapToTarget<=0?'var(--green)':'var(--red)'};line-height:1;">${gapToTarget<=0?'+':''}${fmt(Math.abs(gapToTarget))}</div><div style="font-size:10px;color:var(--muted2);margin-top:4px;">${gapToTarget<=0?'on track to beat target':'shortfall if current pace continues'}</div></div>`+
+      `<div style="background:var(--surface2);border-radius:8px;padding:14px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">needed/day</div><div style="font-size:22px;font-weight:800;color:var(--text);line-height:1;">${neededPerDay>0?fmtDec(neededPerDay):'✅'}</div><div style="font-size:10px;color:var(--muted2);margin-top:4px;">${neededPerDay>0?'to hit target by end of month':'target already secured'}</div></div>`+
+      `<div style="background:var(--surface2);border-radius:8px;padding:14px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">days remaining</div><div style="font-size:22px;font-weight:800;color:var(--text);line-height:1;">${daysInMonth-dayOfMonth}</div><div style="font-size:10px;color:var(--muted2);margin-top:4px;">of ${daysInMonth} days in ${latest.label}</div></div>`+
+      `</div>`;
+  } else if(latest.past){
+    projEl.innerHTML=`<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">final result — ${latest.label}</div><div style="font-size:13px;color:${latest.hit?'var(--green)':'var(--red)'};">${latest.hit?'✅ Target hit — ended at '+fmt(latest.spend)+' vs '+fmt(latest.target)+' target ('+fmt(latest.spend-latest.target)+' over)':'❌ Target missed — ended at '+fmt(latest.spend)+' vs '+fmt(latest.target)+' target ('+fmt(latest.target-latest.spend)+' short)'}</div>`;
+  } else {
+    projEl.style.display='none';
+  }
+}
+
+function switchToMonth(m,y){
+  activeMonth=m;
+  const q=Math.ceil(m/3);
+  if(q!==activeQ){
+    activeQ=q;
+    document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn'+(+b.dataset.q===activeQ?' active':''));
+    buildMonthBtns(activeQ);
+    loadAndRender(activeQ).then(()=>{activeMonth=m;render();});
+  } else { render(); }
+  switchPage('overview');
+}
 setInterval(()=>loadAndRender(activeQ),5*60*1000);
 
 (async()=>{
