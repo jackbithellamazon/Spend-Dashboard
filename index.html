@@ -333,7 +333,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     </div>
   </div>
 
-  <div class="summary-grid2">
+  <div class="summary-grid2" style="grid-template-columns:repeat(5,1fr);">
     <div class="card card-indigo">
       <div class="card-label">top supplier by spend</div>
       <div class="card-name" id="cardTopSupName">—</div>
@@ -356,6 +356,11 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
       <div class="card-label">avg order value</div>
       <div class="card-value" id="cardAvgOrder" style="font-size:42px;">—</div>
       <div class="card-sub" id="cardAvgOrderSub"></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-label">avg buy price</div>
+      <div class="card-value" id="cardAvgCostOrder" style="font-size:42px;">—</div>
+      <div class="card-sub" id="cardAvgCostOrderSub"></div>
     </div>
   </div>
 
@@ -1067,6 +1072,8 @@ let allSortedSup=[];
 function fmt(v){return '£'+(+v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDec(v){return '£'+v.toFixed(2);}
 function getDIM(month,year){return month===0?92:new Date(year,month,0).getDate();}
+// Use LOCAL date components to avoid BST/UTC midnight rollover bug
+function localDateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 // Count true orders: unique Order IDs where present, else each blank row = 1 order
 function countOrders(rows){
@@ -1174,7 +1181,7 @@ function provBadge(name){
 }
 
 function showNoData(msg){
-  ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins','cardAvgOrder'].forEach(id=>document.getElementById(id).textContent='—');
+  ['cardTotal','cardTarget','cardUnits','cardAvgBuy','cardAsins','cardAvgOrder','cardAvgCostOrder'].forEach(id=>document.getElementById(id).textContent='—');
   ['cardTopSupName','cardTopUnitSupName','cardTopProvName'].forEach(id=>document.getElementById(id).textContent='—');
   ['cardTopSupSpend','cardTopUnitSupVal','cardTopProvSpend'].forEach(id=>document.getElementById(id).textContent='—');
   document.getElementById('cardTargetSub').textContent=msg||'No data';
@@ -1341,6 +1348,10 @@ function render(){
 
   document.getElementById('cardAvgOrder').textContent=orderCount>0?fmt(totalSpend/orderCount):'—';
   document.getElementById('cardAvgOrderSub').textContent=orderCount+' total orders';
+  const buyPriceRows=rows.filter(r=>r.buyPrice>0);
+  const avgBuyPriceRaw=buyPriceRows.length>0?buyPriceRows.reduce((a,r)=>a+r.buyPrice,0)/buyPriceRows.length:0;
+  document.getElementById('cardAvgCostOrder').textContent=avgBuyPriceRaw>0?fmtDec(avgBuyPriceRaw):'—';
+  document.getElementById('cardAvgCostOrderSub').textContent=buyPriceRows.length+' priced items';
 
   // Team bar
   if(teamTarget){
@@ -1643,12 +1654,12 @@ function buildOaA2a(rows,totalSpend){
     '<div class="li"><span class="li-dot" style="background:#a78bfa"></span><span class="li-name">Amazon EU</span><span class="li-val">'+fmt(euSpend)+' ('+(a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1):0)+'%)</span></div>';
 
   // Store for chart view switching + reactive channel analysis
-  window._oaDates=[...new Set(rows.map(r=>r.date.toISOString().split('T')[0]))].sort();
+  window._oaDates=[...new Set(rows.map(r=>localDateKey(r.date)))].sort();
   window._oaAllRows=rows;
   window._oaDailyOA={};window._oaDailyA2A={};
   window._oaDates.forEach(d=>{window._oaDailyOA[d]=0;window._oaDailyA2A[d]=0;});
-  oaRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];window._oaDailyOA[k]=(window._oaDailyOA[k]||0)+r.spend;});
-  a2aRows.forEach(r=>{const k=r.date.toISOString().split('T')[0];window._oaDailyA2A[k]=(window._oaDailyA2A[k]||0)+r.spend;});
+  oaRows.forEach(r=>{const k=localDateKey(r.date);window._oaDailyOA[k]=(window._oaDailyOA[k]||0)+r.spend;});
+  a2aRows.forEach(r=>{const k=localDateKey(r.date);window._oaDailyA2A[k]=(window._oaDailyA2A[k]||0)+r.spend;});
   buildOaA2aChart('full');
 
   // Top ASINs
@@ -1688,7 +1699,7 @@ function buildOaA2a(rows,totalSpend){
     mkStat('EU % of A2A',a2aSpend>0?((euSpend/a2aSpend)*100).toFixed(1)+'%':'—',fmt(euSpend)+' Amazon EU','Amazon EU Share','Amazon EU % of A2A');
 
   // Daily stats row
-  const tradingDays=new Set(rows.map(r=>r.date.toISOString().split('T')[0])).size;
+  const tradingDays=new Set(rows.map(r=>localDateKey(r.date))).size;
   const allUnits=rows.reduce((a,r)=>a+r.qty,0);
   const allOrders=countOrders(rows);
   const allAsins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
@@ -1790,17 +1801,17 @@ function buildOaA2aChart(view){
 
   let dates=allDates;
   const now=new Date();
-  const todayStr=now.toISOString().split('T')[0];
+  const todayStr=localDateKey(now);
 
   if(view==='today'){
     dates=allDates.filter(d=>d===todayStr);
   } else if(view==='7d'){
     const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-6);
-    const cutStr=cutoff.toISOString().split('T')[0];
+    const cutStr=localDateKey(cutoff);
     dates=allDates.filter(d=>d>=cutStr);
   } else if(view==='14d'){
     const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-13);
-    const cutStr=cutoff.toISOString().split('T')[0];
+    const cutStr=localDateKey(cutoff);
     dates=allDates.filter(d=>d>=cutStr);
   } else if(view==='custom'){
     const from=document.getElementById('oaCustomFrom').value;
@@ -1813,7 +1824,7 @@ function buildOaA2aChart(view){
 
   // Filter all rows to the same date range and rebuild channel analysis
   const dateSet=new Set(dates);
-  const filteredRows=(window._oaAllRows||[]).filter(r=>dateSet.has(r.date.toISOString().split('T')[0]));
+  const filteredRows=(window._oaAllRows||[]).filter(r=>dateSet.has(localDateKey(r.date)));
   buildChannelAnalysis(filteredRows);
 
   new Chart(document.getElementById('chartOaA2aDaily'),{
@@ -1856,7 +1867,7 @@ function buildDailyAvgs(rows,month,year,currentDay,progress){
   // Group by day for busiest calculation
   const byDay={};
   rows.forEach(r=>{
-    const k=r.date.toISOString().split('T')[0];
+    const k=localDateKey(r.date);
     byDay[k]=(byDay[k]||0)+r.spend;
   });
   const activeDays=Object.keys(byDay).length;
@@ -1888,7 +1899,7 @@ function buildInsights(rows,month,year,teamTarget,progress,dim){
   // Busiest day by spend
   const byDay={},byDayUnits={},byDayOrders={};
   rows.forEach(r=>{
-    const k=r.date.toDateString();
+    const k=localDateKey(r.date);
     byDay[k]=(byDay[k]||0)+r.spend;
     byDayUnits[k]=(byDayUnits[k]||0)+r.qty;
     byDayOrders[k]=(byDayOrders[k]||0)+1;
@@ -2294,7 +2305,7 @@ function openProvModal(providerName){
   const provDailyMap={};
   rows.forEach(r=>{
     const k=r.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    if(!provDailyMap[k]) provDailyMap[k]={spend:0,units:0,skus:0,asins:new Set(),date:r.date};
+    if(!provDailyMap[k]) provDailyMap[k]={spend:0,units:0,skus:0,asins:new Set(),date:localDateKey(r.date)};
     provDailyMap[k].spend+=r.spend;
     provDailyMap[k].units+=r.qty;
     provDailyMap[k].skus++;
@@ -2378,8 +2389,9 @@ function buildToday(){
     byDateKey[k].rows++;
   });
   const allDays=Object.values(byDateKey);
-  const dowDays=allDays.filter(d=>d.date.getDay()===todayDOW&&d.date.toDateString()!==now.toDateString());
-  const domDays=allDays.filter(d=>d.date.getDate()===todayDOM&&d.date.toDateString()!==now.toDateString());
+  const todayKey=now.toDateString();
+  const dowDays=allDays.filter(d=>d.date.getDay()===todayDOW&&d.date.toDateString()!==todayKey);
+  const domDays=allDays.filter(d=>d.date.getDate()===todayDOM&&d.date.toDateString()!==todayKey);
 
   function havg(arr,fn){return arr.length?arr.reduce((a,d)=>a+fn(d),0)/arr.length:0;}
   function hmax(arr,fn){return arr.length?Math.max(...arr.map(fn)):0;}
@@ -2398,8 +2410,8 @@ function buildToday(){
   const monthRows=allRows.filter(r=>r.month===todayMonth&&r.year===todayYear);
   const monthTotal=monthRows.reduce((a,r)=>a+r.spend,0);
   const remaining=teamTarget?teamTarget-monthTotal:0;
-  const allTimeDays=allDays.filter(d=>d.date.toDateString()!==now.toDateString());
-  const monthDays=allDays.filter(d=>d.date.getMonth()+1===todayMonth&&d.date.getFullYear()===todayYear&&d.date.toDateString()!==now.toDateString());
+  const allTimeDays=allDays.filter(d=>d.date.toDateString()!==todayKey);
+  const monthDays=allDays.filter(d=>d.date.getMonth()+1===todayMonth&&d.date.getFullYear()===todayYear&&d.date.toDateString()!==todayKey);
   const avgDaySpend=havg(allTimeDays,d=>d.spend);
   const avgDayUnits=havg(allTimeDays,d=>d.units);
   const avgDayOrders=havg(allTimeDays,d=>d.rows);
