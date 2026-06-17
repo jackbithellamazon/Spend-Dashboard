@@ -9,14 +9,14 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0b0d10;--surface:#13161c;--surface2:#1a1e27;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
-  --text:#eef0f5;--muted:#555e6e;--muted2:#8892a0;
+  --bg:#080b10;--surface:#0f1319;--surface2:#161c26;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#eef0f5;--muted:#495668;--muted2:#7a8696;
   --accent:#4f8ef7;--green:#22c55e;--amber:#f59e0b;--red:#f43f5e;
   --font-head:'Inter',sans-serif;--font-mono:'Inter',monospace;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;font-size:13px;}
-header{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
 .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-1px;}
 .logo em{color:var(--accent);font-style:normal;}
 .header-right{display:flex;align-items:center;gap:20px;}
@@ -43,7 +43,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .today-prov-sub{font-size:11px;color:rgba(255,255,255,0.65);}
 .today-silent-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;}
 .asin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.asin-tile{background:var(--surface2);border-radius:8px;padding:14px;}
+.asin-tile{background:var(--surface2);border-radius:8px;padding:14px;transition:border-color .15s,background .15s;}
+.asin-tile:hover{background:rgba(79,142,247,.08);outline:1px solid rgba(79,142,247,.25);}
 .asin-tile-rank{font-size:10px;color:var(--muted);margin-bottom:6px;}
 .asin-tile-asin{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;word-break:break-all;}
 .asin-tile-val{font-size:18px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;}
@@ -202,25 +203,31 @@ td.bold{color:var(--text);font-weight:500;}
 .week-day-fill{height:100%;border-radius:2px;}
 .stats-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
 /* MODAL CSS */
-.ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
-.ai-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;max-width:800px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;}
+.ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.ai-modal{background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:14px;max-width:800px;width:100%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.6);}
 .ai-modal-inner{padding:28px;overflow-y:auto;overflow-x:clip;flex:1;}
-.ai-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-.ai-modal-title{font-size:15px;font-weight:700;color:var(--text);}
-.ai-modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;padding:0;line-height:1;}
-.ai-modal-close:hover{color:var(--text);}
-.ai-modal-metric{background:var(--surface2);border-radius:8px;padding:14px 16px;margin-bottom:16px;}
-.ai-modal-metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
-.ai-modal-metric-value{font-size:24px;font-weight:700;color:var(--text);}
-.ai-modal-body{font-size:13px;color:var(--muted2);line-height:1.7;}
-.ai-modal-body p{margin-bottom:12px;}
+.ai-modal-inner::-webkit-scrollbar{width:4px;}
+.ai-modal-inner::-webkit-scrollbar-track{background:transparent;}
+.ai-modal-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+.ai-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.ai-modal-title{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.01em;}
+.ai-modal-close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--muted2);font-size:14px;cursor:pointer;padding:6px 12px;border-radius:6px;line-height:1;transition:all .15s;}
+.ai-modal-close:hover{background:rgba(255,255,255,.12);color:var(--text);}
+.ai-modal-metric{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px 18px;margin-bottom:18px;}
+.ai-modal-metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:600;}
+.ai-modal-metric-value{font-size:26px;font-weight:700;color:var(--text);}
+.ai-modal-body{font-size:13px;color:var(--muted2);line-height:1.75;}
+.ai-modal-body p{margin-bottom:14px;}
 .ai-loading{display:flex;align-items:center;gap:8px;color:var(--muted2);font-size:13px;}
 .ai-loading-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 1s infinite;}
 .ai-loading-dot:nth-child(2){animation-delay:.2s;}
 .ai-loading-dot:nth-child(3){animation-delay:.4s;}
 .stat-tile.clickable{cursor:pointer;transition:transform .15s,opacity .15s;}
 .stat-tile.clickable:hover{transform:translateY(-2px);opacity:.9;}
-.prov-modal-card{background:var(--surface2);border-radius:8px;padding:12px 14px;}
+.prov-modal-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
+.prov-modal-card-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;font-weight:700;}
+.prov-modal-card-value{font-size:22px;font-weight:700;color:var(--text);line-height:1;}
+.prov-modal-card-sub{font-size:10px;color:var(--muted2);margin-top:5px;}
 #provModalTableWrap::-webkit-scrollbar,#supModalTableWrap::-webkit-scrollbar{width:3px;height:3px;}
 #provModalTableWrap::-webkit-scrollbar-track,#supModalTableWrap::-webkit-scrollbar-track{background:transparent;}
 #provModalTableWrap::-webkit-scrollbar-thumb,#supModalTableWrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
@@ -230,9 +237,9 @@ td.bold{color:var(--text);font-weight:500;}
 #legendSupplier::-webkit-scrollbar-track{background:transparent;}
 #legendSupplier::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px;}
 #legendSupplier::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15);}
-.prov-modal-card-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
-.prov-modal-card-value{font-size:20px;font-weight:700;color:var(--text);line-height:1;}
-.prov-modal-card-sub{font-size:10px;color:var(--muted2);margin-top:4px;}
+.prov-modal-card-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;font-weight:700;}
+.prov-modal-card-value{font-size:22px;font-weight:700;color:var(--text);line-height:1;}
+.prov-modal-card-sub{font-size:10px;color:var(--muted2);margin-top:5px;}
 .stats-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;}
 .stats-sub{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;}
 .stats-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
@@ -248,6 +255,135 @@ td.bold{color:var(--text);font-weight:500;}
 .badge-down{background:rgba(244,63,94,0.15);color:var(--red);}
 .badge-neutral{background:rgba(245,158,11,0.15);color:var(--amber);}
 @media(max-width:960px){.stats-grid-4{grid-template-columns:1fr 1fr;}}
+
+/* BUYING HUB ADDITIONS */
+#pageHub{display:none;}
+.hub-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:16px;}
+.hub-search-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:end;margin-bottom:16px;}
+.hub-search-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;font-weight:700;}
+.hub-date-field{display:flex;align-items:end;gap:6px;}
+.hub-date-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;font-weight:700;white-space:nowrap;}
+.hub-date-field .hub-input{width:130px;}
+.hub-input,.hub-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text);font-family:var(--font-mono);font-size:13px;padding:10px 14px;border-radius:9px;outline:none;transition:border-color .15s;}
+.hub-input:focus,.hub-select:focus{border-color:rgba(79,142,247,.5);background:rgba(79,142,247,.04);}
+.hub-btn{background:var(--accent);border:none;color:#fff;font-family:var(--font-mono);font-size:13px;font-weight:700;padding:10px 20px;border-radius:9px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hub-btn:hover{background:#3d7ef5;}
+.hub-btn.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--muted2);}
+.hub-btn.secondary:hover{background:rgba(255,255,255,.1);color:var(--text);}
+.hub-bottom-row{display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;}
+.hub-filter-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700;white-space:nowrap;margin-right:2px;}
+.hub-type-pills{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.hub-type-pill{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:5px 13px;border-radius:999px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hub-type-pill:hover{border-color:rgba(255,255,255,.25);color:var(--text);}
+.hub-type-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(79,142,247,.3);}
+.hub-type-pill.pill-uk.active{background:#1d4ed8;border-color:#1d4ed8;}
+.hub-type-pill.pill-eu.active{background:#7c3aed;border-color:#7c3aed;}
+.hub-type-pill.pill-sns.active{background:#16a34a;border-color:#16a34a;}
+.hub-type-pill.pill-multi.active{background:#b45309;border-color:#b45309;}
+.hub-divider{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 6px;flex-shrink:0;}
+.hub-view-pills{display:flex;gap:3px;background:rgba(0,0,0,.25);padding:3px;border-radius:9px;border:1px solid rgba(255,255,255,.07);}
+.hub-view-pill{background:transparent;border:none;color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hub-view-pill:hover{color:var(--text);}
+.hub-view-pill.active{background:var(--surface2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.hub-date-presets{display:flex;gap:5px;align-items:center;}
+.hub-date-preset{background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer;transition:all .15s;}
+.hub-date-preset:hover{background:rgba(255,255,255,.07);color:var(--text);}
+.hub-date-preset.active{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.4);color:var(--accent);}
+.hub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.hub-card{background:#0d1117;border:1px solid rgba(148,163,184,.16);border-radius:12px;padding:18px 20px;transition:border-color .15s;}
+.hub-card:hover{border-color:rgba(148,163,184,.28);}
+.hub-card-label{font-size:9px;color:#5c6b7d;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:700;}
+.hub-card-value{font-size:26px;font-weight:800;color:#f0f4fa;line-height:1;}
+.hub-card-sub{font-size:11px;color:#8a97ab;margin-top:6px;line-height:1.4;}
+.hub-table-wrap{background:#0d1117;border:1px solid rgba(148,163,184,.16);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.hub-table-wrap table.hub-asin-table{table-layout:fixed;min-width:1420px;width:100%;}
+.hub-table-wrap table.hub-asin-table th,.hub-table-wrap table.hub-asin-table td{white-space:nowrap;padding:10px 10px!important;vertical-align:middle;font-size:12px;color:#c7d0df;border-bottom:1px solid rgba(148,163,184,.1);}
+.hub-table-wrap table.hub-asin-table th{position:sticky;top:0;background:#0a0d12;z-index:1;color:#6b7a90;font-weight:700;letter-spacing:.07em;font-size:10px;text-transform:uppercase;}
+.hub-table-wrap table.hub-asin-table tbody tr:hover{background:rgba(79,142,247,.06);}
+.hub-table-wrap table.hub-asin-table tbody tr:hover td{color:#e0e8f5;}
+.hub-table-wrap table.hub-asin-table th:nth-child(1),.hub-table-wrap table.hub-asin-table td:nth-child(1){width:115px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(2),.hub-table-wrap table.hub-asin-table td:nth-child(2){width:104px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(3),.hub-table-wrap table.hub-asin-table td:nth-child(3){width:140px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(4),.hub-table-wrap table.hub-asin-table td:nth-child(4){width:360px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(5),.hub-table-wrap table.hub-asin-table td:nth-child(5){width:94px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(6),.hub-table-wrap table.hub-asin-table td:nth-child(6){width:64px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(7),.hub-table-wrap table.hub-asin-table td:nth-child(7){width:60px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(8),.hub-table-wrap table.hub-asin-table td:nth-child(8){width:128px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(9),.hub-table-wrap table.hub-asin-table td:nth-child(9){width:116px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(10),.hub-table-wrap table.hub-asin-table td:nth-child(10){width:100px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(11),.hub-table-wrap table.hub-asin-table td:nth-child(11){width:80px;text-align:center;}
+.hub-table-wrap table.hub-asin-table th:nth-child(12),.hub-table-wrap table.hub-asin-table td:nth-child(12){width:100px;text-align:right;}
+.hub-table-inner{overflow-x:auto;}
+.hub-brand-cell{font-weight:800;color:#eef2f8;}
+.hub-sku-cell{display:block;max-width:132px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#aeb9cb;font-size:11px;}
+.hub-title-cell{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b8c2d1;}
+.hub-entity-cell{display:flex;align-items:center;gap:5px;min-width:0;}
+.hub-mini-tag{display:inline-flex;align-items:center;max-width:102px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(148,163,184,.22);background:rgba(148,163,184,.08);border-radius:6px;padding:2px 7px;color:#c8d2e1;font-size:11px;}
+.hub-count-tag{display:inline-flex;align-items:center;border:1px solid rgba(148,163,184,.20);background:rgba(148,163,184,.08);border-radius:999px;padding:2px 6px;color:#c8d2e1;font-size:10px;}
+.hub-pill{display:inline-flex;align-items:center;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:3px 8px;font-size:10px;color:var(--muted2);margin-left:8px;}
+.hub-copybar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(148,163,184,.1);flex-wrap:wrap;}
+.hub-copybar-title{font-size:13px;font-weight:700;color:var(--text);}
+.hub-copybar-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.hub-muted{font-size:12px;color:#8a97ab;line-height:1.6;}
+.hub-link{color:var(--accent);font-weight:600;text-decoration:none;margin-right:8px;font-size:11px;}
+.hub-link:hover{text-decoration:underline;}
+.hub-section-title{font-size:13px;font-weight:800;color:#eef2f8;margin:0 0 10px 0;letter-spacing:.01em;}
+.hub-mini-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px;}
+.hub-row-click{cursor:pointer;}
+.hub-row-click td{transition:color .1s;}
+.hub-row-click:hover td{color:#fff!important;}
+.hub-alert{border-left:3px solid var(--amber);background:rgba(245,158,11,.07);border-radius:8px;padding:12px 16px;color:#d7dfec;font-size:12px;line-height:1.6;margin-bottom:14px;}
+.hub-good{border-left-color:var(--green);background:rgba(34,197,94,.07);}
+.hub-bad{border-left-color:var(--red);background:rgba(244,63,94,.07);}
+.hub-price-chip{display:inline-flex;gap:4px;align-items:center;color:#dbe5f4;font-size:10px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.18);border-radius:6px;padding:2px 6px;}
+.hub-matrix-table{min-width:980px;width:100%;border-collapse:collapse;table-layout:fixed;}
+.hub-matrix-table th,.hub-matrix-table td{padding:8px 10px!important;border-bottom:1px solid rgba(148,163,184,.1);font-size:11px;color:#c7d0df;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hub-matrix-table th{color:#6b7a90;text-transform:uppercase;letter-spacing:.08em;font-size:9px;background:#0a0d12;position:sticky;top:0;}
+.hub-compact-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.hub-compact-table th,.hub-compact-table td{padding:8px 10px!important;border-bottom:1px solid rgba(148,163,184,.1);font-size:11px;color:#c7d0df;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hub-compact-table th{color:#6b7a90;text-transform:uppercase;letter-spacing:.08em;font-size:9px;}
+.hub-small-note{font-size:10px;color:#9aa7ba;line-height:1.35;}
+@media(max-width:960px){.hub-search-row{grid-template-columns:1fr;}.hub-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:1200px){.hub-mini-grid{grid-template-columns:repeat(2,1fr);}}
+.hub-detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.hub-detail-modal{background:#0d1117;border:1px solid rgba(148,163,184,.2);border-radius:16px;width:min(1020px,96vw);max-height:90vh;overflow:auto;padding:0;box-shadow:0 32px 96px rgba(0,0,0,.65);}
+.hub-detail-modal::-webkit-scrollbar{width:4px;height:4px;}
+.hub-detail-modal::-webkit-scrollbar-track{background:transparent;}
+.hub-detail-modal::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+.hub-detail-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:24px 28px 20px;border-bottom:1px solid rgba(148,163,184,.12);}
+.hub-detail-body{padding:24px 28px 28px;}
+.hub-close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#d7dfec;border-radius:8px;padding:8px 16px;cursor:pointer;font-family:var(--font-mono);font-size:13px;font-weight:600;transition:all .15s;}
+.hub-close:hover{background:rgba(255,255,255,.12);color:#fff;}
+/* ASIN Drilldown popup stats */
+.asin-dd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.asin-dd-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;}
+.asin-dd-stat-label{font-size:10px;color:#6b7a90;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;font-weight:600;}
+.asin-dd-stat-value{font-size:26px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;}
+.asin-dd-stat-sub{font-size:11px;color:#8a97ab;line-height:1.4;}
+.asin-dd-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.asin-dd-meta-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 16px;}
+.asin-dd-meta-label{font-size:9px;color:#5c6b7d;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;}
+.asin-dd-meta-value{font-size:13px;font-weight:600;color:#c8d6e8;line-height:1.5;}
+/* Purchase history table in popup */
+.asin-dd-history{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;}
+.asin-dd-history-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);}
+.asin-dd-history-title{font-size:13px;font-weight:700;color:#eef2f8;letter-spacing:.01em;}
+.asin-dd-history table{width:100%;border-collapse:collapse;}
+.asin-dd-history th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#5c6b7d;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);font-weight:700;text-align:left;background:rgba(0,0,0,.2);}
+.asin-dd-history th:last-child,.asin-dd-history td:last-child{text-align:right;}
+.asin-dd-history td{font-size:12px;color:#9aabbd;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);}
+.asin-dd-history tbody tr:last-child td{border-bottom:none;}
+.asin-dd-history tbody tr:hover td{background:rgba(79,142,247,.06);color:#c8d6e8;}
+.asin-dd-history td.money{color:#e2e8f0;font-weight:600;}
+.asin-dd-history td.asin-link{color:var(--accent);font-weight:700;}
+/* Type badge */
+.type-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.type-badge.uk{background:rgba(79,142,247,.15);color:#6fa3fa;border:1px solid rgba(79,142,247,.25);}
+.type-badge.eu{background:rgba(167,139,250,.15);color:#a98cf7;border:1px solid rgba(167,139,250,.25);}
+.type-badge.sns{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25);}
+.type-badge.oa{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25);}
+/* Hub tab improvements - handled above */
+
 
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px;}
 @media(max-width:1200px){.summary-grid{grid-template-columns:repeat(3,1fr);}.summary-grid2{grid-template-columns:repeat(2,1fr);}}
@@ -268,6 +404,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
     <button class="page-nav-btn active" onclick="switchPage('overview')">Overview</button>
     <button class="page-nav-btn" onclick="switchPage('today')">Today</button>
     <button class="page-nav-btn" onclick="switchPage('growth')">Trends</button>
+    <button class="page-nav-btn" onclick="switchPage('hub')">Buying Hub</button>
   </div>
   <div class="header-right">
     <div class="live-pill"><span class="dot"></span> live</div>
@@ -1032,6 +1169,95 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-t
 </main>
 </div>
 
+
+<!-- BUYING HUB PAGE -->
+<div id="pageHub">
+<main>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--text);">Buying Hub</div>
+      <div class="hub-muted" style="margin-top:3px;">Search your full purchase history by brand, ASIN, supplier or product name</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="hubMetaStatus" class="hub-muted" style="font-size:11px;"></span>
+      <button class="hub-btn secondary" style="font-size:11px;padding:7px 12px;" onclick="openHubMetaImport()">⚙ ASIN brands</button>
+    </div>
+  </div>
+
+  <div class="hub-toolbar">
+    <!-- Row 1: Search + Dates + Go -->
+    <div class="hub-search-row">
+      <div class="hub-search-field">
+        <label id="hubSearchLabel">Search — brand, ASIN, SKU, supplier, provider or product title</label>
+        <input id="hubSearch" class="hub-input" style="width:100%;" placeholder="e.g. Shark, B0CXJ73M2M, Philips, Amazon UK…" onkeydown="if(event.key==='Enter')runHubSearch()">
+      </div>
+      <div>
+        <label class="hub-search-field" style="display:block;"><span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700;">Supplier / Provider</span></label>
+        <select id="hubSupplier" class="hub-select" style="min-width:160px;" onchange="runHubSearch()"></select>
+      </div>
+      <button class="hub-btn" style="align-self:end;" onclick="runHubSearch()">Search</button>
+    </div>
+
+    <!-- Row 2: Type filters + View switcher + Date presets -->
+    <div class="hub-bottom-row">
+      <span class="hub-filter-label">Type:</span>
+      <div class="hub-type-pills">
+        <button class="hub-type-pill active" data-type="all" onclick="setHubType('all')">All</button>
+        <button class="hub-type-pill pill-uk" data-type="ukA2A" onclick="setHubType('ukA2A')">UK A2A</button>
+        <button class="hub-type-pill pill-eu" data-type="euA2A" onclick="setHubType('euA2A')">EU A2A</button>
+        <button class="hub-type-pill pill-sns" data-type="sns" onclick="setHubType('sns')">S&S</button>
+        <button class="hub-type-pill pill-multi" data-type="multi" onclick="setHubType('multi')">Bought 2+×</button>
+      </div>
+      <div class="hub-divider"></div>
+      <span class="hub-filter-label">View:</span>
+      <div class="hub-view-pills">
+        <button class="hub-view-pill active" data-view="asins" onclick="setHubView('asins')">ASINs</button>
+        <button class="hub-view-pill" data-view="price" onclick="setHubView('price')">Price History</button>
+        <button class="hub-view-pill" data-view="matrix" onclick="setHubView('matrix')">Brand × Supplier</button>
+        <button class="hub-view-pill" data-view="activity" onclick="setHubView('activity')">Timeline</button>
+        <button class="hub-view-pill" data-view="compare" onclick="setHubView('compare')">Compare Periods</button>
+        <button class="hub-view-pill" data-view="quality" onclick="setHubView('quality')">Data Quality</button>
+      </div>
+      <div class="hub-divider"></div>
+      <div class="hub-date-presets">
+        <button class="hub-date-preset" data-preset="7d" onclick="hubSetDatesNew('7d')">7d</button>
+        <button class="hub-date-preset" data-preset="30d" onclick="hubSetDatesNew('30d')">30d</button>
+        <button class="hub-date-preset active" data-preset="month" onclick="hubSetDatesNew('month')">Month</button>
+        <button class="hub-date-preset" data-preset="quarter" onclick="hubSetDatesNew('quarter')">Quarter</button>
+        <button class="hub-date-preset" data-preset="all" onclick="hubSetDatesNew('all')">All</button>
+      </div>
+      <input id="hubFrom" type="date" class="hub-input" style="width:140px;font-size:11px;padding:7px 10px;" onchange="runHubSearch()">
+      <span style="color:var(--muted);font-size:12px;">→</span>
+      <input id="hubTo" type="date" class="hub-input" style="width:140px;font-size:11px;padding:7px 10px;" onchange="runHubSearch()">
+    </div>
+  </div>
+
+  <div id="hubResults">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center;">
+      <div style="font-size:32px;margin-bottom:16px;">🔍</div>
+      <div style="font-size:15px;font-weight:600;color:var(--muted2);margin-bottom:8px;">Ready to search</div>
+      <div style="font-size:13px;color:var(--muted);">Type a brand, ASIN, supplier or leave blank to see everything in range · select a View above for price history, matrix, timeline or comparison</div>
+    </div>
+  </div>
+
+  <div id="hubMetaPanel" class="hub-table-wrap" style="display:none;padding:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);">ASIN brand enrichment</div>
+        <div class="hub-muted">Paste CSV rows: ASIN, Brand, Category — saved locally in your browser.</div>
+      </div>
+      <button class="hub-btn secondary" onclick="document.getElementById('hubMetaPanel').style.display='none'">Close</button>
+    </div>
+    <textarea id="hubMetaCsv" class="hub-input" style="min-height:120px;resize:vertical;width:100%;" placeholder="B0XXXXXXX, Shark, Home & Kitchen"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="hub-btn" onclick="saveHubMetaCsv()">Save mappings</button>
+      <button class="hub-btn secondary" onclick="downloadMissingAsins()">Show missing ASINs</button>
+    </div>
+    <div id="hubMetaMsg" class="hub-muted" style="margin-top:10px;"></div>
+  </div>
+</main>
+</div>
+
 <script>
 const SHEET_ID='1vK0RICVAYyE4sDDwlGfuBlBNU6xNzdO8u4aoaTCzrrI';
 const API_KEY='AIzaSyB3oGNbQ27XUlBWPEMxm0B9_Ilsd5wq0EE';
@@ -1048,7 +1274,7 @@ const QUARTER_MONTHS={
 // Month name → number
 const MONTH_MAP={'jan':1,'feb':2,'mar':3,'march':3,'apr':4,'april':4,'may':5,'jun':6,'june':6,'jul':7,'july':7,'aug':8,'august':8,'sep':9,'sept':9,'september':9,'oct':10,'october':10,'nov':11,'november':11,'dec':12,'december':12};
 
-const COL_DATE=0,COL_ASIN=2,COL_BUY_PRICE=4,COL_QTY=6,COL_ORDER_ID=9,COL_ACCOUNT=11,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14,COL_SNS=28;
+const COL_DATE=0,COL_NAME=1,COL_ASIN=2,COL_SKU=3,COL_BUY_PRICE=4,COL_QTY=6,COL_ORDER_ID=9,COL_ACCOUNT=11,COL_PROVIDER=12,COL_SUPPLIER=13,COL_SPEND=14,COL_SNS=28;
 const HEADER_ROWS=1;
 
 const PROVIDER_COLORS={
@@ -1068,10 +1294,21 @@ function clickProv(name){openProvModal(name);}
 let activeQ=1,activeMonth=3,allRows=[],liveTargets={};
 let supplierExpanded=false;
 let allSortedSup=[];
+let asinMeta={};
+let lastHubAsins=[];
+let lastHubRows=[];
+// Optional Supabase enrichment read. Fill these if/when your Supabase table exists.
+// Suggested table: asin_enrichment(asin text primary key, brand text, category text, title text, updated_at timestamptz)
+const SUPABASE_URL='';
+const SUPABASE_ANON_KEY='';
+const ASIN_META_TABLE='asin_enrichment';
+
 
 function fmt(v){return '£'+(+v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDec(v){return '£'+v.toFixed(2);}
 function getDIM(month,year){return month===0?92:new Date(year,month,0).getDate();}
+function currentQuarterNumber(){return Math.floor(new Date().getMonth()/3)+1;}
+function quarterIsFuture(q){return q>currentQuarterNumber();}
 // Use LOCAL date components to avoid BST/UTC midnight rollover bug
 function localDateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
@@ -1201,6 +1438,18 @@ async function fetchTab(tab){
   return (await res.json()).values||[];
 }
 
+
+function cleanSupplierName(raw){
+  const v=(raw||'').toString().trim().replace(/\s+/g,' ');
+  const n=normalText(v).replace(/[^a-z0-9]+/g,'');
+  const aliases={
+    'mifarma':'Mifarma','mifama':'Mifarma','mifarmauk':'Mifarma',
+    'amazonuk':'Amazon UK','amazoncouk':'Amazon UK','amazon':'Amazon UK',
+    'amazonde':'Amazon DE','amazonfr':'Amazon FR','amazones':'Amazon ES','amazonit':'Amazon IT','amazonnl':'Amazon NL',
+    'qogita':'Qogita','superdrug':'Superdrug','boots':'Boots','argos':'Argos','sainsburys':'Sainsbury’s','tesco':'Tesco'
+  };
+  return aliases[n]||v;
+}
 function parseRows(values){
   const rows=[];
   for(let i=HEADER_ROWS;i<values.length;i++){
@@ -1208,12 +1457,14 @@ function parseRows(values){
     if(!r||r.length<=COL_SPEND) continue;
     const dateStr=(r[COL_DATE]||'').trim();
     const provider=(r[COL_PROVIDER]||'').trim();
-    const supplier=(r[COL_SUPPLIER]||'').trim().replace(/\s+$/,'');
+    const supplier=cleanSupplierName((r[COL_SUPPLIER]||'').trim().replace(/\s+$/,''));
     const spend=parseFloat((r[COL_SPEND]||'').replace(/[£, ]/g,''));
     const buyPrice=parseFloat((r[COL_BUY_PRICE]||'').replace(/[£, ]/g,''));
     const qtyRaw=(r[COL_QTY]||'').toString().replace(/[, ]/g,'').trim();
     const qty=parseInt(qtyRaw)||1;
     const asin=(r[COL_ASIN]||'').trim();
+    const sku=(r[COL_SKU]||'').trim();
+    const name=(r[COL_NAME]||'').trim();
     const orderId=(r[COL_ORDER_ID]||'').trim();
     const account=(r[COL_ACCOUNT]||'').trim();
     const sns=(r[COL_SNS]||'').trim().toLowerCase()==='yes';
@@ -1223,7 +1474,7 @@ function parseRows(values){
     if(p.length===3) date=new Date(+p[2],+p[1]-1,+p[0]);
     else date=new Date(dateStr);
     if(!date||isNaN(date)) continue;
-    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),asin,orderId,provider,supplier,account,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty,sns});
+    rows.push({date,month:date.getMonth()+1,year:date.getFullYear(),name,asin,sku,orderId,provider,supplier,account,spend,buyPrice:isNaN(buyPrice)?0:buyPrice,qty,sns});
   }
   return rows;
 }
@@ -1566,12 +1817,12 @@ function openSupModal(name){
   const ag=document.getElementById('supModalAsins');ag.innerHTML='';
   sortedAsins.forEach(([asin,spend],i)=>{
     const div=document.createElement('div');div.className='asin-tile';
+    div.style.cursor='pointer';div.title='Open ASIN detail';
+    div.onclick=()=>{closeSupModal();setTimeout(()=>openHubAsinDetail(asin),100);};
     div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units</div>`;
     ag.appendChild(div);
   });
   if(sortedAsins.length===0) ag.innerHTML='<div style="color:var(--muted);font-size:11px;grid-column:1/-1;">No ASIN data</div>';
-
-  // Reset collapse
   document.getElementById('supModalTableWrap').style.display='';
   document.getElementById('supModalTableBtn').textContent='▲ hide orders';
   renderSupModalTable();
@@ -2330,6 +2581,540 @@ function openProvModal(providerName){
   if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">No orders this period</td></tr>';
 }
 
+
+// ── BUYING HUB ADDITIONS ─────────────────────────────────────────
+function esc(s){return (s||'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function amazonLink(asin){return asin?`https://www.amazon.co.uk/dp/${encodeURIComponent(asin)}`:'#';}
+function keepaLink(asin){return asin?`https://keepa.com/#!product/2-${encodeURIComponent(asin)}`:'#';}
+function loadLocalAsinMeta(){try{return JSON.parse(localStorage.getItem('asinMetaCache')||'{}')||{};}catch(e){return {};}}
+function saveLocalAsinMeta(){localStorage.setItem('asinMetaCache',JSON.stringify(asinMeta));}
+async function loadAsinMetaFromSupabase(){
+  asinMeta=loadLocalAsinMeta();
+  const status=document.getElementById('hubMetaStatus');
+  if(status) status.textContent=`ASIN enrichment: ${Object.keys(asinMeta).length} local mappings`;
+  if(!SUPABASE_URL||!SUPABASE_ANON_KEY) return;
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/${ASIN_META_TABLE}?select=asin,brand,category,title,updated_at`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+    if(!res.ok) throw new Error('Supabase '+res.status);
+    const data=await res.json();
+    data.forEach(x=>{if(x.asin) asinMeta[x.asin]={brand:x.brand||'',category:x.category||'',title:x.title||'',updated_at:x.updated_at||''};});
+    saveLocalAsinMeta();
+    if(status) status.textContent=`ASIN enrichment: ${data.length} Supabase mappings + title fallback`;
+  }catch(e){if(status) status.textContent=`ASIN enrichment: local only (${Object.keys(asinMeta).length}) + title fallback`; }
+}
+function getRowsForHub(){return (allYearRows&&allYearRows.length)?allYearRows:allRows;}
+function hubRowsInRange(){
+  const from=document.getElementById('hubFrom').value;
+  const to=document.getElementById('hubTo').value;
+  return getRowsForHub().filter(r=>{
+    const k=localDateKey(r.date);
+    return (!from||k>=from)&&(!to||k<=to);
+  });
+}
+function normalText(v){return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+function rowTitle(r){return (r.name||((asinMeta[r.asin]||{}).title)||'').toString();}
+function brandKey(v){return normalText(v).replace(/&/g,'and').replace(/[^a-z0-9]+/g,'');}
+const HUB_BRAND_ALIASES={
+  'loral':"L'Oréal",'loralparis':"L'Oréal",'loreal':"L'Oréal",'lorealparis':"L'Oréal",'lorealmenexpert':"L'Oréal",'lorealprofessionnel':"L'Oréal",
+  'nescaf':'NESCAFÉ','nescafe':'NESCAFÉ','nescafeoriginal':'NESCAFÉ','nescafegold':'NESCAFÉ','nescafegoldblend':'NESCAFÉ','nescafé':'NESCAFÉ',
+  'niveamen':'NIVEA Men','niveamenprotectcare':'NIVEA Men','nivea':'NIVEA',
+  'mam':'MAM','high5':'HIGH5','gtech':'Gtech','lg':'LG','asus':'ASUS','corsair':'CORSAIR','huawei':'HUAWEI',
+  'bulldog':'BULLDOG','maybelline':'Maybelline','maybellinenewyork':'Maybelline','sensodyne':'Sensodyne','upcircle':'UpCircle',
+  'philipssonicare':'Philips Sonicare','philips':'Philips','samsung':'Samsung','logitech':'Logitech','elgato':'Elgato','epson':'Epson','breville':'Breville','bialetti':'Bialetti','scott':'Scott','wagner':'WAGNER'
+};
+const HUB_BRAND_RULES=[
+  {brand:"L'Oréal",match:["l'oreal","l’oreal","l’oréal","loreal","l oreal","l'oral","loral","loreal paris"]},
+  {brand:'NESCAFÉ',match:['nescafe','nescafé','nescaf gold','nescafe gold','nescafé gold']},
+  {brand:'NIVEA Men',match:['nivea men']},
+  {brand:'Maybelline',match:['maybelline new york','maybelline']},
+  {brand:'Philips Sonicare',match:['philips sonicare','sonicare']},
+  {brand:'Philips',match:['philips']},
+  {brand:'Betty Crocker',match:['betty crocker']},
+  {brand:'The Skinny Food Co',match:['skinny food','skinny co','the skinny']},
+  {brand:'Dr Organic',match:['dr organic']},
+  {brand:'The Ordinary',match:['the ordinary']}
+];
+function canonicalBrand(raw){
+  let v=(raw||'').toString().trim().replace(/[®™©]/g,'').replace(/^[\s\-–—:|]+/,'').replace(/[\s\-–—:|]+$/,'').replace(/\s+/g,' ');
+  if(!v) return '';
+  const k=brandKey(v);
+  if(HUB_BRAND_ALIASES[k]) return HUB_BRAND_ALIASES[k];
+  if(k.startsWith('nescaf')) return 'NESCAFÉ';
+  if(k.includes('loreal')||k.includes('loral')) return "L'Oréal";
+  if(k.startsWith('maybelline')) return 'Maybelline';
+  if(k.startsWith('philipssonicare')||k==='sonicare') return 'Philips Sonicare';
+  if(k.startsWith('philips')) return 'Philips';
+  if(k.startsWith('niveamen')) return 'NIVEA Men';
+  if(k.startsWith('nivea')) return 'NIVEA';
+  return v;
+}
+function deriveBrandFromTitle(title){
+  const raw=(title||'').toString().trim();
+  if(!raw) return '';
+  const nt=normalText(raw);
+  for(const rule of HUB_BRAND_RULES){ if(rule.match.some(m=>nt.includes(normalText(m)))) return rule.brand; }
+  const cleaned=raw.replace(/^[\s\-–—:|]+/,'').replace(/[®™©]/g,'').trim();
+  const firstChunk=cleaned.split(/\s[-–—|:]\s| - | – | — |\|/)[0].trim();
+  const words=firstChunk.split(/\s+/).filter(Boolean);
+  if(!words.length) return '';
+  const lowerTwo=normalText(words.slice(0,2).join(' '));
+  const twoWordPrefixes=['nivea men','skinny food','skinny co','betty crocker','dr organic','the ordinary','maybelline new','philips sonicare'];
+  if(twoWordPrefixes.includes(lowerTwo)) return canonicalBrand(words.slice(0,2).join(' '));
+  return canonicalBrand(words[0].replace(/[^\p{L}\p{N}&'’.-]/gu,''));
+}
+function hubBrandForRow(r){
+  const meta=asinMeta[r.asin]||{};
+  const metaBrand=canonicalBrand(meta.brand||'');
+  if(metaBrand) return metaBrand;
+  return deriveBrandFromTitle(rowTitle(r));
+}
+function hubSupplierName(v){return cleanSupplierName(v||'');}
+function rowSearchText(r){return [r.asin,r.name,r.supplier,r.provider,r.account,(asinMeta[r.asin]||{}).brand,(asinMeta[r.asin]||{}).category,(asinMeta[r.asin]||{}).title,hubBrandForRow(r)].join(' ').toLowerCase();}
+function uniqueAsinsFromRows(rows){return [...new Set(rows.map(r=>(r.asin||'').trim()).filter(Boolean))].sort();}
+async function copyHubAsins(format='lines'){
+  const text=(lastHubAsins||[]).join(format==='comma'?',':'\n');
+  if(!text){alert('No ASINs to copy yet.');return;}
+  try{await navigator.clipboard.writeText(text); alert(`Copied ${lastHubAsins.length} ASINs.`);}catch(e){prompt('Copy ASINs:',text);}
+}
+function isAmazonSupplier(r){return normalText(r.supplier).includes('amazon');}
+function isUkA2A(r){const s=normalText(r.supplier);return isAmazonSupplier(r)&&(s.includes('co.uk')||s.includes('amazon uk')||s==='amazon'||s==='amazon.co.uk'||s.includes('marketplace uk'));}
+function isEuA2A(r){return isAmazonSupplier(r)&&!isUkA2A(r);}
+function populateHubSuppliers(){
+  const sel=document.getElementById('hubSupplier'); if(!sel) return;
+  const current=sel.value;
+  // Combine suppliers and providers into one list, deduped
+  const rows=getRowsForHub();
+  const suppliers=[...new Set(rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean))].sort();
+  const providers=[...new Set(rows.map(r=>(r.provider||'').trim()).filter(Boolean))].sort();
+  const all=[...new Set([...suppliers,...providers])].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML=`<option value="">All suppliers &amp; providers</option>`+all.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  if(all.includes(current)) sel.value=current;
+}
+let hubActiveTab='brand'; // legacy compat
+let hubActiveType='all';
+let hubActiveView='asins';
+
+function setHubType(type){
+  hubActiveType=type;
+  document.querySelectorAll('.hub-type-pill').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
+  runHubSearch();
+}
+function setHubView(view){
+  hubActiveView=view;
+  document.querySelectorAll('.hub-view-pill').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  runHubSearch();
+}
+function hubSetDatesNew(preset){
+  const now=new Date();
+  const from=document.getElementById('hubFrom'), to=document.getElementById('hubTo');
+  document.querySelectorAll('.hub-date-preset').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));
+  if(preset==='7d'){from.value=localDateKey(new Date(now.getFullYear(),now.getMonth(),now.getDate()-6));to.value=localDateKey(now);}
+  else if(preset==='30d'){from.value=localDateKey(new Date(now.getFullYear(),now.getMonth(),now.getDate()-29));to.value=localDateKey(now);}
+  else if(preset==='month'){from.value=localDateKey(new Date(now.getFullYear(),now.getMonth(),1));to.value=localDateKey(now);}
+  else if(preset==='quarter'){const qm=Math.floor(now.getMonth()/3)*3;from.value=localDateKey(new Date(now.getFullYear(),qm,1));to.value=localDateKey(now);}
+  else if(preset==='all'){from.value='';to.value='';}
+  runHubSearch();
+}
+// Legacy compat for old code still calling these
+function setHubTab(tab){hubActiveTab=tab;}
+function hubSetDates(mode){hubSetDatesNew(mode==='all'?'all':mode);}
+function hubApplySavedView(view){
+  if(view==='last7') hubSetDatesNew('7d');
+  else if(view==='last30') hubSetDatesNew('30d');
+  else if(view==='ukA2A'){setHubType('ukA2A');}
+  else if(view==='euA2A'){setHubType('euA2A');}
+  else if(view==='sns'){setHubType('sns');}
+  else if(view==='quality'){setHubView('quality');}
+  else runHubSearch();
+}
+function hubSetDates(mode){
+  const now=new Date();
+  const from=document.getElementById('hubFrom'), to=document.getElementById('hubTo');
+  if(mode==='month'){from.value=localDateKey(new Date(now.getFullYear(),now.getMonth(),1));to.value=localDateKey(now);}
+  if(mode==='quarter'){const qm=Math.floor(now.getMonth()/3)*3;from.value=localDateKey(new Date(now.getFullYear(),qm,1));to.value=localDateKey(now);}
+  if(mode==='all'){from.value='';to.value='';}
+  runHubSearch();
+}
+function groupSpend(rows,keyFn){const m={};rows.forEach(r=>{const k=keyFn(r)||'Unknown';if(!m[k])m[k]={spend:0,units:0,orders:0,asins:new Set(),suppliers:new Set(),providers:new Set(),first:null,last:null,rows:[]};const x=m[k];x.spend+=r.spend;x.units+=r.qty;x.orders+=1;if(r.asin)x.asins.add(r.asin);if(r.supplier)x.suppliers.add(hubSupplierName(r.supplier));if(r.provider)x.providers.add((r.provider||'').trim());if(!x.first||r.date<x.first)x.first=r.date;if(!x.last||r.date>x.last)x.last=r.date;x.rows.push(r);});return m;}
+function hubSummaryCards(title, rows, extra=''){
+  const spend=rows.reduce((t,r)=>t+r.spend,0), units=rows.reduce((t,r)=>t+r.qty,0), orders=countOrders(rows), asins=new Set(rows.map(r=>r.asin).filter(Boolean));
+  const uk=rows.filter(isUkA2A).length, eu=rows.filter(isEuA2A).length, sns=rows.filter(r=>r.sns).length;
+  return `<div class="hub-grid">
+    <div class="hub-card"><div class="hub-card-label">${esc(title)}</div><div class="hub-card-value">${fmt(spend)}</div><div class="hub-card-sub">total spend ${extra}</div></div>
+    <div class="hub-card"><div class="hub-card-label">units bought</div><div class="hub-card-value">${units.toLocaleString()}</div><div class="hub-card-sub">across ${orders} true orders</div></div>
+    <div class="hub-card"><div class="hub-card-label">unique ASINs</div><div class="hub-card-value">${asins.size}</div><div class="hub-card-sub">${rows.length} purchase lines</div></div>
+    <div class="hub-card"><div class="hub-card-label">type split</div><div class="hub-card-value" style="font-size:18px;line-height:1.4;">UK ${uk} · EU ${eu} · S&S ${sns}</div><div class="hub-card-sub">purchase lines by type</div></div>
+  </div>`;
+}
+function hubPrimaryEntity(rows, field){
+  const m={};
+  rows.forEach(r=>{
+    const name=field==='supplier'?hubSupplierName(r.supplier):(r.provider||'').trim();
+    if(!name) return;
+    if(!m[name]) m[name]={spend:0,units:0,count:0};
+    m[name].spend+=r.spend||0; m[name].units+=r.qty||0; m[name].count++;
+  });
+  return Object.entries(m).sort((a,b)=>b[1].spend-a[1].spend)[0]?.[0]||'';
+}
+function hubEntityDisplay(rows, field){
+  const names=[...new Set(rows.map(r=>field==='supplier'?hubSupplierName(r.supplier):(r.provider||'').trim()).filter(Boolean))];
+  if(!names.length) return '—';
+  const primary=hubPrimaryEntity(rows, field)||names[0];
+  const extra=names.length-1;
+  const full=names.join(', ');
+  return `<span class="hub-entity-cell" title="${esc(full)}"><span class="hub-mini-tag">${esc(primary)}</span>${extra>0?`<span class="hub-count-tag">+${extra}</span>`:''}</span>`;
+}
+function renderHubAsinTable(rows){
+  const byAsin=Object.values(groupSpend(rows,r=>r.asin)).sort((a,b)=>b.spend-a.spend);
+  lastHubAsins=uniqueAsinsFromRows(rows); lastHubRows=rows;
+  return `<div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">ASINs bought <span class="hub-muted">· ${lastHubAsins.length} unique · click any row for purchase history</span></div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubAsins('comma')">Copy comma list</button><button class="hub-btn secondary" onclick="copyHubData('asinSku')">Copy ASIN + SKU</button><button class="hub-btn secondary" onclick="copyHubData('amazon')">Copy Amazon links</button><button class="hub-btn secondary" onclick="copyHubData('keepa')">Copy Keepa links</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-asin-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Title</th><th>Spend</th><th>Units</th><th>Orders</th><th>Suppliers</th><th>Providers</th><th>Price history</th><th>Last bought</th><th>Type</th><th>Links</th></tr></thead><tbody>`+
+    byAsin.map(x=>{const asin=x.rows[0].asin||'—', sample=x.rows[0], brand=hubBrandForRow(sample)||'—', title=rowTitle(sample)||'—', sku=(sample.sku||'—'); const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA'; const supTxt=hubEntityDisplay(x.rows,'supplier'); const provTxt=hubEntityDisplay(x.rows,'provider'); const ps=asinPriceStats(x.rows); const typeCls={'S&S':'sns','UK A2A':'uk','EU A2A':'eu','OA':'oa'}[type]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(brand)}</span></td><td class="bold" style="color:var(--accent);">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sku)}">${esc(sku)}</span></td><td><span class="hub-title-cell" title="${esc(title)}">${esc(title)}</span></td><td class="bold" style="color:#f2f5fb;">${fmt(x.spend)}</td><td>${x.units.toLocaleString()} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${countOrders(x.rows)}</td><td>${supTxt}</td><td>${provTxt}</td><td><span class="hub-price-chip" title="Lowest / Average / Highest / Last buy price">L ${ps.min?fmtDec(ps.min):'—'} · A ${ps.avg?fmtDec(ps.avg):'—'} · H ${ps.max?fmtDec(ps.max):'—'} · Last ${ps.last?fmtDec(ps.last):'—'}</span></td><td>${x.last?x.last.toLocaleDateString('en-GB'):'—'}</td><td><span class="type-badge ${typeCls}">${type}</span></td><td><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${amazonLink(asin)}">Amazon</a><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${keepaLink(asin)}">Keepa</a></td></tr>`}).join('')+
+    `</tbody></table></div>`;
+}
+function renderHubQuickLists(rows){
+  const ukRows=rows.filter(isUkA2A), euRows=rows.filter(isEuA2A), snsRows=rows.filter(r=>r.sns);
+  const box=(title,arr)=>{const g=Object.values(groupSpend(arr,r=>r.asin)).sort((a,b)=>b.spend-a.spend).slice(0,8);return `<div class="hub-card"><div class="hub-card-label">${title}</div>`+(g.map(x=>{const asin=x.rows[0].asin||'—';return `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;gap:12px;"><span style="color:var(--accent);font-weight:700;">${esc(asin)}</span><span style="color:var(--muted2);white-space:nowrap;">${fmt(x.spend)} · ${x.units} units</span></div>`}).join('')||'<div class="hub-muted">No data</div>')+`</div>`;};
+  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">${box('UK A2A ASINs',ukRows)}${box('EU A2A ASINs',euRows)}${box('S&S ASINs',snsRows)}</div>`;
+}
+
+function applyHubHistoryFilter(rows){
+  const mode=(document.getElementById('hubFreshness')?.value||'all');
+  if(mode==='all') return rows;
+  const all=getRowsForHub();
+  const by=groupSpend(all,r=>r.asin);
+  const today=new Date();
+  const ok=new Set();
+  Object.entries(by).forEach(([asin,x])=>{
+    if(!asin||asin==='Unknown') return;
+    const days=x.last?Math.floor((today-x.last)/86400000):9999;
+    const buys=countOrders(x.rows);
+    if(mode==='last30'&&days<=30) ok.add(asin);
+    if(mode==='not90'&&days>=90) ok.add(asin);
+    if(mode==='not180'&&days>=180) ok.add(asin);
+    if(mode==='multi2'&&buys>=2) ok.add(asin);
+    if(mode==='multi3'&&buys>=3) ok.add(asin);
+  });
+  return rows.filter(r=>ok.has(r.asin));
+}
+function hubBaseFilteredRows(){
+  const q=(document.getElementById('hubSearch')?.value||'').trim().toLowerCase();
+  const selected=(document.getElementById('hubSupplier')?.value||'').trim();
+  let rows=hubRowsInRange();
+  if(hubActiveTab==='provider') rows=rows.filter(r=>!selected||r.provider===selected);
+  else if(!['ukA2A','euA2A','quality'].includes(hubActiveTab)) rows=rows.filter(r=>!selected||hubSupplierName(r.supplier)===selected||r.supplier===selected);
+  if(hubActiveTab==='ukA2A') rows=rows.filter(isUkA2A);
+  if(hubActiveTab==='euA2A') rows=rows.filter(isEuA2A);
+  if(hubActiveTab==='sns') rows=rows.filter(r=>r.sns);
+  if(q) rows=rows.filter(r=>rowSearchText(r).includes(q)||normalText(hubBrandForRow(r)).includes(q)||normalText(r.sku).includes(q));
+  return applyHubHistoryFilter(rows);
+}
+function unitCostForRow(r){return r.qty>0?(r.spend/r.qty):(r.buyPrice||0);}
+function asinPriceStats(rows){
+  const prices=rows.map(unitCostForRow).filter(v=>isFinite(v)&&v>0);
+  const sorted=rows.slice().sort((a,b)=>b.date-a.date);
+  const last=sorted[0]?unitCostForRow(sorted[0]):0;
+  return {min:prices.length?Math.min(...prices):0,max:prices.length?Math.max(...prices):0,avg:prices.length?prices.reduce((a,b)=>a+b,0)/prices.length:0,last};
+}
+function renderUniversalSearch(rows,q){
+  const exactAsins=uniqueAsinsFromRows(rows.filter(r=>(r.asin||'').toLowerCase()===q));
+  const brands=Object.entries(groupSpend(rows,r=>hubBrandForRow(r)||'Unmapped')).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const suppliers=Object.entries(groupSpend(rows,r=>hubSupplierName(r.supplier))).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const providers=Object.entries(groupSpend(rows,r=>r.provider)).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const mini=(title,arr)=>`<div class="hub-card"><div class="hub-card-label">${title}</div>`+(arr.map(([k,x])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;gap:12px;"><span style="font-weight:800;color:#eef2f8;">${esc(k)}</span><span style="color:#aeb9cb;white-space:nowrap;">${fmt(x.spend)} · ${x.asins.size} ASINs</span></div>`).join('')||'<div class="hub-muted">No matches</div>')+`</div>`;
+  return hubSummaryCards(q?'Search: '+q:'Universal Search',rows)+`<div class="hub-alert hub-good">Search checks ASIN, SKU, title, detected brand, supplier, provider and account. Use this when a website or brand goes on offer and you want buying memory fast.</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">${mini('matching brands',brands)}${mini('matching suppliers',suppliers)}${mini('matching providers',providers)}</div>`+renderHubAsinTable(rows);
+}
+function renderActivityFeed(rows){
+  const byDate={}; rows.forEach(r=>{const k=localDateKey(r.date); if(!byDate[k]) byDate[k]={date:r.date,rows:[]}; byDate[k].rows.push(r);});
+  const days=Object.values(byDate).sort((a,b)=>b.date-a.date).slice(0,60);
+  lastHubRows=rows; lastHubAsins=uniqueAsinsFromRows(rows);
+  const html=days.map(d=>{const spend=d.rows.reduce((a,r)=>a+r.spend,0), units=d.rows.reduce((a,r)=>a+r.qty,0), asins=uniqueAsinsFromRows(d.rows).length; const topSup=Object.entries(groupSpend(d.rows,r=>hubSupplierName(r.supplier))).sort((a,b)=>b[1].spend-a[1].spend)[0]; const topProv=Object.entries(groupSpend(d.rows,r=>r.provider)).sort((a,b)=>b[1].spend-a[1].spend)[0]; return `<div class="hub-card" style="margin-bottom:8px;"><div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;"><div><div class="hub-card-label">date</div><div style="font-weight:900;color:#fff;">${d.date.toLocaleDateString('en-GB')}</div></div><div><div class="hub-card-label">spend</div><div style="font-weight:900;color:#fff;">${fmt(spend)}</div></div><div><div class="hub-card-label">units / ASINs</div><div style="font-weight:800;color:#d7dfec;">${units} units · ${asins} ASINs</div></div><div><div class="hub-card-label">top supplier</div><div style="font-weight:800;color:#d7dfec;">${esc(topSup?.[0]||'—')}</div></div><div><div class="hub-card-label">top provider</div><div style="font-weight:800;color:#d7dfec;">${esc(topProv?.[0]||'—')}</div></div></div></div>`}).join('')||'<div class="hub-card"><div class="hub-muted">No activity in this period.</div></div>';
+  return hubSummaryCards('Activity feed',rows)+`<div class="hub-copybar"><div class="hub-copybar-title">Chronological buying activity</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs from period</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div>`+html;
+}
+function renderDataQuality(rows){
+  const checks=[
+    ['Missing ASIN', rows.filter(r=>!r.asin)],
+    ['Missing SKU', rows.filter(r=>!r.sku)],
+    ['Missing supplier', rows.filter(r=>!r.supplier)],
+    ['Missing provider', rows.filter(r=>!r.provider)],
+    ['Unknown / weak brand', rows.filter(r=>!hubBrandForRow(r)||hubBrandForRow(r).length<=2)],
+    ['Zero / missing buy price', rows.filter(r=>!r.buyPrice||r.buyPrice<=0)]
+  ];
+  const cards=`<div class="hub-grid">`+checks.map(([name,arr])=>`<div class="hub-card"><div class="hub-card-label">${esc(name)}</div><div class="hub-card-value">${arr.length}</div><div class="hub-card-sub">purchase lines</div></div>`).join('')+`</div>`;
+  const badRows=[...new Map(checks.flatMap(([name,arr])=>arr.map(r=>[(r.orderId||'')+'-'+(r.asin||'')+'-'+localDateKey(r.date),r])).values())].slice(0,200);
+  const supplierVariants={}; rows.forEach(r=>{const clean=hubSupplierName(r.supplier), raw=(r.supplier||'').trim(); if(!clean||!raw) return; if(!supplierVariants[clean]) supplierVariants[clean]=new Set(); supplierVariants[clean].add(raw);});
+  const variants=Object.entries(supplierVariants).filter(([k,set])=>set.size>1).slice(0,10);
+  return cards+`<div class="hub-alert">This tab does not edit your Purchase Sheet. It only highlights rows that may need fixing in the source sheet or the cleanup rules.</div>`+
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;"><div class="hub-card"><div class="hub-section-title">Supplier variants detected</div>${variants.map(([k,set])=>`<div style="border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;"><strong>${esc(k)}</strong><div class="hub-muted">${[...set].map(esc).join(' · ')}</div></div>`).join('')||'<div class="hub-muted">No obvious variants in this filtered period.</div>'}</div><div class="hub-card"><div class="hub-section-title">Suggested cleanup priority</div><div class="hub-alert hub-bad">Fix missing ASIN/SKU first because they block lookup and copy workflows.</div><div class="hub-alert">Then fix suppliers/providers so the hub groups spend correctly.</div><div class="hub-alert hub-good">Brand cleanup can be handled by title rules or ASIN mappings later.</div></div></div>`+renderHubAsinTable(badRows);
+}
+function openHubAsinDetail(asin){
+  const allHubRows=getRowsForHub();
+  const rows=allHubRows.filter(r=>r.asin===asin).sort((a,b)=>b.date-a.date);
+  if(!rows.length) return;
+  const sample=rows[0];
+  const spend=rows.reduce((a,r)=>a+r.spend,0);
+  const units=rows.reduce((a,r)=>a+r.qty,0);
+  const trueOrders=countOrders(rows);
+  const uniqueAsinSet=new Set(rows.map(r=>r.asin).filter(Boolean));
+  const suppliers=[...new Set(rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean))];
+  const providers=[...new Set(rows.map(r=>r.provider).filter(Boolean))];
+  const skus=[...new Set(rows.map(r=>r.sku).filter(Boolean))];
+  const brand=hubBrandForRow(sample)||'Unknown brand';
+  const title=rowTitle(sample)||'';
+  const ps=asinPriceStats(rows);
+  const ukLines=rows.filter(isUkA2A).length;
+  const euLines=rows.filter(isEuA2A).length;
+  const snsLines=rows.filter(r=>r.sns).length;
+
+  // Determine primary type
+  let primaryType='OA';
+  if(snsLines>0) primaryType='S&S';
+  else if(ukLines>=euLines && ukLines>0) primaryType='UK A2A';
+  else if(euLines>0) primaryType='EU A2A';
+  const typeBadgeClass={'UK A2A':'uk','EU A2A':'eu','S&S':'sns','OA':'oa'}[primaryType]||'oa';
+
+  let modal=document.getElementById('hubDetailOverlay');
+  if(!modal){modal=document.createElement('div');modal.id='hubDetailOverlay';document.body.appendChild(modal);}
+  modal.className='hub-detail-overlay';
+  modal.onclick=function(e){if(e.target===modal)modal.remove();};
+
+  const skuDisplay=skus.length===1?skus[0]:(skus.length>1?skus[0]+` +${skus.length-1} more`:'—');
+
+  modal.innerHTML=`<div class="hub-detail-modal">
+    <div class="hub-detail-head">
+      <div>
+        <div style="font-size:10px;color:#5c6b7d;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;">ASIN Drilldown</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;">${esc(asin)}</span>
+          <span style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:#7eb3fb;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;">${esc(brand)}</span>
+          <span class="type-badge ${typeBadgeClass}">${primaryType}</span>
+        </div>
+        ${title?`<div style="font-size:13px;color:#8a97ab;line-height:1.5;max-width:640px;">${esc(title)}</div>`:''}
+      </div>
+      <button class="hub-close" onclick="document.getElementById('hubDetailOverlay').remove()">Close</button>
+    </div>
+    <div class="hub-detail-body">
+      <div class="asin-dd-stats">
+        <div class="asin-dd-stat">
+          <div class="asin-dd-stat-label">ASIN Total</div>
+          <div class="asin-dd-stat-value">${fmt(spend)}</div>
+          <div class="asin-dd-stat-sub">total spend</div>
+        </div>
+        <div class="asin-dd-stat">
+          <div class="asin-dd-stat-label">Units Bought</div>
+          <div class="asin-dd-stat-value">${units.toLocaleString()}</div>
+          <div class="asin-dd-stat-sub">across ${trueOrders} true orders</div>
+        </div>
+        <div class="asin-dd-stat">
+          <div class="asin-dd-stat-label">Unique ASINs</div>
+          <div class="asin-dd-stat-value">${uniqueAsinSet.size}</div>
+          <div class="asin-dd-stat-sub">${rows.length} purchase lines</div>
+        </div>
+        <div class="asin-dd-stat">
+          <div class="asin-dd-stat-label">Type Split</div>
+          <div class="asin-dd-stat-value" style="font-size:18px;line-height:1.5;">UK ${ukLines} · EU ${euLines} · S&S ${snsLines}</div>
+          <div class="asin-dd-stat-sub">purchase lines by type</div>
+        </div>
+      </div>
+      <div class="asin-dd-meta">
+        <div class="asin-dd-meta-card">
+          <div class="asin-dd-meta-label">Suppliers</div>
+          <div class="asin-dd-meta-value">${suppliers.map(esc).join(' · ')||'—'}</div>
+        </div>
+        <div class="asin-dd-meta-card">
+          <div class="asin-dd-meta-label">Providers</div>
+          <div class="asin-dd-meta-value">${providers.map(esc).join(' · ')||'—'}</div>
+        </div>
+        <div class="asin-dd-meta-card">
+          <div class="asin-dd-meta-label">SKUs</div>
+          <div class="asin-dd-meta-value" title="${skus.map(esc).join(' · ')}">${esc(skuDisplay)}</div>
+        </div>
+      </div>
+      ${ps.avg>0?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Lowest buy price</div><div style="font-size:18px;font-weight:800;color:#4ade80;">${fmtDec(ps.min)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Average buy price</div><div style="font-size:18px;font-weight:800;color:#f0f4fa;">${fmtDec(ps.avg)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Highest buy price</div><div style="font-size:18px;font-weight:800;color:#f87171;">${fmtDec(ps.max)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Last buy price</div><div style="font-size:18px;font-weight:800;color:#6fa3fa;">${fmtDec(ps.last)}</div></div>
+      </div>`:''}
+      <div class="asin-dd-history">
+        <div class="asin-dd-history-header">
+          <div class="asin-dd-history-title">Purchase history</div>
+          <div style="display:flex;gap:8px;">
+            <a class="hub-btn secondary" target="_blank" href="${amazonLink(asin)}" style="text-decoration:none;font-size:11px;padding:6px 12px;">Amazon</a>
+            <a class="hub-btn secondary" target="_blank" href="${keepaLink(asin)}" style="text-decoration:none;font-size:11px;padding:6px 12px;">Keepa</a>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Date</th>
+            <th>SKU</th>
+            <th>Supplier</th>
+            <th>Provider</th>
+            <th>Order ID</th>
+            <th>Spend</th>
+            <th>Units</th>
+            <th style="text-align:right;">Buy Price</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>{
+              const typeClass=r.sns?'sns':isUkA2A(r)?'uk':isEuA2A(r)?'eu':'oa';
+              const typeLabel=r.sns?'S&S':isUkA2A(r)?'UK':isEuA2A(r)?'EU':'OA';
+              return `<tr>
+                <td style="white-space:nowrap;">${r.date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</td>
+                <td style="color:#6fa3fa;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.sku||'—')}</td>
+                <td>${esc(hubSupplierName(r.supplier)||'—')}</td>
+                <td>${esc(r.provider||'—')}</td>
+                <td style="font-size:11px;color:#6b7a90;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.orderId||'—')}</td>
+                <td class="money">${fmt(r.spend)}</td>
+                <td><span style="font-weight:700;color:#e2e8f0;">${r.qty}</span> <span style="color:#5c6b7d;font-size:10px;">units</span></td>
+                <td class="money" style="text-align:right;">${r.buyPrice>0?fmt(r.buyPrice):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+function renderOfferMode(rows){
+  const selected=(document.getElementById('hubSupplier')?.value||'').trim();
+  const q=(document.getElementById('hubSearch')?.value||'').trim();
+  const brandMap=Object.entries(groupSpend(rows,r=>hubBrandForRow(r)||'Unmapped')).sort((a,b)=>b[1].spend-a[1].spend).slice(0,30);
+  const supplierMap=Object.entries(groupSpend(rows,r=>hubSupplierName(r.supplier))).sort((a,b)=>b[1].spend-a[1].spend).slice(0,30);
+  const brandList=`<div class="hub-card"><div class="hub-section-title">Brands bought${selected?' from '+esc(selected):''}</div>${brandMap.map(([k,x])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;gap:12px;"><span style="font-weight:900;color:#eef2f8;">${esc(k)}</span><span style="color:#aeb9cb;white-space:nowrap;">${x.asins.size} ASINs · ${fmt(x.spend)}</span></div>`).join('')||'<div class="hub-muted">No brands in this filter.</div>'}</div>`;
+  const supplierList=`<div class="hub-card"><div class="hub-section-title">Websites / suppliers in result</div>${supplierMap.map(([k,x])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;gap:12px;"><span style="font-weight:900;color:#eef2f8;">${esc(k)}</span><span style="color:#aeb9cb;white-space:nowrap;">${x.asins.size} ASINs · ${fmt(x.spend)}</span></div>`).join('')||'<div class="hub-muted">No suppliers in this filter.</div>'}</div>`;
+  return hubSummaryCards('Offer Mode',rows, selected?`· ${esc(selected)}`:(q?`· ${esc(q)}`:''))+`<div class="hub-alert hub-good"><strong>Use this when a website or brand is on offer.</strong> Choose a supplier/website or type a brand, then copy the historical ASINs into KPF / Keepa / your sourcing workflow.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">${brandList}${supplierList}</div>`+renderHubAsinTable(rows);
+}
+function renderPriceHistory(rows){
+  const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin).map(x=>({x,ps:asinPriceStats(x.rows)})).sort((a,b)=>b.x.spend-a.x.spend);
+  lastHubRows=rows; lastHubAsins=uniqueAsinsFromRows(rows);
+  const body=groups.map(({x,ps})=>{const sample=x.rows[0], asin=sample.asin; const lowRow=x.rows.slice().sort((a,b)=>unitCostForRow(a)-unitCostForRow(b))[0]; const lastRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(hubBrandForRow(sample)||'—')}</span></td><td style="color:var(--accent);font-weight:800;">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sample.sku)}">${esc(sample.sku||'—')}</span></td><td>${fmt(x.spend)}</td><td>${x.units}</td><td>${ps.min?fmtDec(ps.min):'—'}</td><td>${ps.avg?fmtDec(ps.avg):'—'}</td><td>${ps.max?fmtDec(ps.max):'—'}</td><td>${ps.last?fmtDec(ps.last):'—'}</td><td>${lowRow?esc(hubSupplierName(lowRow.supplier)):'—'}</td><td>${lastRow?lastRow.date.toLocaleDateString('en-GB'):'—'}</td></tr>`}).join('');
+  return hubSummaryCards('Price History',rows)+`<div class="hub-alert">Price history is from your own purchase rows only. It shows whether the current offer is cheap compared with your historical buy prices.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Purchase price history by ASIN</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Spend</th><th>Units</th><th>Lowest</th><th>Average</th><th>Highest</th><th>Last</th><th>Cheapest supplier</th><th>Last bought</th></tr></thead><tbody>${body||'<tr><td colspan="11">No ASINs in this filter.</td></tr>'}</tbody></table></div>`;
+}
+function renderMultiBuy(rows){
+  const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin&&countOrders(x.rows)>=2).sort((a,b)=>countOrders(b.rows)-countOrders(a.rows)||b.spend-a.spend);
+  const multiRows=groups.flatMap(g=>g.rows); lastHubRows=multiRows; lastHubAsins=groups.map(g=>g.rows[0].asin);
+  return hubSummaryCards('Multi-Buy ASINs',multiRows)+`<div class="hub-alert hub-good">These are ASINs you have bought more than once. It is not a replenishment/profit view — just historical buying memory.</div>`+renderHubAsinTable(multiRows);
+}
+function renderBrandSupplierMatrix(rows){
+  const brandMap=groupSpend(rows,r=>hubBrandForRow(r)||'Unmapped');
+  const suppliers=Object.entries(groupSpend(rows,r=>hubSupplierName(r.supplier))).sort((a,b)=>b[1].spend-a[1].spend).slice(0,10).map(x=>x[0]);
+  const brands=Object.entries(brandMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,30).map(x=>x[0]);
+  const cell=(brand,sup)=>{const rr=rows.filter(r=>(hubBrandForRow(r)||'Unmapped')===brand && hubSupplierName(r.supplier)===sup); if(!rr.length) return '—'; const asins=uniqueAsinsFromRows(rr).length, spend=rr.reduce((a,r)=>a+r.spend,0); return `${asins} ASINs · ${fmt(spend)}`;};
+  const header=suppliers.map(s=>`<th title="${esc(s)}">${esc(s)}</th>`).join('');
+  const body=brands.map(b=>`<tr><td style="font-weight:900;color:#eef2f8;">${esc(b)}</td>${suppliers.map(su=>`<td>${cell(b,su)}</td>`).join('')}</tr>`).join('');
+  lastHubRows=rows; lastHubAsins=uniqueAsinsFromRows(rows);
+  return hubSummaryCards('Brand × Supplier Matrix',rows)+`<div class="hub-alert">This shows which websites/suppliers you have previously used for each brand. Top 10 suppliers and top 30 brands are shown to keep it readable.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Brand × supplier buying map</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy filtered ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th>${header}</tr></thead><tbody>${body||'<tr><td>No data</td></tr>'}</tbody></table></div>`+renderHubBreakdowns(rows);
+}
+function renderPeriodCompare(rows){
+  const fromVal=document.getElementById('hubFrom').value, toVal=document.getElementById('hubTo').value;
+  const today=new Date();
+  let to=toVal?new Date(toVal+'T00:00:00'):today;
+  let from=fromVal?new Date(fromVal+'T00:00:00'):new Date(today.getFullYear(),today.getMonth(),today.getDate()-29);
+  const days=Math.max(1,Math.round((to-from)/86400000)+1);
+  const prevTo=new Date(from.getFullYear(),from.getMonth(),from.getDate()-1);
+  const prevFrom=new Date(prevTo.getFullYear(),prevTo.getMonth(),prevTo.getDate()-days+1);
+  const q=(document.getElementById('hubSearch')?.value||'').trim().toLowerCase();
+  const selected=(document.getElementById('hubSupplier')?.value||'').trim();
+  const base=getRowsForHub().filter(r=>{ if(selected&&hubSupplierName(r.supplier)!==selected&&r.supplier!==selected) return false; if(q&&!(rowSearchText(r).includes(q)||normalText(hubBrandForRow(r)).includes(q)||normalText(r.sku).includes(q))) return false; return true; });
+  const cur=base.filter(r=>{const k=localDateKey(r.date); return k>=localDateKey(from)&&k<=localDateKey(to);});
+  const prev=base.filter(r=>{const k=localDateKey(r.date); return k>=localDateKey(prevFrom)&&k<=localDateKey(prevTo);});
+  const metric=(arr)=>({spend:arr.reduce((a,r)=>a+r.spend,0),units:arr.reduce((a,r)=>a+r.qty,0),asins:uniqueAsinsFromRows(arr).length,orders:countOrders(arr)});
+  const cm=metric(cur), pm=metric(prev); const diff=(a,b)=>b?(((a-b)/b)*100).toFixed(1)+'%':(a?'new':'0%');
+  const byBrand=Object.entries(groupSpend(cur,r=>hubBrandForRow(r)||'Unmapped')).sort((a,b)=>b[1].spend-a[1].spend).slice(0,15);
+  const bySup=Object.entries(groupSpend(cur,r=>hubSupplierName(r.supplier))).sort((a,b)=>b[1].spend-a[1].spend).slice(0,15);
+  lastHubRows=cur; lastHubAsins=uniqueAsinsFromRows(cur);
+  const mini=(title,arr)=>`<div class="hub-card"><div class="hub-section-title">${title}</div>${arr.map(([k,x])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;gap:12px;"><span style="font-weight:800;color:#eef2f8;">${esc(k)}</span><span style="color:#aeb9cb;white-space:nowrap;">${fmt(x.spend)} · ${x.asins.size} ASINs</span></div>`).join('')||'<div class="hub-muted">No data</div>'}</div>`;
+  return `<div class="hub-grid"><div class="hub-card"><div class="hub-card-label">current period</div><div class="hub-card-value">${fmt(cm.spend)}</div><div class="hub-card-sub">${days} days · ${cm.asins} ASINs</div></div><div class="hub-card"><div class="hub-card-label">previous period</div><div class="hub-card-value">${fmt(pm.spend)}</div><div class="hub-card-sub">${prevFrom.toLocaleDateString('en-GB')} – ${prevTo.toLocaleDateString('en-GB')}</div></div><div class="hub-card"><div class="hub-card-label">spend change</div><div class="hub-card-value">${diff(cm.spend,pm.spend)}</div><div class="hub-card-sub">current vs previous same length</div></div><div class="hub-card"><div class="hub-card-label">ASIN change</div><div class="hub-card-value">${diff(cm.asins,pm.asins)}</div><div class="hub-card-sub">${cm.asins} vs ${pm.asins} ASINs</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">${mini('Current top brands',byBrand)}${mini('Current top suppliers',bySup)}</div>`+renderHubAsinTable(cur);
+}
+function getHubBaseRows(){
+  // Apply date range
+  let rows=hubRowsInRange();
+  // Apply type filter
+  if(hubActiveType==='ukA2A') rows=rows.filter(isUkA2A);
+  else if(hubActiveType==='euA2A') rows=rows.filter(isEuA2A);
+  else if(hubActiveType==='sns') rows=rows.filter(r=>r.sns);
+  else if(hubActiveType==='multi'){
+    const allHub=getRowsForHub();
+    const buyCounts={};
+    allHub.forEach(r=>{if(r.asin) buyCounts[r.asin]=(buyCounts[r.asin]||0)+1;});
+    rows=rows.filter(r=>r.asin&&buyCounts[r.asin]>=2);
+  }
+  // Apply search text
+  const q=(document.getElementById('hubSearch')?.value||'').trim().toLowerCase();
+  if(q) rows=rows.filter(r=>rowSearchText(r).includes(q)||normalText(hubBrandForRow(r)).includes(q)||normalText(r.sku).includes(q));
+  // Apply supplier/provider filter
+  const selected=(document.getElementById('hubSupplier')?.value||'').trim();
+  if(selected) rows=rows.filter(r=>hubSupplierName(r.supplier)===selected||r.supplier===selected||r.provider===selected);
+  return rows;
+}
+
+function runHubSearch(){
+  populateHubSuppliers();
+  const out=document.getElementById('hubResults');
+  const rows=getHubBaseRows();
+  const q=(document.getElementById('hubSearch')?.value||'').trim().toLowerCase();
+
+  if(hubActiveView==='price'){out.innerHTML=renderPriceHistory(rows);return;}
+  if(hubActiveView==='matrix'){out.innerHTML=renderBrandSupplierMatrix(rows);return;}
+  if(hubActiveView==='activity'){out.innerHTML=renderActivityFeed(rows);return;}
+  if(hubActiveView==='compare'){out.innerHTML=renderPeriodCompare(rows);return;}
+  if(hubActiveView==='quality'){out.innerHTML=renderDataQuality(rows);return;}
+
+  // Default: ASINs view
+  if(!rows.length){
+    const typeLabel={'all':'','ukA2A':' (UK A2A)','euA2A':' (EU A2A)','sns':' (S&S)','multi':' (Multi-Buy)'}[hubActiveType]||'';
+    out.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center;"><div style="font-size:32px;margin-bottom:16px;">📭</div><div style="font-size:15px;font-weight:600;color:var(--muted2);margin-bottom:8px;">No results${typeLabel}</div><div style="font-size:13px;color:var(--muted);">${q?'Nothing matched "'+q+'" in this date range — try a shorter term or wider date range':'No data in this date range — try "All" or a wider date range'}</div></div>`;
+    if(q) out.innerHTML+=missingBrandNotice(q);
+    return;
+  }
+  // Show breakdowns + ASIN table
+  const typeLabel={'all':'All ASINs','ukA2A':'UK A2A ASINs','euA2A':'EU A2A ASINs','sns':'S&S ASINs','multi':'Multi-Buy ASINs'}[hubActiveType]||'All ASINs';
+  out.innerHTML=hubSummaryCards(q?`"${q}"`:typeLabel,rows)+renderHubBreakdowns(rows)+renderHubAsinTable(rows);
+}
+function renderHubBreakdowns(rows){
+  const brandMap=groupSpend(rows,r=>hubBrandForRow(r)||'Unmapped');
+  const supMap=groupSpend(rows,r=>hubSupplierName(r.supplier));
+  const provMap=groupSpend(rows,r=>r.provider);
+  const topBrands=Object.entries(brandMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const topSups=Object.entries(supMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const topProvs=Object.entries(provMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);
+  const list=(arr)=>arr.map(([k,x])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;gap:12px;"><span style="color:var(--text);font-weight:600;">${esc(k)}</span><span style="color:var(--muted2);white-space:nowrap;">${fmt(x.spend)} · ${x.asins.size} ASINs</span></div>`).join('')||'<div class="hub-muted">No data</div>';
+  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+    <div class="hub-card"><div class="hub-card-label">top brands / title-derived brands</div>${list(topBrands)}</div>
+    <div class="hub-card"><div class="hub-card-label">top suppliers</div>${list(topSups)}</div>
+    <div class="hub-card"><div class="hub-card-label">top providers</div>${list(topProvs)}</div>
+  </div>`;
+}
+function missingBrandNotice(q){
+  const sample=[...new Set(getRowsForHub().filter(r=>normalText(rowTitle(r)).includes(q)||normalText(r.supplier).includes(q)).map(r=>`${r.asin} — ${rowTitle(r)||r.supplier}`).filter(Boolean))].slice(0,10);
+  return `<div class="hub-table-wrap"><div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">No result found for ${esc(q)}</div><div class="hub-muted">I now search both mapped brand and product title/name. If you expected results, check the date range, supplier filter, or whether the product name is being pulled from column B. Possible title/supplier matches: ${sample.map(esc).join(' | ')||'none in loaded data'}.</div></div>`;
+}
+function openHubMetaImport(){
+  document.getElementById('hubMetaPanel').style.display='block';
+  document.getElementById('hubMetaCsv').value='';
+  document.getElementById('hubMetaMsg').textContent='';
+}
+function saveHubMetaCsv(){
+  const txt=document.getElementById('hubMetaCsv').value||'';
+  let n=0;
+  txt.split(/\n+/).forEach(line=>{
+    const parts=line.split(',').map(x=>x.trim());
+    const asin=(parts[0]||'').toUpperCase();
+    if(!asin||asin==='ASIN') return;
+    asinMeta[asin]={...(asinMeta[asin]||{}),brand:parts[1]||'',category:parts[2]||'',updated_at:new Date().toISOString()};
+    n++;
+  });
+  saveLocalAsinMeta();
+  document.getElementById('hubMetaMsg').textContent=`Saved ${n} ASIN brand/category mappings locally.`;
+  const status=document.getElementById('hubMetaStatus');
+  if(status) status.textContent=`ASIN enrichment: ${Object.keys(asinMeta).length} local mappings`;
+}
+function downloadMissingAsins(){
+  const missing=[...new Set(getRowsForHub().map(r=>r.asin).filter(a=>a&&!asinMeta[a]))].sort();
+  document.getElementById('hubMetaCsv').value='ASIN,Brand,Category\n'+missing.map(a=>`${a},,`).join('\n');
+  document.getElementById('hubMetaMsg').textContent=`${missing.length} ASINs are missing brand/category mappings.`;
+}
+
 // Event delegation for clickable tiles and provider badges
 document.addEventListener('click',function(e){
   const tile=e.target.closest('[data-ctx]');
@@ -2338,15 +3123,39 @@ document.addEventListener('click',function(e){
   if(prov){openProvModal(prov.dataset.prov);return;}
 });
 
+// Escape key closes any open popup/modal
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  ['aiModal','provModal','supModal'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display==='flex')el.style.display='none';});
+  const hub=document.getElementById('hubDetailOverlay');
+  if(hub) hub.remove();
+});
+
 function switchPage(page){
   document.getElementById('pageOverview').style.display=page==='overview'?'block':'none';
   document.getElementById('pageToday').style.display=page==='today'?'block':'none';
   document.getElementById('pageGrowth').style.display=page==='growth'?'block':'none';
+  const hub=document.getElementById('pageHub'); if(hub) hub.style.display=page==='hub'?'block':'none';
   document.querySelectorAll('.page-nav-btn').forEach(b=>{
-    b.className='page-nav-btn'+(b.textContent.toLowerCase().includes(page)?' active':'');
+    const txt=b.textContent.toLowerCase();
+    const active=(page==='overview'&&txt.includes('overview'))||(page==='today'&&txt.includes('today'))||(page==='growth'&&txt.includes('trends'))||(page==='hub'&&txt.includes('hub'));
+    b.className='page-nav-btn'+(active?' active':'');
   });
   if(page==='today') buildToday();
   if(page==='growth') loadAllAndBuildGrowth();
+  if(page==='hub'){
+    populateHubSuppliers();
+    const fromEl=document.getElementById('hubFrom');
+    // Auto-set to current month on first visit
+    if(!fromEl.value){hubSetDatesNew('month');}
+    if(!(allYearRows&&allYearRows.length)){
+      const out=document.getElementById('hubResults');
+      if(out) out.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center;"><div class="ai-loading" style="margin-bottom:16px;"><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span></div><div style="font-size:13px;color:var(--muted);">Loading all year data…</div></div>`;
+      loadAllAndBuildGrowth().then(()=>{populateHubSuppliers();runHubSearch();});
+    } else {
+      runHubSearch();
+    }
+  }
 }
 
 let allYearRows=[];
@@ -2356,7 +3165,7 @@ async function loadAllAndBuildGrowth(){
   if(hero) hero.innerHTML='<div style="color:var(--muted);font-size:13px;">Loading all data...</div>';
   // Load all 4 quarters and combine
   const allParsed=[];
-  for(let q=1;q<=4;q++){
+  for(let q=1;q<=Math.min(4,currentQuarterNumber());q++){
     try{
       const vals=await fetchTab(QUARTER_TABS[q]);
       const rows=parseRows(vals);
@@ -2559,13 +3368,13 @@ function buildToday(){
   // Top ASINs by spend
   const sortedAsinSpend=Object.entries(asinSpend).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const ag1=document.getElementById('todayTopAsinSpend');ag1.innerHTML='';
-  sortedAsinSpend.forEach(([asin,spend],i)=>{const div=document.createElement('div');div.className='asin-tile';div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units · ${asinOrders[asin]||0} orders</div>`;ag1.appendChild(div);});
+  sortedAsinSpend.forEach(([asin,spend],i)=>{const div=document.createElement('div');div.className='asin-tile';div.style.cursor='pointer';div.title='Click to open ASIN detail';div.onclick=()=>{switchPage('hub');setTimeout(()=>openHubAsinDetail(asin),600);};div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(spend)}</div><div class="asin-tile-sub">${asinUnits[asin]||0} units · ${asinOrders[asin]||0} orders</div>`;ag1.appendChild(div);});
   if(sortedAsinSpend.length===0) ag1.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data today</div>';
 
   // Top ASINs by units
   const sortedAsinUnits=Object.entries(asinUnits).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const ag2=document.getElementById('todayTopAsinUnits');ag2.innerHTML='';
-  sortedAsinUnits.forEach(([asin,units],i)=>{const div=document.createElement('div');div.className='asin-tile';div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${units} units</div><div class="asin-tile-sub">${fmt(asinSpend[asin]||0)} spend · ${asinOrders[asin]||0} orders</div>`;ag2.appendChild(div);});
+  sortedAsinUnits.forEach(([asin,units],i)=>{const div=document.createElement('div');div.className='asin-tile';div.style.cursor='pointer';div.title='Click to open ASIN detail';div.onclick=()=>{switchPage('hub');setTimeout(()=>openHubAsinDetail(asin),600);};div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${units} units</div><div class="asin-tile-sub">${fmt(asinSpend[asin]||0)} spend · ${asinOrders[asin]||0} orders</div>`;ag2.appendChild(div);});
   if(sortedAsinUnits.length===0) ag2.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data today</div>';
 
   // Orders table
@@ -2576,7 +3385,8 @@ function buildToday(){
     todayRows.sort((a,b)=>b.spend-a.spend).forEach((r,i)=>{
       const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="text-align:left;"><span class="rank">${i+1}</span></td><td style="text-align:left;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="text-align:left;font-weight:500;color:var(--text);">${r.supplier}</td><td style="text-align:left;color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td class="bold">${fmt(r.spend)}</td><td>${r.qty}</td><td>${r.buyPrice>0?fmtDec(r.buyPrice):'—'}</td>`;
+      if(r.asin){tr.style.cursor='pointer';tr.title='Click to open ASIN detail in Buying Hub';tr.onclick=()=>{switchPage('hub');setTimeout(()=>openHubAsinDetail(r.asin),600);};}
+      tr.innerHTML=`<td style="text-align:left;"><span class="rank">${i+1}</span></td><td style="text-align:left;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${r.provider}</span></td><td style="text-align:left;font-weight:500;color:var(--text);">${r.supplier}</td><td style="text-align:left;color:var(--accent);font-size:11px;font-weight:600;">${r.asin||'—'}</td><td class="bold">${fmt(r.spend)}</td><td>${r.qty} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${r.buyPrice>0?fmtDec(r.buyPrice):'—'}</td>`;
       tbody.appendChild(tr);
     });
   }
@@ -2585,6 +3395,7 @@ function buildToday(){
 document.querySelectorAll('[data-q]').forEach(btn=>{
   btn.onclick=async()=>{
     activeQ=+btn.dataset.q;
+    if(quarterIsFuture(activeQ)){showNoData('No data for this future quarter yet.');return;}
     document.querySelectorAll('[data-q]').forEach(b=>b.className='tab-btn');
     btn.className='tab-btn active';
     activeMonth=QUARTER_MONTHS[activeQ][0].num;
@@ -2609,6 +3420,7 @@ async function loadAndRender(q){
   } catch(e) {
     liveTargets={};
   }
+  await loadAsinMetaFromSupabase();
   render();
 }
 
@@ -3136,7 +3948,11 @@ function buildGrowth(){
   });
   const repeatAsins=Object.entries(asinMonths).filter(([,c])=>c>1).sort((a,b)=>b[1]-a[1]||b[0]-a[0]).slice(0,10);
   const raEl=document.getElementById('trendsRepeatAsins');
-  raEl.innerHTML=repeatAsins.length?repeatAsins.map(([asin,cnt])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-size:11px;font-weight:500;">${asin}</span><span style="display:flex;gap:10px;align-items:center;"><span style="font-size:10px;color:var(--muted2);">${cnt}/${ms.length} months</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(asinSpendT[asin])}</span></span></div>`).join(''):'<div style="color:var(--muted);font-size:12px;">Need 2+ months of data</div>';
+  raEl.innerHTML=repeatAsins.length?repeatAsins.map(([asin,cnt])=>{
+    const brand=((asinMeta[asin]||{}).brand)||'';
+    const brandStr=brand?` <span style="color:var(--muted2);font-size:10px;">${esc(brand)}</span>`:'';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="switchPage('hub');setTimeout(()=>openHubAsinDetail('${asin}'),600);" title="Open in Buying Hub"><span style="color:var(--accent);font-size:11px;font-weight:600;">${asin}${brandStr}</span><span style="display:flex;gap:10px;align-items:center;"><span style="font-size:10px;color:var(--muted2);">${cnt}/${ms.length} months</span><span style="font-size:11px;font-weight:600;color:var(--text);">${fmt(asinSpendT[asin])}</span></span></div>`;
+  }).join(''):'<div style="color:var(--muted);font-size:12px;">Need 2+ months of data</div>';
 
   const supMonths={},supSpendT={};
   ms.forEach(s=>{
