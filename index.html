@@ -296,24 +296,78 @@ td.bold{color:var(--text);font-weight:500;}
 .hub-card-value{font-size:26px;font-weight:800;color:#f0f4fa;line-height:1;}
 .hub-card-sub{font-size:11px;color:#8a97ab;margin-top:6px;line-height:1.4;}
 .hub-table-wrap{background:#0d1117;border:1px solid rgba(148,163,184,.16);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.hub-table-wrap table.hub-asin-table{table-layout:fixed;min-width:1420px;width:100%;}
-.hub-table-wrap table.hub-asin-table th,.hub-table-wrap table.hub-asin-table td{white-space:nowrap;padding:10px 10px!important;vertical-align:middle;font-size:12px;color:#c7d0df;border-bottom:1px solid rgba(148,163,184,.1);}
-.hub-table-wrap table.hub-asin-table th{position:sticky;top:0;background:#0a0d12;z-index:1;color:#6b7a90;font-weight:700;letter-spacing:.07em;font-size:10px;text-transform:uppercase;}
-.hub-table-wrap table.hub-asin-table tbody tr:hover{background:rgba(79,142,247,.06);}
-.hub-table-wrap table.hub-asin-table tbody tr:hover td{color:#e0e8f5;}
-.hub-table-wrap table.hub-asin-table th:nth-child(1),.hub-table-wrap table.hub-asin-table td:nth-child(1){width:115px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(2),.hub-table-wrap table.hub-asin-table td:nth-child(2){width:104px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(3),.hub-table-wrap table.hub-asin-table td:nth-child(3){width:140px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(4),.hub-table-wrap table.hub-asin-table td:nth-child(4){width:360px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(5),.hub-table-wrap table.hub-asin-table td:nth-child(5){width:94px;text-align:right;}
-.hub-table-wrap table.hub-asin-table th:nth-child(6),.hub-table-wrap table.hub-asin-table td:nth-child(6){width:64px;text-align:right;}
-.hub-table-wrap table.hub-asin-table th:nth-child(7),.hub-table-wrap table.hub-asin-table td:nth-child(7){width:60px;text-align:right;}
-.hub-table-wrap table.hub-asin-table th:nth-child(8),.hub-table-wrap table.hub-asin-table td:nth-child(8){width:128px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(9),.hub-table-wrap table.hub-asin-table td:nth-child(9){width:116px;text-align:left;}
-.hub-table-wrap table.hub-asin-table th:nth-child(10),.hub-table-wrap table.hub-asin-table td:nth-child(10){width:100px;text-align:right;}
-.hub-table-wrap table.hub-asin-table th:nth-child(11),.hub-table-wrap table.hub-asin-table td:nth-child(11){width:80px;text-align:center;}
-.hub-table-wrap table.hub-asin-table th:nth-child(12),.hub-table-wrap table.hub-asin-table td:nth-child(12){width:100px;text-align:right;}
+/* ===== Buying Hub ASIN table — redesigned layout + frozen header ===== */
+.hub-asin-scroll{max-height:74vh;overflow:auto;position:relative;}
+.hub-asin-scroll::-webkit-scrollbar{width:10px;height:10px;}
+.hub-asin-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
+.hub-asin-scroll::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:8px;border:2px solid #0d1117;}
+.hub-asin-scroll::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.4);}
+.hub-table-wrap table.hub-asin-table{table-layout:fixed;min-width:1578px;width:100%;border-collapse:separate;border-spacing:0;}
+.hub-table-wrap table.hub-asin-table th,.hub-table-wrap table.hub-asin-table td{white-space:nowrap;padding:11px 12px!important;vertical-align:middle;font-size:12px;color:#c7d0df;border-bottom:1px solid rgba(148,163,184,.09);overflow:hidden;}
+/* FROZEN HEADER — sticks to top of the scroll container like a Google Sheets freeze row */
+.hub-table-wrap table.hub-asin-table thead th{position:sticky;top:0;z-index:5;background:#11161f;color:#8794a8;font-weight:700;letter-spacing:.08em;font-size:10px;text-transform:uppercase;box-shadow:inset 0 -1px 0 rgba(148,163,184,.2),0 6px 14px -6px rgba(0,0,0,.7);}
+.hub-table-wrap table.hub-asin-table tbody tr{transition:background .12s;}
+.hub-table-wrap table.hub-asin-table tbody tr:nth-child(even){background:rgba(255,255,255,.015);}
+.hub-table-wrap table.hub-asin-table tbody tr:hover{background:rgba(79,142,247,.10);box-shadow:inset 3px 0 0 var(--accent);}
+.hub-table-wrap table.hub-asin-table tbody tr:hover td{color:#eef3fb;}
+.hub-table-wrap table.hub-asin-table th:nth-child(1),.hub-table-wrap table.hub-asin-table td:nth-child(1){width:120px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(2),.hub-table-wrap table.hub-asin-table td:nth-child(2){width:102px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(3),.hub-table-wrap table.hub-asin-table td:nth-child(3){width:200px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(4),.hub-table-wrap table.hub-asin-table td:nth-child(4){width:230px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(5),.hub-table-wrap table.hub-asin-table td:nth-child(5){width:92px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(6),.hub-table-wrap table.hub-asin-table td:nth-child(6){width:78px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(7),.hub-table-wrap table.hub-asin-table td:nth-child(7){width:62px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(8),.hub-table-wrap table.hub-asin-table td:nth-child(8){width:132px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(9),.hub-table-wrap table.hub-asin-table td:nth-child(9){width:120px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(10),.hub-table-wrap table.hub-asin-table td:nth-child(10){width:170px;text-align:left;}
+.hub-table-wrap table.hub-asin-table th:nth-child(11),.hub-table-wrap table.hub-asin-table td:nth-child(11){width:108px;text-align:right;}
+.hub-table-wrap table.hub-asin-table th:nth-child(12),.hub-table-wrap table.hub-asin-table td:nth-child(12){width:74px;text-align:center;}
+.hub-table-wrap table.hub-asin-table th:nth-child(13),.hub-table-wrap table.hub-asin-table td:nth-child(13){width:104px;text-align:center;}
+/* full SKU — no truncation */
+.hub-table-wrap table.hub-asin-table td:nth-child(3) .hub-sku-cell{max-width:none;text-overflow:clip;overflow:visible;font-size:11px;}
+/* ===== Price-history deal cell ===== */
+.ph-cell{display:flex;flex-direction:column;gap:4px;line-height:1.1;}
+.ph-top{display:flex;align-items:center;gap:6px;}
+.ph-last{font-size:12px;font-weight:800;color:#eef3fb;font-variant-numeric:tabular-nums;}
+.ph-badge{font-size:8.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 5px;border-radius:5px;line-height:1;}
+.ph-badge.good{background:rgba(34,197,94,.16);color:#4ade80;border:1px solid rgba(34,197,94,.32);}
+.ph-badge.mid{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.30);}
+.ph-badge.high{background:rgba(244,63,94,.15);color:#fb7185;border:1px solid rgba(244,63,94,.30);}
+.ph-badge.flat{background:rgba(148,163,184,.14);color:#aab4c4;border:1px solid rgba(148,163,184,.26);}
+.ph-bar{position:relative;height:5px;border-radius:3px;background:linear-gradient(90deg,rgba(34,197,94,.55),rgba(245,158,11,.5),rgba(244,63,94,.55));overflow:visible;}
+.ph-marker{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #0d1117;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(255,255,255,.5);}
+.ph-range{display:flex;justify-content:space-between;font-size:9px;color:#6b7a90;font-variant-numeric:tabular-nums;}
+/* ===== Prices paid — simple list ===== */
+.pl-cell{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.pl-item{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#dbe3ef;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.16);padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pl-item.pl-best{color:#4ade80;background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.32);}
+.pl-x{font-size:9px;font-weight:700;color:#7f8da3;}
+.pl-item.pl-best .pl-x{color:#4ade80;}
+.pl-item.pl-latest{box-shadow:0 0 0 1px rgba(126,179,251,.5);}
+.pl-dot{width:5px;height:5px;border-radius:50%;background:#7eb3fb;box-shadow:0 0 5px #7eb3fb;flex-shrink:0;}
+.pl-delta{font-size:9.5px;font-weight:700;color:#fb7185;background:rgba(244,63,94,.10);border:1px solid rgba(244,63,94,.22);padding:2px 6px;border-radius:5px;white-space:nowrap;}
+/* single-price block in ASIN detail modal */
+.dd-price-single{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.14);border-radius:12px;padding:16px 20px;margin-bottom:20px;}
+.dd-price-single-main{display:flex;flex-direction:column;gap:4px;}
+.dd-price-big{font-size:26px;font-weight:900;color:#eef3fb;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.dd-price-note{margin-left:auto;font-size:12px;color:#8a97ab;font-weight:600;}
 .hub-table-inner{overflow-x:auto;}
+/* clickable multi-supplier cell */
+.hub-sup-trigger{cursor:pointer;display:inline-flex;align-items:center;border-radius:6px;transition:all .12s;}
+.hub-sup-trigger:hover{background:rgba(79,142,247,.12);box-shadow:0 0 0 3px rgba(79,142,247,.12);}
+.hub-sup-trigger:hover .hub-count-tag{border-color:rgba(79,142,247,.5);color:#7eb3fb;}
+/* supplier breakdown popup cards */
+.sup-card{background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.14);border-radius:11px;padding:14px 16px;transition:border-color .15s;}
+.sup-card:hover{border-color:rgba(148,163,184,.28);}
+.sup-card-best{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.06);}
+.sup-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sup-card-name{font-size:15px;font-weight:800;color:#eef3fb;}
+.sup-best-badge{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4ade80;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);padding:2px 7px;border-radius:5px;}
+.sup-card-spend{margin-left:auto;font-size:15px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}
+.sup-card-places{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.sup-places-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#5c6b7d;font-weight:700;margin-right:4px;}
+.sup-card-stats{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:#8a97ab;}
+.sup-card-stats b{color:#d7dfec;font-weight:700;}
 .hub-brand-cell{font-weight:800;color:#eef2f8;}
 .hub-sku-cell{display:block;max-width:132px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#aeb9cb;font-size:11px;}
 .hub-title-cell{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b8c2d1;}
@@ -2671,6 +2725,36 @@ function hubBrandForRow(r){
 function hubSupplierName(v){return cleanSupplierName(v||'');}
 function rowSearchText(r){return [r.asin,r.name,r.supplier,r.provider,r.account,(asinMeta[r.asin]||{}).brand,(asinMeta[r.asin]||{}).category,(asinMeta[r.asin]||{}).title,hubBrandForRow(r)].join(' ').toLowerCase();}
 function uniqueAsinsFromRows(rows){return [...new Set(rows.map(r=>(r.asin||'').trim()).filter(Boolean))].sort();}
+async function copyHubData(format){
+  const rows=lastHubRows||[];
+  const asins=lastHubAsins||[];
+  let text='', noun='';
+  if(format==='asins'){ text=asins.join('\n'); noun=asins.length+' ASINs'; }
+  else if(format==='amazon'){ text=asins.map(a=>amazonLink(a)).join('\n'); noun=asins.length+' Amazon links'; }
+  else if(format==='keepa'){ text=asins.map(a=>keepaLink(a)).join('\n'); noun=asins.length+' Keepa links'; }
+  else if(format==='asinSku'){
+    const byAsin=Object.values(groupSpend(rows,r=>r.asin)).sort((a,b)=>b.spend-a.spend);
+    text=byAsin.map(x=>{const a=(x.rows[0].asin||''); const latest=x.rows.slice().sort((p,q)=>q.date-p.date)[0]||x.rows[0]; return a+'\t'+(latest.sku||'');}).join('\n');
+    noun=byAsin.length+' ASIN+SKU rows';
+  } else if(format==='csv'){
+    const byAsin=Object.values(groupSpend(rows,r=>r.asin)).sort((a,b)=>b.spend-a.spend);
+    const cell=v=>{v=(v==null?'':String(v)); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+    const head=['Brand','ASIN','SKU','Title','Spend','Units','Orders','Suppliers','Providers','Prices paid','Last bought','Type'];
+    const lines=[head.join(',')];
+    byAsin.forEach(x=>{
+      const sample=x.rows[0];
+      const latest=x.rows.slice().sort((p,q)=>q.date-p.date)[0]||sample;
+      const sups=[...new Set(x.rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean))].join('; ');
+      const provs=[...new Set(x.rows.map(r=>(r.provider||'').trim()).filter(Boolean))].join('; ');
+      const prices=[...new Set(x.rows.map(r=>{const p=unitCostForRow(r);return isFinite(p)&&p>0?p.toFixed(2):null;}).filter(Boolean))].join('; ');
+      const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA';
+      lines.push([hubBrandForRow(sample)||'',sample.asin||'',latest.sku||sample.sku||'',rowTitle(sample)||'',x.spend.toFixed(2),x.units,countOrders(x.rows),sups,provs,prices,x.last?x.last.toLocaleDateString('en-GB'):'',type].map(cell).join(','));
+    });
+    text=lines.join('\n'); noun=byAsin.length+'-row CSV';
+  }
+  if(!text){alert('Nothing to copy yet — run a search first.');return;}
+  try{await navigator.clipboard.writeText(text); alert('Copied '+noun+'.');}catch(e){prompt('Copy:',text);}
+}
 async function copyHubAsins(format='lines'){
   const text=(lastHubAsins||[]).join(format==='comma'?',':'\n');
   if(!text){alert('No ASINs to copy yet.');return;}
@@ -2767,9 +2851,9 @@ function hubEntityDisplay(rows, field){
 function renderHubAsinTable(rows){
   const byAsin=Object.values(groupSpend(rows,r=>r.asin)).sort((a,b)=>b.spend-a.spend);
   lastHubAsins=uniqueAsinsFromRows(rows); lastHubRows=rows;
-  return `<div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">ASINs bought <span class="hub-muted">· ${lastHubAsins.length} unique · click any row for purchase history</span></div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubAsins('comma')">Copy comma list</button><button class="hub-btn secondary" onclick="copyHubData('asinSku')">Copy ASIN + SKU</button><button class="hub-btn secondary" onclick="copyHubData('amazon')">Copy Amazon links</button><button class="hub-btn secondary" onclick="copyHubData('keepa')">Copy Keepa links</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-asin-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Title</th><th>Spend</th><th>Units</th><th>Orders</th><th>Suppliers</th><th>Providers</th><th>Price history</th><th>Last bought</th><th>Type</th><th>Links</th></tr></thead><tbody>`+
-    byAsin.map(x=>{const asin=x.rows[0].asin||'—', sample=x.rows[0], brand=hubBrandForRow(sample)||'—', title=rowTitle(sample)||'—', sku=(sample.sku||'—'); const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA'; const supTxt=hubEntityDisplay(x.rows,'supplier'); const provTxt=hubEntityDisplay(x.rows,'provider'); const ps=asinPriceStats(x.rows); const typeCls={'S&S':'sns','UK A2A':'uk','EU A2A':'eu','OA':'oa'}[type]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(brand)}</span></td><td class="bold" style="color:var(--accent);">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sku)}">${esc(sku)}</span></td><td><span class="hub-title-cell" title="${esc(title)}">${esc(title)}</span></td><td class="bold" style="color:#f2f5fb;">${fmt(x.spend)}</td><td>${x.units.toLocaleString()} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${countOrders(x.rows)}</td><td>${supTxt}</td><td>${provTxt}</td><td><span class="hub-price-chip" title="Lowest / Average / Highest / Last buy price">L ${ps.min?fmtDec(ps.min):'—'} · A ${ps.avg?fmtDec(ps.avg):'—'} · H ${ps.max?fmtDec(ps.max):'—'} · Last ${ps.last?fmtDec(ps.last):'—'}</span></td><td>${x.last?x.last.toLocaleDateString('en-GB'):'—'}</td><td><span class="type-badge ${typeCls}">${type}</span></td><td><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${amazonLink(asin)}">Amazon</a><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${keepaLink(asin)}">Keepa</a></td></tr>`}).join('')+
-    `</tbody></table></div>`;
+  return `<div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">ASINs bought <span class="hub-muted">· ${lastHubAsins.length} unique · click any row for purchase history</span></div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubAsins('comma')">Copy comma list</button><button class="hub-btn secondary" onclick="copyHubData('asinSku')">Copy ASIN + SKU</button><button class="hub-btn secondary" onclick="copyHubData('amazon')">Copy Amazon links</button><button class="hub-btn secondary" onclick="copyHubData('keepa')">Copy Keepa links</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><div class="hub-asin-scroll"><table class="hub-asin-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Title</th><th>Spend</th><th>Units</th><th>Orders</th><th>Suppliers</th><th>Providers</th><th>Prices paid</th><th>Last bought</th><th>Type</th><th>Links</th></tr></thead><tbody>`+
+    byAsin.map(x=>{const asin=x.rows[0].asin||'—', sample=x.rows[0], brand=hubBrandForRow(sample)||'—', title=rowTitle(sample)||'—', latestRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0]||sample, sku=(latestRow.sku||sample.sku||'—'), supCount=new Set(x.rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean)).size; const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA'; const supTxt=hubEntityDisplay(x.rows,'supplier'); const provTxt=hubEntityDisplay(x.rows,'provider'); const ps=asinPriceStats(x.rows); const typeCls={'S&S':'sns','UK A2A':'uk','EU A2A':'eu','OA':'oa'}[type]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(brand)}</span></td><td class="bold" style="color:var(--accent);">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sku)}">${esc(sku)}</span></td><td><span class="hub-title-cell" title="${esc(title)}">${esc(title)}</span></td><td class="bold" style="color:#f2f5fb;">${fmt(x.spend)}</td><td>${x.units.toLocaleString()} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${countOrders(x.rows)}</td><td>${supCount>1?`<span class="hub-sup-trigger" onclick="event.stopPropagation();openHubSuppliers('${esc(asin)}')" title="View all suppliers &amp; places">${supTxt}</span>`:supTxt}</td><td>${provTxt}</td><td>${priceList(x.rows)}</td><td>${x.last?x.last.toLocaleDateString('en-GB'):'—'}</td><td><span class="type-badge ${typeCls}">${type}</span></td><td><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${amazonLink(asin)}">Amazon</a><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${keepaLink(asin)}">Keepa</a></td></tr>`}).join('')+
+    `</tbody></table></div></div>`;
 }
 function renderHubQuickLists(rows){
   const ukRows=rows.filter(isUkA2A), euRows=rows.filter(isEuA2A), snsRows=rows.filter(r=>r.sns);
@@ -2808,12 +2892,45 @@ function hubBaseFilteredRows(){
   if(q) rows=rows.filter(r=>rowSearchText(r).includes(q)||normalText(hubBrandForRow(r)).includes(q)||normalText(r.sku).includes(q));
   return applyHubHistoryFilter(rows);
 }
-function unitCostForRow(r){return r.qty>0?(r.spend/r.qty):(r.buyPrice||0);}
+function unitCostForRow(r){return (r.buyPrice&&r.buyPrice>0)?r.buyPrice:(r.qty>0?(r.spend/r.qty):0);}
 function asinPriceStats(rows){
   const prices=rows.map(unitCostForRow).filter(v=>isFinite(v)&&v>0);
   const sorted=rows.slice().sort((a,b)=>b.date-a.date);
   const last=sorted[0]?unitCostForRow(sorted[0]):0;
   return {min:prices.length?Math.min(...prices):0,max:prices.length?Math.max(...prices):0,avg:prices.length?prices.reduce((a,b)=>a+b,0)/prices.length:0,last};
+}
+function priceList(rows){
+  const buys=rows.map(r=>({p:unitCostForRow(r),d:r.date})).filter(b=>isFinite(b.p)&&b.p>0);
+  if(!buys.length) return '<span style="color:#5c6b7d;font-size:11px;">—</span>';
+  const latestDate=buys.reduce((m,b)=>(!m||b.d>m)?b.d:m,null);
+  const m={};
+  buys.forEach(b=>{const k=b.p.toFixed(2); if(!m[k])m[k]={p:b.p,count:0,last:null}; m[k].count++; if(!m[k].last||b.d>m[k].last)m[k].last=b.d;});
+  const list=Object.values(m).sort((a,b)=>a.p-b.p);
+  const min=list[0].p, max=list[list.length-1].p;
+  const chips=list.map(it=>{
+    const best=list.length>1 && it.p<=min+0.001;
+    const isLatest=latestDate && it.last && +it.last===+latestDate;
+    return `<span class="pl-item${best?' pl-best':''}${isLatest?' pl-latest':''}" title="${it.count} purchase${it.count>1?'s':''}${it.last?' · last '+it.last.toLocaleDateString('en-GB'):''}${isLatest?' · most recent buy':''}">${isLatest?'<span class="pl-dot" title="most recent buy"></span>':''}${fmtDec(it.p)}${it.count>1?`<span class="pl-x">×${it.count}</span>`:''}</span>`;
+  }).join('');
+  const delta=(list.length>1 && max-min>0.005)?`<span class="pl-delta" title="gap between your cheapest and dearest buy">+${fmtDec(max-min)} vs best</span>`:'';
+  return `<div class="pl-cell">${chips}${delta}</div>`;
+}
+function priceCell(ps){
+  if(!ps.last && !ps.min){return '<span style="color:#5c6b7d;font-size:11px;">no price data</span>';}
+  const min=ps.min,max=ps.max,last=ps.last||ps.avg,avg=ps.avg;
+  const range=max-min;
+  // deal verdict: where does the last/current buy price sit vs the historical range?
+  let cls='mid',label='mid';
+  if(range<=0.001){cls='flat';label='flat';}
+  else if(last<=min+range*0.20){cls='good';label='low';}
+  else if(last>=min+range*0.80){cls='high';label='high';}
+  const pos=range>0?Math.max(0,Math.min(100,((last-min)/range)*100)):50;
+  const tip=`Lowest ${fmtDec(min)} · Average ${fmtDec(avg)} · Highest ${fmtDec(max)} · Last buy ${fmtDec(last)}`;
+  return `<div class="ph-cell" title="${tip}">
+    <div class="ph-top"><span class="ph-last">${fmtDec(last)}</span><span class="ph-badge ${cls}">${label}</span></div>
+    <div class="ph-bar"><span class="ph-marker" style="left:${pos}%"></span></div>
+    <div class="ph-range"><span>${fmtDec(min)}</span><span>${fmtDec(max)}</span></div>
+  </div>`;
 }
 function renderUniversalSearch(rows,q){
   const exactAsins=uniqueAsinsFromRows(rows.filter(r=>(r.asin||'').toLowerCase()===q));
@@ -2846,6 +2963,73 @@ function renderDataQuality(rows){
   return cards+`<div class="hub-alert">This tab does not edit your Purchase Sheet. It only highlights rows that may need fixing in the source sheet or the cleanup rules.</div>`+
     `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;"><div class="hub-card"><div class="hub-section-title">Supplier variants detected</div>${variants.map(([k,set])=>`<div style="border-bottom:1px solid rgba(148,163,184,.12);padding:7px 0;"><strong>${esc(k)}</strong><div class="hub-muted">${[...set].map(esc).join(' · ')}</div></div>`).join('')||'<div class="hub-muted">No obvious variants in this filtered period.</div>'}</div><div class="hub-card"><div class="hub-section-title">Suggested cleanup priority</div><div class="hub-alert hub-bad">Fix missing ASIN/SKU first because they block lookup and copy workflows.</div><div class="hub-alert">Then fix suppliers/providers so the hub groups spend correctly.</div><div class="hub-alert hub-good">Brand cleanup can be handled by title rules or ASIN mappings later.</div></div></div>`+renderHubAsinTable(badRows);
 }
+function openHubSuppliers(asin){
+  const rows=getRowsForHub().filter(r=>r.asin===asin);
+  if(!rows.length) return;
+  const brand=hubBrandForRow(rows[0])||'';
+  const title=rowTitle(rows[0])||'';
+  const bySup={};
+  rows.forEach(r=>{
+    const s=hubSupplierName(r.supplier)||'Unknown supplier';
+    if(!bySup[s])bySup[s]={spend:0,units:0,orders:0,last:null,providers:{},prices:[]};
+    const x=bySup[s];
+    x.spend+=r.spend; x.units+=r.qty; x.orders+=1;
+    const prov=(r.provider||'').trim()||'—';
+    x.providers[prov]=(x.providers[prov]||0)+1;
+    if(!x.last||r.date>x.last)x.last=r.date;
+    const p=unitCostForRow(r); if(isFinite(p)&&p>0)x.prices.push(p);
+  });
+  const sups=Object.entries(bySup).sort((a,b)=>b[1].spend-a[1].spend);
+  const allMin=Math.min(...sups.flatMap(([,v])=>v.prices.length?[Math.min(...v.prices)]:[Infinity]));
+  const cards=sups.map(([name,v])=>{
+    const min=v.prices.length?Math.min(...v.prices):0;
+    const avg=v.prices.length?v.prices.reduce((a,b)=>a+b,0)/v.prices.length:0;
+    const cheapest=v.prices.length&&min<=allMin+0.001;
+    const provTags=Object.entries(v.providers).sort((a,b)=>b[1]-a[1])
+      .map(([p,c])=>`<span class="hub-mini-tag" style="max-width:none;">${esc(p)}${c>1?` <span style="color:#6b7a90;">×${c}</span>`:''}</span>`).join('');
+    return `<div class="sup-card${cheapest?' sup-card-best':''}">
+      <div class="sup-card-head">
+        <span class="sup-card-name">${esc(name)}</span>
+        ${cheapest?'<span class="sup-best-badge">cheapest</span>':''}
+        <span class="sup-card-spend">${fmt(v.spend)}</span>
+      </div>
+      <div class="sup-card-places">
+        <span class="sup-places-label">Places</span>${provTags||'<span class="hub-muted">—</span>'}
+      </div>
+      <div class="sup-card-stats">
+        <span><b>${v.units}</b> units</span>
+        <span><b>${v.orders}</b> orders</span>
+        <span>last <b>${v.last?v.last.toLocaleDateString('en-GB'):'—'}</b></span>
+        ${min?`<span>low <b style="color:#4ade80;">${fmtDec(min)}</b></span>`:''}
+        ${avg?`<span>avg <b>${fmtDec(avg)}</b></span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  let modal=document.getElementById('hubSupOverlay');
+  if(!modal){modal=document.createElement('div');modal.id='hubSupOverlay';document.body.appendChild(modal);}
+  modal.className='hub-detail-overlay';
+  modal.onclick=function(e){if(e.target===modal)modal.remove();};
+  modal.innerHTML=`<div class="hub-detail-modal" style="width:min(640px,96vw);">
+    <div class="hub-detail-head">
+      <div>
+        <div style="font-size:10px;color:#5c6b7d;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;">Suppliers &amp; places</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+          <span style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-.02em;">${esc(asin)}</span>
+          ${brand?`<span style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:#7eb3fb;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;">${esc(brand)}</span>`:''}
+          <span class="hub-count-tag">${sups.length} suppliers</span>
+        </div>
+        ${title?`<div style="font-size:12px;color:#8a97ab;line-height:1.5;max-width:520px;">${esc(title)}</div>`:''}
+      </div>
+      <button class="hub-close" onclick="document.getElementById('hubSupOverlay').remove()">Close</button>
+    </div>
+    <div class="hub-detail-body" style="display:flex;flex-direction:column;gap:10px;">
+      ${cards}
+      <div style="margin-top:6px;text-align:right;">
+        <button class="hub-btn secondary" onclick="document.getElementById('hubSupOverlay').remove();openHubAsinDetail('${esc(asin)}')">Open full ASIN detail →</button>
+      </div>
+    </div>
+  </div>`;
+}
 function openHubAsinDetail(asin){
   const allHubRows=getRowsForHub();
   const rows=allHubRows.filter(r=>r.asin===asin).sort((a,b)=>b.date-a.date);
@@ -2861,6 +3045,41 @@ function openHubAsinDetail(asin){
   const brand=hubBrandForRow(sample)||'Unknown brand';
   const title=rowTitle(sample)||'';
   const ps=asinPriceStats(rows);
+  // price trend points (oldest -> newest) for the sparkline
+  const trend=rows.slice().sort((a,b)=>a.date-b.date).map(r=>({d:r.date,p:unitCostForRow(r)})).filter(t=>isFinite(t.p)&&t.p>0);
+  const trendLabels=trend.map(t=>t.d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));
+  const trendData=trend.map(t=>+t.p.toFixed(2));
+  // deal verdict
+  let dealCls='mid',dealMsg='Mid-range vs your buying history.';
+  const rng=ps.max-ps.min;
+  if(rng<=0.001){dealCls='flat';dealMsg='Stable price — every buy at the same level.';}
+  else if(ps.last<=ps.min+rng*0.20){dealCls='good';dealMsg='Near your lowest-ever buy price. Strong deal.';}
+  else if(ps.last>=ps.min+rng*0.80){dealCls='high';dealMsg='Near your highest paid. Wait or push for a better price.';}
+  const dealColor={good:'#4ade80',mid:'#fbbf24',high:'#fb7185',flat:'#aab4c4'}[dealCls];
+  const dealBg={good:'rgba(34,197,94,.10)',mid:'rgba(245,158,11,.10)',high:'rgba(244,63,94,.10)',flat:'rgba(148,163,184,.08)'}[dealCls];
+  const distinctPrices=[...new Set(trend.map(t=>t.p.toFixed(2)))];
+  const multiPrice=distinctPrices.length>1;
+  let priceBlock='';
+  if(trend.length){
+    if(!multiPrice){
+      priceBlock=`<div class="dd-price-single">
+        <div class="dd-price-single-main"><span class="asin-dd-meta-label">Price paid</span><span class="dd-price-big">${fmtDec(trend[0].p)}</span></div>
+        <span class="dd-price-note">${trend.length>1?`Same price across all ${trend.length} purchases`:'Bought once'}</span>
+      </div>`;
+    } else {
+      priceBlock=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Lowest</div><div style="font-size:18px;font-weight:800;color:#4ade80;">${fmtDec(ps.min)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Average</div><div style="font-size:18px;font-weight:800;color:#f0f4fa;">${fmtDec(ps.avg)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Highest</div><div style="font-size:18px;font-weight:800;color:#f87171;">${fmtDec(ps.max)}</div></div>
+        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Last buy</div><div style="font-size:18px;font-weight:800;color:#6fa3fa;">${fmtDec(ps.last)}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:10px;background:${dealBg};border:1px solid ${dealColor}40;margin-bottom:18px;">
+        <span style="width:9px;height:9px;border-radius:50%;background:${dealColor};box-shadow:0 0 10px ${dealColor};flex-shrink:0;"></span>
+        <span style="font-size:13px;font-weight:700;color:${dealColor};">${dealMsg}</span>
+        <span style="margin-left:auto;font-size:11px;color:#8a97ab;">last buy <strong style="color:#eef3fb;">${fmtDec(ps.last)}</strong> · spread ${fmtDec(ps.max-ps.min)}</span>
+      </div>`;
+    }
+  }
   const ukLines=rows.filter(isUkA2A).length;
   const euLines=rows.filter(isEuA2A).length;
   const snsLines=rows.filter(r=>r.sns).length;
@@ -2905,8 +3124,8 @@ function openHubAsinDetail(asin){
           <div class="asin-dd-stat-sub">across ${trueOrders} true orders</div>
         </div>
         <div class="asin-dd-stat">
-          <div class="asin-dd-stat-label">Unique ASINs</div>
-          <div class="asin-dd-stat-value">${uniqueAsinSet.size}</div>
+          <div class="asin-dd-stat-label">Avg Unit Price</div>
+          <div class="asin-dd-stat-value">${ps.avg>0?fmtDec(ps.avg):'—'}</div>
           <div class="asin-dd-stat-sub">${rows.length} purchase lines</div>
         </div>
         <div class="asin-dd-stat">
@@ -2929,11 +3148,10 @@ function openHubAsinDetail(asin){
           <div class="asin-dd-meta-value" title="${skus.map(esc).join(' · ')}">${esc(skuDisplay)}</div>
         </div>
       </div>
-      ${ps.avg>0?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
-        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Lowest buy price</div><div style="font-size:18px;font-weight:800;color:#4ade80;">${fmtDec(ps.min)}</div></div>
-        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Average buy price</div><div style="font-size:18px;font-weight:800;color:#f0f4fa;">${fmtDec(ps.avg)}</div></div>
-        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Highest buy price</div><div style="font-size:18px;font-weight:800;color:#f87171;">${fmtDec(ps.max)}</div></div>
-        <div class="asin-dd-meta-card"><div class="asin-dd-meta-label">Last buy price</div><div style="font-size:18px;font-weight:800;color:#6fa3fa;">${fmtDec(ps.last)}</div></div>
+      ${priceBlock}
+      ${multiPrice?`<div class="asin-dd-meta-card" style="margin-bottom:20px;padding:16px 18px;">
+        <div class="asin-dd-meta-label" style="margin-bottom:10px;">Your buy-price trend (${trend.length} purchases)</div>
+        <div style="height:140px;"><canvas id="hubPriceTrend"></canvas></div>
       </div>`:''}
       <div class="asin-dd-history">
         <div class="asin-dd-history-header">
@@ -2974,6 +3192,45 @@ function openHubAsinDetail(asin){
       </div>
     </div>
   </div>`;
+  // render price-trend sparkline only when prices actually varied
+  if(multiPrice){
+    const cv=document.getElementById('hubPriceTrend');
+    if(cv&&window.Chart){
+      new Chart(cv,{type:'line',data:{labels:trendLabels,datasets:[{data:trendData,borderColor:dealColor,backgroundColor:dealColor+'22',borderWidth:2,fill:true,tension:.32,pointRadius:3,pointBackgroundColor:dealColor,pointBorderColor:'#0d1117',pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'£'+c.parsed.y.toFixed(2)}}},scales:{x:{ticks:{color:'#6b7a90',font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:'#6b7a90',font:{size:9},callback:v=>'£'+v},grid:{color:'rgba(148,163,184,.08)'}}}}});
+    }
+  }
+}
+function setExplorerRange(from,to){
+  const f=document.getElementById('explorerFrom'), t=document.getElementById('explorerTo');
+  if(f) f.value=from; if(t) t.value=to;
+  runExplorer();
+}
+function setExplorerToday(){const k=localDateKey(new Date());setExplorerRange(k,k);}
+function setExplorerThisWeek(){const n=new Date();const day=(n.getDay()+6)%7;const mon=new Date(n.getFullYear(),n.getMonth(),n.getDate()-day);setExplorerRange(localDateKey(mon),localDateKey(n));}
+function setExplorerThisMonth(){const n=new Date();const first=new Date(n.getFullYear(),n.getMonth(),1);setExplorerRange(localDateKey(first),localDateKey(n));}
+function runExplorer(){
+  const fromV=(document.getElementById('explorerFrom')||{}).value||'';
+  const toV=(document.getElementById('explorerTo')||{}).value||'';
+  const src=(allYearRows&&allYearRows.length)?allYearRows:allRows;
+  const rows=src.filter(r=>{const k=localDateKey(r.date);return (!fromV||k>=fromV)&&(!toV||k<=toV);});
+  const res=document.getElementById('explorerResults'); if(res) res.style.display='block';
+  const spend=rows.reduce((a,r)=>a+r.spend,0);
+  const units=rows.reduce((a,r)=>a+r.qty,0);
+  const asins=new Set(rows.map(r=>r.asin).filter(Boolean)).size;
+  const orders=countOrders(rows);
+  const cards=[['total spend',fmt(spend)],['units',units.toLocaleString()],['unique ASINs',asins],['orders',orders]];
+  const cardEl=document.getElementById('explorerCards');
+  if(cardEl) cardEl.innerHTML=cards.map(([l,v])=>`<div class="stat-tile"><div class="stat-tile-label">${l}</div><div class="stat-tile-value">${v}</div></div>`).join('');
+  const barList=(map)=>{const ent=Object.entries(map).sort((a,b)=>b[1].spend-a[1].spend).slice(0,8);const max=ent.length?ent[0][1].spend:1;return ent.map(([k,x])=>{const pct=max>0?(x.spend/max*100):0;const color=PROVIDER_COLORS[k]||'#4f8ef7';return `<div style="display:flex;align-items:center;gap:10px;"><div style="width:120px;font-size:12px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(k)}">${esc(k)}</div><div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div></div><div style="width:90px;text-align:right;font-size:12px;color:var(--muted2);white-space:nowrap;">${fmt(x.spend)}</div></div>`;}).join('')||'<div style="color:var(--muted);font-size:12px;">None in range</div>';};
+  const provEl=document.getElementById('explorerProviders'); if(provEl) provEl.innerHTML=barList(groupSpend(rows,r=>r.provider||'—'));
+  const supEl=document.getElementById('explorerSuppliers'); if(supEl) supEl.innerHTML=barList(groupSpend(rows,r=>hubSupplierName(r.supplier)||'—'));
+  const byAsin=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin).sort((a,b)=>b.spend-a.spend).slice(0,8);
+  const ag=document.getElementById('explorerAsins');
+  if(ag){ag.innerHTML='';byAsin.forEach((x,i)=>{const asin=x.rows[0].asin;const div=document.createElement('div');div.className='asin-tile';div.style.cursor='pointer';div.title='Open ASIN detail';div.onclick=()=>{switchPage('hub');setTimeout(()=>openHubAsinDetail(asin),600);};div.innerHTML=`<div class="asin-tile-rank">#${i+1}</div><div class="asin-tile-asin">${asin}</div><div class="asin-tile-val">${fmt(x.spend)}</div><div class="asin-tile-sub">${x.units} units · ${countOrders(x.rows)} orders</div>`;ag.appendChild(div);});if(!byAsin.length)ag.innerHTML='<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No ASIN data in this range</div>';}
+  const tb=document.getElementById('explorerTable');
+  if(tb){tb.innerHTML='';const sorted=rows.slice().sort((a,b)=>b.date-a.date||b.spend-a.spend);
+    if(!sorted.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No orders in this range</td></tr>';}
+    else sorted.slice(0,500).forEach((r,i)=>{const color=PROVIDER_COLORS[r.provider]||'#4f8ef7';const tr=document.createElement('tr');if(r.asin){tr.style.cursor='pointer';tr.title='Open ASIN detail';tr.onclick=()=>{switchPage('hub');setTimeout(()=>openHubAsinDetail(r.asin),600);};}tr.innerHTML=`<td style="text-align:left;color:var(--muted);padding:6px 14px 6px 0;">${i+1}</td><td style="text-align:left;padding:6px 14px 6px 0;white-space:nowrap;">${r.date.toLocaleDateString('en-GB')}</td><td style="text-align:left;padding:6px 14px 6px 0;"><span class="prov-badge" style="background:${color}22;border:1px solid ${color}44"><span class="prov-badge-dot" style="background:${color}"></span>${esc(r.provider||'—')}</span></td><td style="text-align:left;padding:6px 14px 6px 0;color:var(--text);">${esc(r.supplier||'—')}</td><td style="text-align:left;padding:6px 14px 6px 0;color:var(--accent);font-size:11px;">${r.asin||'—'}</td><td style="text-align:right;padding:6px 14px 6px 0;font-weight:700;color:var(--text);">${fmt(r.spend)}</td><td style="text-align:right;padding:6px 0;">${r.qty}</td>`;tb.appendChild(tr);});}
 }
 function renderOfferMode(rows){
   const selected=(document.getElementById('hubSupplier')?.value||'').trim();
@@ -2987,8 +3244,29 @@ function renderOfferMode(rows){
 function renderPriceHistory(rows){
   const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin).map(x=>({x,ps:asinPriceStats(x.rows)})).sort((a,b)=>b.x.spend-a.x.spend);
   lastHubRows=rows; lastHubAsins=uniqueAsinsFromRows(rows);
-  const body=groups.map(({x,ps})=>{const sample=x.rows[0], asin=sample.asin; const lowRow=x.rows.slice().sort((a,b)=>unitCostForRow(a)-unitCostForRow(b))[0]; const lastRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(hubBrandForRow(sample)||'—')}</span></td><td style="color:var(--accent);font-weight:800;">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sample.sku)}">${esc(sample.sku||'—')}</span></td><td>${fmt(x.spend)}</td><td>${x.units}</td><td>${ps.min?fmtDec(ps.min):'—'}</td><td>${ps.avg?fmtDec(ps.avg):'—'}</td><td>${ps.max?fmtDec(ps.max):'—'}</td><td>${ps.last?fmtDec(ps.last):'—'}</td><td>${lowRow?esc(hubSupplierName(lowRow.supplier)):'—'}</td><td>${lastRow?lastRow.date.toLocaleDateString('en-GB'):'—'}</td></tr>`}).join('');
-  return hubSummaryCards('Price History',rows)+`<div class="hub-alert">Price history is from your own purchase rows only. It shows whether the current offer is cheap compared with your historical buy prices.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Purchase price history by ASIN</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Spend</th><th>Units</th><th>Lowest</th><th>Average</th><th>Highest</th><th>Last</th><th>Cheapest supplier</th><th>Last bought</th></tr></thead><tbody>${body||'<tr><td colspan="11">No ASINs in this filter.</td></tr>'}</tbody></table></div>`;
+  const body=groups.map(({x,ps})=>{
+    const sample=x.rows[0], asin=sample.asin;
+    const latest=x.rows.slice().sort((a,b)=>b.date-a.date)[0]||sample;
+    const lowRow=x.rows.slice().sort((a,b)=>unitCostForRow(a)-unitCostForRow(b))[0];
+    const lastRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0];
+    const spread=ps.max-ps.min;
+    const spreadCell=spread>0.005
+      ? `<span style="color:#fb7185;font-weight:700;">${fmtDec(spread)}</span>`
+      : `<span style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#aab4c4;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.26);padding:2px 6px;border-radius:5px;">flat</span>`;
+    return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')">
+      <td><span class="hub-brand-cell">${esc(hubBrandForRow(sample)||'—')}</span></td>
+      <td style="color:var(--accent);font-weight:800;">${esc(asin)}</td>
+      <td><span class="hub-sku-cell" title="${esc(latest.sku||'')}">${esc(latest.sku||'—')}</span></td>
+      <td>${fmt(x.spend)}</td>
+      <td>${x.units}</td>
+      <td>${countOrders(x.rows)}</td>
+      <td style="text-align:left;">${priceList(x.rows)}</td>
+      <td>${spreadCell}</td>
+      <td style="text-align:left;">${lowRow?esc(hubSupplierName(lowRow.supplier)||'—'):'—'}</td>
+      <td>${lastRow?lastRow.date.toLocaleDateString('en-GB'):'—'}</td>
+    </tr>`;
+  }).join('');
+  return hubSummaryCards('Price History',rows)+`<div class="hub-alert">Every price you've paid per ASIN, from your own purchase rows. <strong>Spread</strong> is the gap between your cheapest and dearest buy — "flat" means you've only ever paid one price.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Purchase price history by ASIN</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Spend</th><th>Units</th><th>Buys</th><th style="text-align:left;">Prices paid</th><th>Spread</th><th style="text-align:left;">Cheapest from</th><th>Last bought</th></tr></thead><tbody>${body||'<tr><td colspan="10">No ASINs in this filter.</td></tr>'}</tbody></table></div>`;
 }
 function renderMultiBuy(rows){
   const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin&&countOrders(x.rows)>=2).sort((a,b)=>countOrders(b.rows)-countOrders(a.rows)||b.spend-a.spend);
