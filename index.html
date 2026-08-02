@@ -1301,6 +1301,8 @@ footer{box-shadow:0 -1px 0 rgba(255,255,255,.04);}
     <button class="page-nav-btn" onclick="switchPage('growth')">Trends</button>
     <button class="page-nav-btn" onclick="switchPage('hub')">Buying Hub</button>
     <button class="page-nav-btn" onclick="switchPage('review')">Review</button>
+    <button class="page-nav-btn lav-nav-btn" onclick="switchPage('lavarion')">Lavarion</button>
+    <button class="page-nav-btn set-nav-btn" onclick="switchPage('settings')" title="Settings">Settings</button>
   </div>
   <div class="header-right">
     <button class="alert-pill" id="alertPill" style="display:none;" onclick="switchPage('growth')" title="Urgent signals — click to view on Trends"><span class="alert-dot"></span><span id="alertCount">0</span> <span class="alert-word">alerts</span></button>
@@ -1313,33 +1315,30 @@ footer{box-shadow:0 -1px 0 rgba(255,255,255,.04);}
 <main>
   <div id="ovLoading" class="page-loading" style="display:none;"><div class="boot-logo" style="font-size:24px;">spend<em>.</em>dash</div><div class="pl-spinner"></div><div class="boot-status">Loading your spend…</div><div class="pl-skel"><span></span><span></span><span></span></div></div>
   <div id="ovFuture" class="page-future" style="display:none;"></div>
-  <div class="ov-page-head">
-    <div class="ov-eyebrow">Overview</div>
-    <div class="ov-title" id="ovTitle">This month</div>
-    <div class="ov-page-sub" id="ovSub">Your spend snapshot, target pace and where the money is going.</div>
-  </div>
-  <div class="selectors">
-    <div class="selector-group">
-      <span class="selector-label">quarter</span>
-      <div class="btn-group">
-        <button class="tab-btn" data-q="1">Q1</button>
-        <button class="tab-btn" data-q="2">Q2</button>
-        <button class="tab-btn" data-q="3">Q3</button>
-        <button class="tab-btn" data-q="4">Q4</button>
+  <div class="ov-page-head ov-head-row">
+    <div class="ov-head-left">
+      <div class="ov-eyebrow">Overview</div>
+      <div class="ov-title" id="ovTitle">This month</div>
+      <div class="ov-page-sub" id="ovSub">Your spend snapshot, target pace and where the money is going.</div>
+    </div>
+    <div class="ov-head-right">
+      <div class="selectors">
+        <div class="selector-group">
+          <span class="selector-label">quarter</span>
+          <div class="btn-group">
+            <button class="tab-btn" data-q="1">Q1</button>
+            <button class="tab-btn" data-q="2">Q2</button>
+            <button class="tab-btn" data-q="3">Q3</button>
+            <button class="tab-btn" data-q="4">Q4</button>
+          </div>
+        </div>
+        <div class="selector-group">
+          <span class="selector-label">month</span>
+          <div class="btn-group" id="monthBtns"></div>
+        </div>
       </div>
+      <div class="ov-head-note"><span id="paceInfo"></span></div>
     </div>
-    <div class="selector-group">
-      <span class="selector-label">month</span>
-      <div class="btn-group" id="monthBtns"></div>
-    </div>
-  </div>
-
-  <div class="pace-legend">
-    <span style="font-size:11px;color:var(--muted);margin-right:4px;">pace logic:</span>
-    <span><span class="pace-dot" style="background:var(--green)"></span> above weighted plan</span>
-    <span><span class="pace-dot" style="background:var(--amber)"></span> close to weighted plan</span>
-    <span><span class="pace-dot" style="background:var(--red)"></span> below weighted plan</span>
-    <span id="paceInfo"></span>
   </div>
 
   <div class="ovh-wrap">
@@ -1525,7 +1524,7 @@ footer{box-shadow:0 -1px 0 rgba(255,255,255,.04);}
     </div>
     <div id="oaA2aBody">
       <!-- Row 1: Pies + Key Metrics -->
-      <div style="display:grid;grid-template-columns:320px 320px 1fr;gap:24px;margin-bottom:20px;align-items:start;">
+      <div class="oa-a2a-row" style="display:grid;grid-template-columns:320px 320px 1fr;gap:24px;margin-bottom:20px;align-items:start;">
         <div>
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">overall split</div>
           <div style="position:relative;height:280px;"><canvas id="chartOaA2a"></canvas></div>
@@ -4808,7 +4807,7 @@ function runExplorer(){
   const spend=rows.reduce((a,r)=>a+r.spend,0);
   const units=rows.reduce((a,r)=>a+r.qty,0);
   const asins=new Set(rows.map(r=>r.asin).filter(Boolean)).size;
-  const orders=countOrders(rows);
+  const orders=lavCountOrders(rows);
   const cards=[['total spend',fmt(spend)],['units',units.toLocaleString()],['unique ASINs',asins],['orders',orders]];
   const cardEl=document.getElementById('explorerCards');
   if(cardEl) cardEl.innerHTML=cards.map(([l,v])=>`<div class="stat-tile"><div class="stat-tile-label">${l}</div><div class="stat-tile-value">${v}</div></div>`).join('');
@@ -8376,6 +8375,69 @@ spInstallPaceUI();
 })();
 
 </script>
+<div id="pageLavarion" style="display:none;">
+<main>
+  <div id="lavLoading" class="page-loading" style="display:none;"><div class="boot-logo" style="font-size:24px;">spend<em>.</em>dash</div><div class="pl-spinner"></div><div class="boot-status">Loading Lavarion buying…</div><div class="pl-skel"><span></span><span></span><span></span></div></div>
+  <div id="lavBody" style="display:none;">
+    <div class="ov-page-head ov-head-row">
+      <div class="ov-head-left">
+        <div class="ov-eyebrow lav-eye">Lavarion</div>
+        <div class="ov-title" id="lavTitle">Lavarion spend</div>
+        <div class="ov-page-sub" id="lavSub">Own-brand buying, kept completely separate from the OA / A2A numbers.</div>
+      </div>
+      <div class="ov-head-right">
+        <div class="selectors">
+          <div class="selector-group"><span class="selector-label">period</span><div class="btn-group" id="lavQBtns"></div></div>
+          <div class="selector-group" id="lavMWrap"><span class="selector-label">month</span><div class="btn-group" id="lavMBtns"></div></div>
+        </div>
+        <div class="ov-head-note" id="lavHeadNote"></div>
+      </div>
+    </div>
+    <div id="lavHero"></div>
+    <div id="lavAttention"></div>
+    <div class="lav-row lav-row-chart">
+      <div class="lav-card">
+        <div class="lav-card-h">Lavarion spend by month<span id="lavChartSub"></span></div>
+        <div class="lav-chart"><canvas id="lavChart"></canvas></div>
+      </div>
+      <div class="lav-card">
+        <div class="lav-card-h">Where it went<span>suppliers in this period</span></div>
+        <div id="lavSuppliers" class="lav-bars"></div>
+      </div>
+    </div>
+    <div class="lav-row lav-row-2">
+      <div class="lav-card">
+        <div class="lav-card-h">Top products<span>by spend</span></div>
+        <div id="lavProducts"></div>
+      </div>
+      <div class="lav-stack">
+        <div class="lav-card">
+          <div class="lav-card-h">Accounts used<span>which account paid</span></div>
+          <div id="lavAccounts" class="lav-bars"></div>
+        </div>
+        <div class="lav-card">
+          <div class="lav-card-h">Biggest orders<span>click to see the lines</span></div>
+          <div id="lavOrders"></div>
+        </div>
+      </div>
+    </div>
+    <div class="lav-card">
+      <div class="lav-card-h">Buying activity<span id="lavActSub"></span><button class="lav-mini-btn" id="lavActToggle" onclick="lavToggleAll()" style="display:none;"></button></div>
+      <div id="lavActivity"></div>
+    </div>
+  </div>
+</main>
+</div>
+<div id="pageSettings" style="display:none;">
+<main>
+  <div class="ov-page-head">
+    <div class="ov-eyebrow set-eye">Settings</div>
+    <div class="ov-title">Dashboard settings</div>
+    <div class="ov-page-sub">Things that change what you see, not what's in your sheet.</div>
+  </div>
+  <div id="setBody" class="set-card"></div>
+</main>
+</div>
 <footer>spend.dash — live from Google Sheets · auto-refreshes every 5 mins</footer>
 <div id="pricesModal" class="prices-modal" onclick="closePricesModal(event)">
   <div class="prices-modal-box">
@@ -8445,5 +8507,2048 @@ spInstallPaceUI();
   </div>
 </div>
 
+<style id="spendV7Styles">
+/* ============================================================
+   v7 — Overview head + spend-first hero + Lavarion page
+   ============================================================ */
+
+/* --- page head: period controls fill the old dead space --- */
+.ov-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:26px;flex-wrap:wrap;margin-bottom:12px;}
+.ov-head-left{min-width:0;}
+.ov-head-left .ov-page-sub{margin-top:4px;}
+.ov-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto;}
+.ov-head-right .selectors{margin-bottom:0;gap:16px;}
+.ov-head-note{font-size:10.5px;color:var(--muted);min-height:13px;text-align:right;}
+#paceInfo{margin-left:0;font-size:10.5px;color:var(--muted);}
+@media(max-width:900px){.ov-head-right{align-items:flex-start;}.ov-head-note{text-align:left;}}
+
+/* --- hero v3: the number you came for --- */
+.ovh3{--acc:#5b8def;display:block;background:linear-gradient(180deg,#0c131f,#090e17);border:1px solid rgba(148,163,184,.16);border-radius:16px;padding:15px 18px 13px;}
+.ovh3.tone-good{--acc:#37c46f;}.ovh3.tone-warn{--acc:#e2ac26;}.ovh3.tone-bad{--acc:#f0566b;}.ovh3.tone-neutral{--acc:#5b8def;}
+.ovh-wrap .ovh3{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:none;margin-bottom:0;}
+.ovh3-top{display:grid;grid-template-columns:minmax(230px,.85fr) 2fr;gap:26px;align-items:center;}
+.ovh3-eye{display:flex;align-items:center;gap:9px;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7d8fa8;margin-bottom:8px;flex-wrap:wrap;}
+.ovh3-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--acc);background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.24);}
+.ovh3-pill .d{width:6px;height:6px;border-radius:50%;background:var(--acc);}
+.ovh3-big{font-family:var(--font-head);font-size:clamp(40px,4.3vw,58px);font-weight:800;letter-spacing:-.038em;line-height:.9;color:#fff;font-variant-numeric:tabular-nums;}
+.ovh3-delta{font-size:12.5px;line-height:1.45;color:#94a6bd;margin-top:10px;}
+.ovh3-delta b{font-weight:800;color:var(--acc);}
+.ovh3-delta .n{color:#dde6f3;font-weight:700;}
+.ovh3-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid rgba(148,163,184,.14);border-radius:12px;background:#070c14;overflow:hidden;}
+.ovh3-st{padding:11px 14px;border-left:1px solid rgba(148,163,184,.1);min-width:0;}
+.ovh3-st:first-child{border-left:none;}
+.ovh3-st-l{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#7a8ca4;font-weight:800;margin-bottom:9px;}
+.ovh3-st-v{font-family:var(--font-head);font-size:19px;font-weight:800;line-height:1;letter-spacing:-.03em;color:#eef4fc;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ovh3-st-v.pos{color:#5fd68c;}.ovh3-st-v.neg{color:#f0868f;}.ovh3-st-v.accent{color:#8ab5ff;}
+.ovh3-st-s{font-size:10px;color:#7688a0;margin-top:7px;line-height:1.3;}
+.ovh3-track{margin-top:20px;}
+.ovh3-bar{position:relative;height:18px;background:#0e1626;border:1px solid rgba(148,163,184,.12);border-radius:9px;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);cursor:crosshair;overflow:visible;}
+.ovh3-fill{position:relative;height:100%;border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 72%,#000),var(--acc));min-width:4px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;box-shadow:0 0 14px -2px var(--acc);}
+.ovh3-fill-pct{font-size:9.5px;font-weight:800;color:rgba(255,255,255,.9);padding-right:7px;letter-spacing:.02em;}
+.ovh3-tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(148,163,184,.18);z-index:1;}
+.ovh3-tick em{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-style:normal;font-size:8.5px;color:#5d6f88;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.ovh3-mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:#eef4ff;border-radius:2px;box-shadow:0 0 0 2px #0a0f18;z-index:3;}
+.ovh3-mark-l{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#cfdcf0;white-space:nowrap;}
+.ovh3-hover{position:absolute;top:-5px;bottom:-5px;width:2px;background:rgba(255,255,255,.55);opacity:0;transition:opacity .12s;z-index:4;pointer-events:none;}
+.ovh3-hover.on{opacity:1;}
+.ovh3-hover-v{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#141d2e;border:1px solid rgba(148,163,184,.28);border-radius:8px;padding:6px 10px;white-space:nowrap;display:flex;flex-direction:column;gap:2px;box-shadow:0 10px 24px -12px #000;}
+.ovh3-hover-v b{font-family:var(--font-head);font-size:13px;font-weight:800;color:#fff;}
+.ovh3-hover-v span{font-size:9.5px;color:#93a5bd;}
+.ovh3-labels{display:flex;justify-content:space-between;font-size:10.5px;color:#7688a0;margin-top:9px;font-variant-numeric:tabular-nums;}
+.ovh3-labels span{flex:1;}.ovh3-labels span:nth-child(2){text-align:center;}.ovh3-labels span:last-child{text-align:right;}
+.ovh3-labels b{color:#c6d4e6;font-weight:700;}
+.ovh3-foot{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap;}
+.ovh3-more{order:1;}
+.ovh3-more[open]{flex:0 0 100%;order:0;margin-bottom:2px;}
+.ovh3-more>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#8fa6c6;padding:5px 11px;border:1px solid rgba(148,163,184,.16);border-radius:8px;background:rgba(148,163,184,.04);}
+.ovh3-more>summary::-webkit-details-marker{display:none;}
+.ovh3-more>summary:hover{color:#cfe0ff;border-color:rgba(148,163,184,.32);}
+.ovh3-chev{width:6px;height:6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);margin-bottom:2px;transition:transform .18s;}
+.ovh3-more[open] .ovh3-chev{transform:rotate(-135deg);margin-top:2px;margin-bottom:0;}
+.ovh3-hist-wrap{margin-top:10px;border:1px solid rgba(148,163,184,.11);border-radius:12px;background:#070c14;padding:10px 12px;}
+.ovh3-hist-sum{font-size:11px;color:#a2b2c7;margin-bottom:9px;}
+.ovh3-hist-sum b{color:#e7eefa;font-weight:700;}
+.ovh3-foot-note{font-size:10.5px;color:#6d7f98;order:3;margin-left:auto;}
+.ovh3-foot:only-child,.ovh3-foot.solo{margin-top:9px;}
+.ovh3-foot.solo .ovh3-foot-note{margin-left:0;}
+.ovh3 .rv-pace-btn{order:2;background:rgba(148,163,184,.04);border:1px solid rgba(148,163,184,.16);color:#8fa6c6;font-weight:700;padding:5px 11px;}
+.ovh3 .rv-pace-btn:hover{color:#cfe0ff;border-color:rgba(148,163,184,.32);transform:none;filter:none;}
+@media(max-width:1080px){
+  .ovh3-top{grid-template-columns:1fr;gap:14px;}
+  .ovh3-stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .ovh3-st:nth-child(3),.ovh3-st:nth-child(4){border-top:1px solid rgba(148,163,184,.1);}
+  .ovh3-st:nth-child(odd){border-left:none;}
+}
+
+/* --- signals: one tight strip, not a panel --- */
+.ovh-wrap .ov-signals{padding:9px 14px 10px;}
+.ovh-wrap .sig-head{margin-bottom:6px;}
+.ovh-wrap .sig-title{font-size:9.5px;letter-spacing:.12em;color:#7a8ca4;font-weight:800;}
+.ovh-wrap .sig-sub{font-size:10px;}
+.ovh-wrap .sig-item{padding:7px 11px;font-size:11.5px;margin-bottom:5px;line-height:1.4;}
+.ovh-wrap .sig-ic{margin-top:5px;width:7px;height:7px;}
+.ovh-wrap{margin-bottom:14px;zoom:1;}
+.ovh-wrap.no-sig .ovh3{border-bottom-left-radius:16px;border-bottom-right-radius:16px;border-bottom:1px solid rgba(148,163,184,.16);}
+
+/* --- OA vs A2A, rebuilt --- */
+.oa2{display:grid !important;grid-template-columns:1.15fr 1fr;gap:18px;margin-bottom:20px;align-items:start;}
+.oa2-bars{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.oa2-block{background:#0c121c;border:1px solid rgba(148,163,184,.14);border-radius:13px;padding:14px 16px 15px;}
+.oa2-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-family:var(--font-head);font-size:12px;font-weight:800;color:var(--text);margin-bottom:12px;}
+.oa2-h span{font-weight:400;font-size:10.5px;color:var(--muted);}
+.oa2-bar{display:flex;height:30px;border-radius:8px;overflow:hidden;background:#131c2b;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);}
+.oa2-seg{display:flex;align-items:center;justify-content:center;transition:width .55s cubic-bezier(.4,0,.2,1);min-width:2px;}
+.oa2-seg em{font-style:normal;font-size:10.5px;font-weight:800;color:rgba(0,0,0,.68);letter-spacing:.02em;}
+.oa2-keys{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;}
+.oa2-key{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#a8b7c9;}
+.oa2-key i{width:9px;height:9px;border-radius:3px;flex:0 0 auto;}
+.oa2-key b{color:#eef4fc;font-weight:800;font-variant-numeric:tabular-nums;}
+.oa2-key u{text-decoration:none;color:var(--muted);font-size:10.5px;}
+.oa2-cmp{background:#0c121c;border:1px solid rgba(148,163,184,.14);border-radius:13px;padding:6px 16px 10px;min-width:0;}
+.oa2-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.oa2-tbl th,.oa2-tbl td{padding:9px 6px;border-bottom:1px solid rgba(255,255,255,.045);text-align:right;font-variant-numeric:tabular-nums;}
+.oa2-tbl thead th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--muted);border-bottom:1px solid var(--border);}
+.oa2-tbl thead th.a{color:#f0b429;}.oa2-tbl thead th.o{color:#4ade80;}
+.oa2-tbl tbody th{text-align:left;font-weight:600;color:#9fb0c6;font-size:11.5px;}
+.oa2-tbl tbody th span{display:block;font-size:9.5px;color:var(--muted);font-weight:400;}
+.oa2-tbl td{color:#eef4fc;font-weight:700;}
+.oa2-tbl td.a{color:#ffd98a;}.oa2-tbl td.o{color:#a7f3c4;}
+.oa2-tbl tr:last-child th,.oa2-tbl tr:last-child td{border-bottom:none;}
+@media(max-width:1000px){.oa2{grid-template-columns:1fr !important;}}
+
+/* --- Settings --- */
+#pageSettings .ov-eyebrow.set-eye{color:#38bdf8;}
+#pageSettings .ov-eyebrow.set-eye::before{background:#38bdf8;}
+.set-nav-btn.active{background:#0ea5e9;}
+.set-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.set-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:16px;}
+.set-title{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--text);}
+.set-note{font-size:12px;color:var(--muted2);line-height:1.55;margin-top:5px;max-width:820px;}
+.set-note b{color:#e8eff8;}
+.set-reset{flex:0 0 auto;background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;}
+.set-reset:hover{color:var(--text);border-color:var(--border2);}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:9px;}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0c121c;border:1px solid rgba(148,163,184,.13);border-radius:10px;padding:10px 13px;transition:.14s;}
+.set-row.off{opacity:.5;}
+.set-row:hover{border-color:rgba(148,163,184,.28);}
+.set-p{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#e8eff8;min-width:0;}
+.set-dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto;}
+.set-state{font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.set-sel{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+.set-sel label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.set-sel select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:4px 6px;border-radius:6px;cursor:pointer;}
+.set-foot{font-size:11px;color:var(--muted);margin-top:15px;padding-top:13px;border-top:1px solid var(--border);}
+
+/* --- Trends & Review: colour that carries meaning --- */
+#trendsKpiStrip>div{background:linear-gradient(160deg,#131c2b,#0d1420) !important;border:1px solid rgba(148,163,184,.15) !important;border-top-width:3px !important;border-radius:11px !important;padding:13px 15px !important;}
+#trendsHero{background:linear-gradient(135deg,#111827,#0d1420) !important;border-color:rgba(79,142,247,.3) !important;}
+.rec-tile{background:linear-gradient(160deg,#101825,#0c111a);}
+.rec-tile.hi{background:linear-gradient(160deg,#0f2418,#0c111a);border-color:rgba(34,197,94,.28);}
+.rec-tile.lo{background:linear-gradient(160deg,#26121a,#0c111a);border-color:rgba(251,113,133,.28);}
+.rec-tile::before{width:4px;}
+.rec-tile.hi .rec-val{color:#7ee2a8;}
+.rec-tile.lo .rec-val{color:#ffa3ae;}
+.rv-card{background:linear-gradient(180deg,#111722,#0c1017) !important;}
+.rv-card-title{display:flex;align-items:center;gap:9px;}
+.rv-card-title::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent);flex:0 0 auto;}
+#pageReview .rv-tab.active,#pageReview .hub-view-pill.active{box-shadow:0 0 0 1px rgba(79,142,247,.5);}
+
+/* "new buys landed while you were looking" */
+.sptoast{position:fixed;right:22px;bottom:22px;z-index:500;max-width:330px;background:#101b2c;
+  border:1px solid rgba(79,142,247,.45);border-radius:12px;padding:13px 16px;font-size:12.5px;color:#cfe0ff;
+  box-shadow:0 20px 44px -18px rgba(0,0,0,.95);opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .25s,transform .25s;cursor:pointer;}
+.sptoast.on{opacity:1;transform:none;pointer-events:auto;}
+.sptoast b{color:#fff;font-weight:800;}
+.sptoast span{display:block;font-size:10px;color:#7b8ea8;margin-top:6px;}
+
+/* Today — day stepper */
+#pageToday .ov-page-head{position:relative;}
+.tdnav{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:7px;}
+.tdnav button{background:var(--surface);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);
+  font-size:14px;line-height:1;font-weight:700;width:32px;height:32px;border-radius:8px;cursor:pointer;transition:.13s;}
+.tdnav button:hover:not(:disabled){color:#fff;border-color:var(--border2);background:var(--surface2);}
+.tdnav button:disabled{opacity:.3;cursor:default;}
+.tdnav-l{display:flex;flex-direction:column;align-items:center;min-width:104px;font-size:12px;font-weight:700;color:var(--text);line-height:1.2;}
+.tdnav-l em{font-style:normal;font-size:10px;color:var(--muted);font-weight:500;margin-top:2px;}
+.tdnav-now{width:auto !important;padding:0 12px;font-size:11px !important;color:#8ab5ff !important;border-color:rgba(79,142,247,.35) !important;}
+@media(max-width:760px){.tdnav{position:static;transform:none;margin-top:12px;}}
+
+/* Trends jump nav — opaque, never blurred (blur on a sticky bar is what caused
+   the scroll flicker in the first place) */
+.tnav{position:sticky;top:63px;z-index:38;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  background:#0d1219;border:1px solid var(--border);border-radius:11px;padding:9px 12px;margin-bottom:16px;}
+.tnav-l{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800;margin-right:4px;}
+.tnav button{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);
+  font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.13s;white-space:nowrap;}
+.tnav button:hover{color:#fff;border-color:var(--border2);background:rgba(148,163,184,.08);}
+.tnav .tnav-top{margin-left:auto;color:#8ab5ff;border-color:rgba(79,142,247,.3);}
+
+/* Review — the filter wall folds away */
+.rv-more-btn{margin-left:auto;align-self:center;background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:8px 13px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.rv-more-btn b{color:#8ab5ff;margin-left:3px;}
+.rv-more-btn:hover,.rv-more-btn.on{color:#fff;border-color:var(--border2);background:rgba(79,142,247,.14);}
+.rv-more{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;background:#0c1017;border:1px solid var(--border);
+  border-top:none;border-radius:0 0 14px 14px;padding:15px 20px 17px;margin:-18px 0 18px;}
+#pageReview .rv-toolbar{flex-wrap:wrap;}
+
+/* --- Lavarion page --- */
+#pageLavarion .ov-eyebrow.lav-eye{color:#c084fc;}
+#pageLavarion .ov-eyebrow.lav-eye::before{background:#c084fc;}
+.lav-nav-btn.active{background:#8b5cf6;}
+.lav-row{display:grid;gap:12px;margin-bottom:12px;}
+.lav-row-chart{grid-template-columns:1.35fr 1fr;align-items:start;}
+.lav-row-2{grid-template-columns:1.35fr 1fr;align-items:start;}
+@media(max-width:1000px){.lav-row-chart,.lav-row-2{grid-template-columns:1fr;}}
+.lav-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.lav-row .lav-card{margin-bottom:0;}
+.lav-card-h{display:flex;align-items:baseline;gap:10px;font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;letter-spacing:-.01em;}
+.lav-card-h span{font-weight:400;font-size:11px;color:var(--muted);}
+.lav-mini-btn{margin-left:auto;background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;}
+.lav-mini-btn:hover{color:var(--text);border-color:var(--border2);}
+.lav-chart{height:230px;position:relative;}
+.lav-bars{display:flex;flex-direction:column;gap:7px;}
+.lav-bar{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:baseline;}
+.lav-bar-n{font-size:11.5px;color:#cdd8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lav-bar-v{font-size:11.5px;font-weight:700;color:#eef4fc;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.lav-bar-v em{font-style:normal;color:var(--muted);font-weight:400;font-size:10px;margin-left:6px;}
+.lav-bar-t{grid-column:1/-1;height:5px;border-radius:4px;background:#131c2b;overflow:hidden;}
+.lav-bar-f{height:100%;border-radius:4px;background:#a855f7;}
+.lav-empty{font-size:11.5px;color:var(--muted);padding:6px 0;}
+.lav-tbl-wrap{overflow-x:auto;}
+.lav-tbl{width:100%;border-collapse:collapse;font-size:11.5px;}
+.lav-tbl th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#7a8ca4;font-weight:800;padding:0 10px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap;}
+.lav-tbl td{padding:8px 10px 8px 0;border-bottom:1px solid rgba(255,255,255,.04);color:#c3cfdd;vertical-align:top;}
+.lav-tbl tr:last-child td{border-bottom:none;}
+.lav-tbl td.num,.lav-tbl th.num{text-align:right;font-variant-numeric:tabular-nums;padding-right:18px;}
+/* activity table: stop supplier/account hogging width and un-collide the headers */
+/* percentage widths so leftover space spreads across every column instead of
+   dumping it all into Product and leaving a canyon mid-table */
+.lav-act{table-layout:fixed;}
+.lav-act .c-date{width:7%;min-width:58px;}
+.lav-act .c-sup{width:18%;}
+.lav-act .c-acct{width:13%;}
+.lav-act .c-qty{width:8%;}
+.lav-act .c-unit{width:9%;}
+.lav-act .c-spent{width:11%;}
+.lav-act .c-arr{width:11%;padding-left:10px;}
+.lav-act .c-inv{width:10%;}
+.lav-act th:nth-child(2),.lav-act td:nth-child(2){padding-right:20px;}
+.lav-act td{overflow:hidden;text-overflow:ellipsis;}
+.lav-act td.nm{white-space:normal;max-width:none;}
+.lav-tblnote{font-size:10.5px;color:var(--muted);margin-top:9px;}
+.lav-tblnote b{color:#cdd8e6;}
+/* clickable breakdown rows */
+.lav-bar{cursor:pointer;padding:3px 6px;margin:0 -6px;border-radius:7px;transition:background .13s;}
+.lav-bar:hover{background:rgba(148,163,184,.07);}
+.lav-bar.on{background:rgba(168,85,247,.13);box-shadow:inset 0 0 0 1px rgba(168,85,247,.35);}
+.lav-bar-x{font-size:9px;color:#c084fc;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.lav-stack{display:flex;flex-direction:column;gap:12px;min-width:0;}
+.lav-stack .lav-card{margin-bottom:0;}
+.lav-ords{display:flex;flex-direction:column;}
+.lav-ord{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px;margin:0 -8px;border-radius:8px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .13s;}
+.lav-ord:last-child{border-bottom:none;}
+.lav-ord:hover{background:rgba(148,163,184,.07);}
+.lav-ord.on{background:rgba(168,85,247,.13);box-shadow:inset 0 0 0 1px rgba(168,85,247,.35);}
+.lav-ord-s{font-size:12px;color:#e8eff8;font-weight:600;}
+.lav-ord-m{font-size:10px;color:var(--muted);margin-top:3px;}
+.lav-ord-v{font-size:12.5px;font-weight:800;color:#eef4fc;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.lav-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(168,85,247,.16);border:1px solid rgba(168,85,247,.4);color:#d8b4fe;font-family:var(--font-mono);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer;}
+.lav-chip:hover{background:rgba(168,85,247,.26);color:#fff;}
+.lav-chip span{opacity:.7;font-size:12px;}
+.lav-prow{cursor:pointer;transition:background .13s;}
+.lav-prow:hover td{background:rgba(148,163,184,.06);}
+.lav-prow.on td{background:rgba(168,85,247,.12);}
+.lav-tbl td.nm{color:#e8eff8;font-weight:600;max-width:340px;}
+.lav-tbl td.mu{color:var(--muted2);}
+.lav-tag{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:5px;font-size:9.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+.lav-tag.ok{background:rgba(34,197,94,.14);color:#5fd68c;}
+.lav-tag.issue{background:rgba(244,63,94,.16);color:#fb8a99;}
+.lav-tag.pend{background:rgba(245,158,11,.15);color:#f3bd52;}
+.lav-inv{color:#7fb0ff;text-decoration:none;font-size:10.5px;font-weight:600;}
+.lav-inv:hover{text-decoration:underline;}
+.lav-none{color:#4d5b6d;font-size:10.5px;}
+.lav-attn{display:flex;align-items:flex-start;gap:11px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.26);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#e4d2ae;line-height:1.45;}
+.lav-attn b{color:#fcd88a;font-weight:800;}
+.lav-attn .ic{width:8px;height:8px;border-radius:50%;background:#f0b429;margin-top:6px;flex:0 0 auto;}
+.lav-attn a{color:#f3bd52;cursor:pointer;text-decoration:underline;}
+#pageLavarion .ovh3{--acc:#a855f7;}
+#pageLavarion .ovh3-fill{background:#a855f7;}
+.lav-note-row{font-size:10.5px;color:var(--muted);margin:-4px 0 12px;}
+
+/* --- Snapshot cards: the status note ran straight into "VIEW ANALYSIS →".
+       Stack them instead of fighting over the same line. --- */
+.spv2-card{min-height:172px;padding-bottom:52px;}
+.spv2-note{right:16px;bottom:32px;}
+.spv2-sub{min-height:24px;}
+@media(max-width:720px){.spv2-card{min-height:164px;padding-bottom:50px;}}
+@media(max-width:460px){.spv2-card{min-height:140px;}}
+
+/* --- Target / pace modal: bigger canvas, spend-first hero --- */
+.target-pace-modal-box{max-width:min(1140px,95vw);}
+.tpx{zoom:.95;padding:0 18px 18px;}
+.tpx-nav{padding:10px 18px 9px;margin:0 -18px 13px;gap:6px;}
+.tpx-nav button{font-size:9.5px;padding:6px 11px;border-radius:7px;}
+.tpx-sec{margin-top:17px;scroll-margin-top:58px;}
+.tpx-h{margin-bottom:9px;padding-bottom:6px;}
+.tpx-h-t{font-size:11px;}
+.tpx-h-n{font-size:9.5px;}
+.tpx-grid.w5{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+.tpx-grid.d8{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));}
+
+.tpx-hero2{--acc2:#5b8def;display:grid;grid-template-columns:minmax(220px,.85fr) 1.7fr;gap:14px 22px;align-items:center;background:linear-gradient(180deg,#0d131f,#0a0f17);border:1px solid var(--b2);border-radius:14px;padding:15px 17px 13px;}
+.tpx-hero2.good{--acc2:#4fbf7e;}.tpx-hero2.warn{--acc2:#d3a01e;}.tpx-hero2.bad{--acc2:#ec6a75;}
+.tpx-h2-l{min-width:0;}
+.tpx-h2-eye{display:flex;align-items:center;gap:9px;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mut2);margin-bottom:7px;flex-wrap:wrap;}
+.tpx-h2-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:8.5px;font-weight:800;letter-spacing:.06em;color:var(--acc2);background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.24);}
+.tpx-h2-pill .d{width:6px;height:6px;border-radius:50%;background:var(--acc2);}
+.tpx-h2-big{font-family:var(--font-head);font-size:clamp(34px,3.3vw,46px);font-weight:800;letter-spacing:-.037em;line-height:.92;color:#fff;}
+.tpx-h2-say{font-size:11.5px;line-height:1.45;color:#9fb0c6;margin-top:9px;}
+.tpx-h2-say b{color:var(--acc2);font-weight:800;}
+.tpx-h2-say .n{color:#dde6f3;font-weight:700;}
+.tpx-h2-r{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--b);border-radius:11px;background:var(--card2);overflow:hidden;}
+.tpx-h2-s{padding:10px 12px;border-left:1px solid var(--b);min-width:0;}
+.tpx-h2-s:first-child{border-left:none;}
+.tpx-h2-s-l{font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut2);font-weight:800;margin-bottom:7px;}
+.tpx-h2-s-v{font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:-.025em;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tpx-h2-s-v.acc{color:#84b1ff;}.tpx-h2-s-v.pos{color:#6fdf9c;}.tpx-h2-s-v.neg{color:#f0868f;}
+.tpx-h2-s-s{font-size:9px;color:var(--mut);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tpx-h2-foot{grid-column:1/-1;display:flex;align-items:flex-start;gap:9px;font-size:10.5px;line-height:1.45;color:var(--mut);border-top:1px solid var(--b);padding-top:9px;margin-top:0;}
+.tpx-h2-foot b{color:var(--tx);font-weight:700;}
+.tpx-h2-foot .ic{width:7px;height:7px;border-radius:50%;background:var(--acc2);margin-top:5px;flex:0 0 auto;}
+@media(max-width:820px){.tpx-hero2{grid-template-columns:1fr;gap:13px;}.tpx-h2-r{grid-template-columns:repeat(2,minmax(0,1fr));}.tpx-h2-s:nth-child(odd){border-left:none;}.tpx-h2-s:nth-child(n+3){border-top:1px solid var(--b);}}
+
+/* ============================================================
+   ONE CARD LANGUAGE
+   The Snapshot cards were saturated colour blocks — olive, rust, teal, purple —
+   with no shared meaning, sitting under a hero where colour DOES mean something
+   (green = ahead of plan). That taught the eye to ignore colour. Now every card
+   is the same neutral surface, and colour appears only where it carries a signal.
+   ============================================================ */
+/* Colour stays — it's the look you want. What changed is that the status ring
+   became a left accent bar so the tone reads at a glance, and the footer note
+   sits on its own line instead of running into "VIEW ANALYSIS". */
+.spv2-grid{gap:12px;margin-bottom:12px;}
+.spv2-card{min-height:168px !important;padding:15px 16px 48px !important;border-radius:13px !important;}
+.spv2-card.status{box-shadow:inset 4px 0 0 var(--signal),0 8px 18px -16px rgba(0,0,0,.98) !important;padding-left:19px !important;}
+.spv2-note{left:19px !important;right:16px !important;bottom:31px !important;font-size:10px !important;}
+.spv2-arrow{opacity:.85 !important;transform:none !important;}
+.spv2-card:hover .spv2-arrow{opacity:1 !important;}
+
+/* --- narrower screens: the header was already tight and the error chip made it
+       overflow, so let it shed the low-value bits then wrap the nav --- */
+@media(max-width:1180px){
+  header{padding:14px 20px;}
+  .page-nav{margin:0 10px;gap:2px;}
+  .page-nav-btn{padding:6px 10px;font-size:12px;}
+  .header-right{gap:11px;}
+  #lastUpdated{display:none;}
+}
+@media(max-width:1020px){
+  header{flex-wrap:wrap;row-gap:10px;}
+  .page-nav{order:3;width:100%;margin:0;justify-content:center;overflow-x:auto;scrollbar-width:none;}
+  .page-nav::-webkit-scrollbar{display:none;}
+  .data-health{display:none;}
+  main{padding:22px 18px;}
+}
+/* provider breakdown stat trio also spilled past the viewport */
+@media(max-width:1020px){.prow-stats{grid-template-columns:1fr 1fr;}}
+@media(max-width:620px){.prow-stats{grid-template-columns:1fr;}}
+/* Trends overflowed under ~1020px: grid items default to min-width:auto, so a
+   chart inside a 1fr column refuses to shrink below its own content width. */
+#pageGrowth [style*="grid-template-columns"]>*,#pageReview [style*="grid-template-columns"]>*{min-width:0;}
+#pageGrowth canvas,#pageReview canvas{max-width:100%;}
+@media(max-width:1020px){
+  #pageGrowth [style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr 1fr !important;}
+  #trendsKpiStrip{grid-template-columns:repeat(auto-fit,minmax(140px,1fr)) !important;}
+}
+@media(max-width:720px){
+  #pageGrowth [style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+}
+/* the OA vs A2A row used two fixed 320px pie columns and pushed the page wide */
+@media(max-width:1100px){.oa-a2a-row{grid-template-columns:1fr 1fr !important;gap:18px !important;}}
+@media(max-width:700px){.oa-a2a-row{grid-template-columns:1fr !important;}}
+
+/* --- sheet error report (Buying Hub → Data quality) --- */
+.sq-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.34);color:#fb8a99;font-family:var(--font-mono);font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;cursor:pointer;transition:.15s;}
+.sq-chip:hover{background:rgba(244,63,94,.2);color:#ffb3bd;}
+.sq-chip-d{width:6px;height:6px;border-radius:50%;background:#f43f5e;}
+.sq-wrap{background:var(--surface);border:1px solid rgba(244,63,94,.28);border-radius:14px;padding:16px 18px;margin-bottom:16px;}
+.sq-wrap.ok{border-color:rgba(34,197,94,.3);}
+.sq-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:4px;}
+.sq-title{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.01em;}
+.sq-wrap.ok .sq-title{color:#5fd68c;}
+.sq-note{font-size:11.5px;color:var(--muted2);line-height:1.5;margin-top:4px;max-width:900px;}
+.sq-note b{color:#e8eff8;font-weight:700;}
+.sq-big{flex:0 0 auto;text-align:right;}
+.sq-big-v{font-family:var(--font-head);font-size:30px;font-weight:800;color:#fb8a99;line-height:1;letter-spacing:-.03em;}
+.sq-big-l{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-top:5px;line-height:1.35;}
+.sq-block{margin-top:16px;border-top:1px solid var(--border);padding-top:13px;}
+.sq-block-h{display:flex;align-items:center;gap:9px;}
+.sq-block-t{font-family:var(--font-head);font-size:12.5px;font-weight:800;color:var(--text);}
+.sq-block-c{font-size:10px;font-weight:800;color:#fb8a99;background:rgba(244,63,94,.14);border-radius:20px;padding:2px 9px;}
+.sq-tblwrap{margin-top:10px;max-height:340px;overflow:auto;border:1px solid var(--border);border-radius:9px;}
+.sq-tbl{width:100%;border-collapse:collapse;font-size:11.5px;}
+.sq-tbl th{position:sticky;top:0;background:var(--surface2);text-align:left;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800;padding:8px 11px;border-bottom:1px solid var(--border);white-space:nowrap;z-index:1;}
+.sq-tbl td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;color:#c3cfdd;text-align:left;}
+.sq-tbl th,.sq-tbl td{text-align:left !important;}
+.sq-tbl tr:last-child td{border-bottom:none;}
+.sq-loc{white-space:nowrap;color:var(--muted2);font-size:10.5px;}
+.sq-loc b{display:block;color:#8ab5ff;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;}
+.sq-why{color:#f3bd52;font-weight:600;min-width:170px;}
+.sq-nm{color:#e8eff8;max-width:330px;}
+.sq-mu{color:var(--muted);white-space:nowrap;font-size:10.5px;}
+.sq-act{width:1%;white-space:nowrap;}
+.sq-open{display:block;color:#8ab5ff;font-size:12px;font-weight:800;text-decoration:none;font-variant-numeric:tabular-nums;}
+.sq-open:hover{color:#b9d2ff;text-decoration:underline;}
+.sq-ext{font-size:9px;opacity:.7;}
+.sq-mu2{color:var(--muted);font-size:10px;margin-top:4px;white-space:nowrap;}
+.sq-id{white-space:nowrap;}
+.sq-id-s{display:block;margin-top:3px;}
+.sq-cp{background:rgba(148,163,184,.08);border:1px solid var(--border);color:#c3cfdd;font-family:var(--font-mono);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:5px;cursor:pointer;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:.13s;}
+.sq-cp:hover{border-color:var(--border2);color:#fff;background:rgba(148,163,184,.16);}
+.sq-cp.ok{color:#5fd68c;border-color:rgba(34,197,94,.45);}
+.sq-none{color:#4d5b6d;font-size:10.5px;}
+.sq-fx{min-width:190px;}
+.sq-fixbtn{background:rgba(79,142,247,.14);border:1px solid rgba(79,142,247,.4);color:#9dc0ff;font-family:var(--font-mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:.13s;}
+.sq-fixbtn:hover{background:rgba(79,142,247,.24);color:#fff;}
+.sq-fixbtn.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.5);color:#5fd68c;}
+.sq-fx-n{display:block;font-size:9.5px;color:var(--muted);margin-top:5px;line-height:1.35;white-space:normal;}
+.sq-fx-n b{color:#8ab5ff;font-weight:800;}
+.sq-block-btns{margin-left:auto;display:flex;gap:7px;}
+
+/* SCROLL FLICKER — the sticky header ran backdrop-filter:blur(8px) over an opaque
+   background, so the blur was invisible but still forced a full-viewport re-read
+   and recomposite on every scroll frame, over the top of the Chart.js canvases.
+   Dropping it changes nothing visually and takes the per-frame work away. */
+/* THE actual flicker cause: the sticky header's background was rgba(...,.92) —
+   translucent — so every scroll frame the browser had to re-composite the moving
+   page content showing through it, while a glowing dot animated on top. Opaque
+   background + isolated animation = nothing to recompute per frame.
+   (No transform here: a transform on a position:sticky element causes jitter.) */
+header{
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  background:#141a24 !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) !important;
+}
+/* the live dot pulsed with a glow inside that sticky layer — give it its own
+   layer so it can never dirty the header */
+.dot,.alert-pill .alert-dot{will-change:opacity;box-shadow:none !important;}
+/* Review had a SECOND sticky bar doing the same thing, and the modal shells blur
+   a full-screen backdrop while their contents scroll. All of it goes. */
+.rv-toolbar{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:linear-gradient(180deg,#141a24,#0f1319) !important;}
+.prices-modal,.prices-modal-head,.hub-detail-overlay,.ai-modal-overlay{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
+.prices-modal{background:rgba(4,7,11,.86) !important;}
+
+/* OA vs A2A: two big donuts with a dead half-page under them, and ten identical
+   tiles. Tighten the charts and split the metrics into A2A / OA columns. */
+.oa-a2a-row{align-items:start;}
+.oa-a2a-row>div>div[style*="height:280px"]{height:210px !important;}
+#oaA2aStats{grid-template-columns:1fr 1fr;gap:7px !important;}
+#oaA2aStats .prov-modal-card,#oaA2aStats>div{min-width:0;}
+.sq-ig{background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:.14s;white-space:nowrap;}
+.sq-ig:hover{color:var(--text);border-color:var(--border2);background:rgba(148,163,184,.1);}
+.sq-ig-all{margin-left:auto;}
+.sq-ign{margin-top:16px;border-top:1px solid var(--border);padding-top:12px;}
+.sq-ign>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;color:var(--muted2);}
+.sq-ign>summary::-webkit-details-marker{display:none;}
+.sq-ign>summary:hover{color:var(--text);}
+.sq-chev{width:6px;height:6px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(-45deg);transition:transform .18s;}
+.sq-ign[open]>summary .sq-chev{transform:rotate(45deg);}
+.sq-ign>summary .sq-ig{margin-left:auto;}
+
+/* the "worth a look" nudge — an inline banner under the header */
+.sqb{display:flex;align-items:center;gap:13px;margin:0;padding:10px 32px;background:linear-gradient(90deg,rgba(244,63,94,.14),rgba(244,63,94,.05));border-bottom:1px solid rgba(244,63,94,.25);}
+.sqb-dot{width:8px;height:8px;border-radius:50%;background:#f43f5e;flex:0 0 auto;box-shadow:0 0 0 3px rgba(244,63,94,.16);}
+.sqb-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+.sqb-txt b{font-size:12.5px;color:#ffd9de;font-weight:700;}
+.sqb-txt span{font-size:11px;color:#b9a3a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sqb-go{flex:0 0 auto;background:rgba(244,63,94,.18);border:1px solid rgba(244,63,94,.42);color:#ffb3bd;font-family:var(--font-mono);font-size:11px;font-weight:700;padding:6px 13px;border-radius:7px;cursor:pointer;transition:.14s;}
+.sqb-go:hover{background:rgba(244,63,94,.3);color:#fff;}
+.sqb-x{flex:0 0 auto;background:transparent;border:none;color:#8b7b80;font-size:19px;line-height:1;padding:2px 6px;cursor:pointer;border-radius:5px;}
+.sqb-x:hover{color:#fff;background:rgba(255,255,255,.07);}
+@media(max-width:760px){.sqb{padding:9px 18px;}.sqb-txt span{display:none;}}
+
+/* legacy modal shell (kept for the styles it shares) */
+.sqm{position:fixed;inset:0;background:rgba(2,4,8,.72);backdrop-filter:blur(4px);z-index:400;display:flex;align-items:center;justify-content:center;padding:24px;animation:sqmIn .18s ease;}
+@keyframes sqmIn{from{opacity:0}to{opacity:1}}
+.sqm-box{background:var(--surface);border:1px solid rgba(244,63,94,.3);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);max-width:520px;width:100%;padding:20px 22px 18px;animation:pmRise .22s cubic-bezier(.4,0,.2,1);}
+.sqm-h{display:flex;align-items:flex-start;gap:11px;margin-bottom:13px;}
+.sqm-dot{width:9px;height:9px;border-radius:50%;background:#f43f5e;margin-top:6px;flex:0 0 auto;box-shadow:0 0 0 4px rgba(244,63,94,.14);}
+.sqm-t{font-family:var(--font-head);font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.015em;}
+.sqm-s{font-size:12px;color:var(--muted2);margin-top:5px;line-height:1.5;}
+.sqm-list{list-style:none;margin:0 0 13px;padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.sqm-list li{font-size:12px;color:#c3cfdd;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.045);line-height:1.45;}
+.sqm-list li:last-child{border-bottom:none;}
+.sqm-list b{color:#fb8a99;font-weight:800;}
+.sqm-note{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:15px;}
+.sqm-note b{color:#cdd9ea;}
+.sqm-btns{display:flex;gap:9px;}
+.sqm-go{flex:1;background:var(--accent);border:1px solid var(--accent);color:#fff;font-family:var(--font-mono);font-size:12px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;transition:filter .14s;}
+.sqm-go:hover{filter:brightness(1.12);}
+.sqm-later{background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:var(--font-mono);font-size:12px;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;}
+.sqm-later:hover{color:var(--text);}
+
+/* week cells: a week that hasn't started can't be "behind" */
+.tpx-cell.wk-future{opacity:.55;}
+.tpx-cell.wk-future .tpx-cell-v{color:var(--mut);}
+.tpx-cell-s.mut{color:var(--mut2);font-weight:600;}
+.tpx-cell-s.acc{color:#84b1ff;}
+</style>
+
+<script>
+/* ============================================================
+   v7 layer — (1) spend-first Overview hero  (2) Lavarion page
+   ============================================================ */
+(function(){
+
+/* ---------- 1. OVERVIEW HERO ---------- */
+function st(l,v,s,cls){return `<div class="ovh3-st"><div class="ovh3-st-l">${l}</div><div class="ovh3-st-v ${cls||''}">${v}</div><div class="ovh3-st-s">${s||''}</div></div>`;}
+
+/* hover anywhere on the target bar to read what that point is worth */
+function spV7WireTrack(host,target,spent){
+  const bar=host.querySelector('.ovh3-bar'); if(!bar||!target)return;
+  const hov=bar.querySelector('.ovh3-hover'), val=hov&&hov.querySelector('.ovh3-hover-v');
+  if(!hov||!val)return;
+  bar.addEventListener('mousemove',e=>{
+    const r=bar.getBoundingClientRect();
+    const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+    const at=target*p, gap=spent-at;
+    hov.style.left=(p*100)+'%';
+    hov.classList.add('on');
+    val.innerHTML=`<b>${fmt(at)}</b><span>${Math.round(p*100)}% of target · you're ${gap>=0?'past':fmt(-gap)+' short of'} this${gap>=0?'':''}</span>`;
+  });
+  bar.addEventListener('mouseleave',()=>hov.classList.remove('on'));
+}
+
+buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
+  const el=document.getElementById('ovHero'); if(!el)return;
+  el.style.display='block';
+  const isQuarter=(month===0);
+  const isPast=!isQuarter&&spIsPastMonth(year,month);
+  const q=(typeof activeQ!=='undefined')?activeQ:Math.floor(new Date().getMonth()/3)+1;
+
+  /* ---- period label + target ---- */
+  const periodName=isQuarter?('Q'+q+' '+year):(MONTH_NAMES[month]);
+  let target=teamTarget||0, expected=0, plan=null, recovery=null;
+  if(!isQuarter){ plan=spMonthlyRead(year,month,'team'); expected=plan.expected||0; target=target||plan.target||0; }
+
+  /* ---- tone + status wording ---- */
+  let tone='neutral', statusTxt='No target', delta='', qDone=false, qLeft=0;
+  if(isQuarter){
+    const nowY=new Date().getFullYear(), nowQ=Math.floor(new Date().getMonth()/3)+1;
+    qDone=(year<nowY)||(year===nowY&&q<nowQ);
+    qLeft=(year===nowY&&q===nowQ)?(q*3-(new Date().getMonth()+1)+1):0;
+    if(!target){ tone='neutral'; statusTxt=qDone?'Completed':'Quarter to date'; delta=`Total deployed across Q${q}. No quarter target set.`; }
+    else if(qDone){ const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':'Target missed';
+      delta=`<b>${fmt(Math.abs(g))}</b> ${g>=0?'over':'short of'} the <span class="n">${fmt(target)}</span> Q${q} target — <span class="n">${Math.round(totalSpend/target*100)}%</span> achieved.`; }
+    else { tone='neutral'; statusTxt='Quarter to date';
+      delta=`<span class="n">${Math.round(totalSpend/target*100)}%</span> of the <span class="n">${fmt(target)}</span> Q${q} target, with <b>${qLeft} month${qLeft!==1?'s':''}</b> still to buy in.`; }
+  } else if(isPast){
+    if(!target){ tone='neutral'; statusTxt='Completed'; delta=`Final total for ${MONTH_NAMES[month]}. No target was set.`; }
+    else { const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':'Target missed';
+      delta=`<b>${fmt(Math.abs(g))}</b> ${g>=0?'over':'short of'} the <span class="n">${fmt(target)}</span> target — <span class="n">${Math.round(totalSpend/target*100)}%</span> achieved.`; }
+  } else {
+    if(!target){ tone='neutral'; statusTxt='No target'; delta=`Spent so far this month. Add an ${MONTH_NAMES[month]} target in your Targets sheet to unlock the pace plan.`; }
+    else {
+      const stt=spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK});
+      const gap=totalSpend-expected;
+      tone=stt.className==='neutral'?'neutral':stt.className;
+      statusTxt=stt.label;
+      delta=stt.label==='Early read'
+        ? `Only day ${currentDay} — too early to call. Plan says <span class="n">${fmt(expected)}</span> by now, you're <b>${fmt(Math.abs(gap))} ${gap>=0?'ahead':'behind'}</b>.`
+        : `<b>${fmt(Math.abs(gap))} ${gap>=0?'ahead of':'behind'}</b> the weighted plan — it wants <span class="n">${fmt(expected)}</span> by day ${currentDay} of ${dim}.`;
+    }
+  }
+
+  /* ---- 4 supporting stats ---- */
+  let stats='';
+  if(isQuarter){
+    const months=(QUARTER_MONTHS[q]||[]).filter(x=>x.num).map(x=>x.num);
+    const rows=(typeof allRows!=='undefined'?allRows:[]).filter(r=>months.includes(r.month));
+    const units=rows.reduce((a,r)=>a+r.qty,0), ords=countOrders(rows);
+    const best=months.map(m=>({m,v:rows.filter(r=>r.month===m).reduce((a,r)=>a+r.spend,0)})).sort((a,b)=>b.v-a.v)[0];
+    stats=st('Quarter target',target?fmt(target):'—',target?`Q${q} combined monthly targets`:'not set','accent')
+      +(qDone
+        ? st('vs target',target?((totalSpend-target>=0?'+':'−')+fmt(Math.abs(totalSpend-target))):'—',target?(totalSpend>=target?'above target':'below target'):'—',target?(totalSpend>=target?'pos':'neg'):'')
+        : st('Left in the quarter',target?fmt(Math.max(0,target-totalSpend)):'—',target?`across ${qLeft} remaining month${qLeft!==1?'s':''}`:'no target set'))
+      +st('Units bought',units.toLocaleString(),`${ords} orders in Q${q}`)
+      +st('Biggest month',best&&best.v?MONTH_NAMES[best.m]:'—',best&&best.v?fmt(best.v)+' spent':'no spend yet');
+  } else if(isPast){
+    const rows=(typeof allRows!=='undefined'?allRows:[]).filter(r=>r.month===month);
+    const units=rows.reduce((a,r)=>a+r.qty,0), ords=countOrders(rows);
+    const active=new Set(rows.map(r=>localDateKey(r.date))).size;
+    stats=st('Target',target?fmt(target):'—',target?`for ${MONTH_NAMES[month]}`:'not set','accent')
+      +st('Achieved',target?Math.round(totalSpend/target*100)+'%':'—',target?fmt(Math.abs(totalSpend-target))+(totalSpend>=target?' over':' short'):'—',target?(totalSpend>=target?'pos':'neg'):'')
+      +st('Units bought',units.toLocaleString(),`${ords} orders`)
+      +st('Active buying days',active,active?fmt(totalSpend/active)+' per active day':'no buying days');
+  } else if(target){
+    recovery=spRecoveryPlan(year,month,'team');
+    const wk=recovery.weekdays.length, remaining=Math.max(0,target-totalSpend);
+    const perWk=wk?remaining/wk:0;
+    const proj=currentDay?totalSpend/currentDay*dim:0;
+    /* A run-rate off one or two days is noise, so show history instead of a fake forecast. */
+    const isEarly=(spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK})||{}).label==='Early read';
+    const ptEarly=isEarly?spSamePointYTDHistory(year,month,currentDay,dim,'team'):null;
+    const normNow=ptEarly?(ptEarly.average||0):0;
+    stats=st('Left to hit target',fmt(remaining),`of the ${fmt(target)} ${MONTH_NAMES[month]} target`)
+      +st('Per weekday from here',wk?fmt(perWk):'—',wk?`${wk} weekday${wk!==1?'s':''} left in the month`:'no weekdays left')
+      +st('Plan says by today',fmt(expected),`weighted · day ${currentDay} of ${dim}`,'accent')
+      +(isEarly
+        ? st(`Normally by day ${currentDay}`,normNow?fmt(normNow):'—',normNow?`${totalSpend>=normNow?'+':'−'}${fmt(Math.abs(totalSpend-normNow))} vs a normal start`:'too early to forecast a finish',normNow?(totalSpend>=normNow?'pos':'neg'):'')
+        : st('At this pace',fmt(proj),(proj>=target?fmt(proj-target)+' over':fmt(target-proj)+' under')+' by month end',proj>=target?'pos':'neg'));
+  } else {
+    const rows=(typeof allRows!=='undefined'?allRows:[]).filter(r=>r.month===month);
+    const units=rows.reduce((a,r)=>a+r.qty,0), ords=countOrders(rows);
+    const active=new Set(rows.map(r=>localDateKey(r.date))).size;
+    stats=st('Units bought',units.toLocaleString(),`${ords} orders so far`)
+      +st('Active buying days',active,`of ${currentDay} elapsed`)
+      +st('Per active day',active?fmt(totalSpend/active):'—','average when buying happens')
+      +st('Days left',Math.max(0,dim-currentDay),`of ${dim} in ${MONTH_NAMES[month]}`);
+  }
+
+  /* ---- progress track ---- */
+  let track='';
+  if(target){
+    const fill=Math.min(100,totalSpend/target*100);
+    const mark=(!isQuarter&&!isPast&&expected)?Math.min(100,expected/target*100):null;
+    const ticks=[25,50,75].map(p=>`<i class="ovh3-tick" style="left:${p}%"><em>${fmt(target*p/100).replace(/\.00$/,'')}</em></i>`).join('');
+    track=`<div class="ovh3-track" data-target="${target}" data-spent="${totalSpend}">
+      <div class="ovh3-bar" role="img" aria-label="${Math.round(fill)}% of target">
+        ${ticks}
+        <div class="ovh3-fill" style="width:${fill}%"><span class="ovh3-fill-pct">${fill>=7?Math.round(fill)+'%':''}</span></div>
+        ${mark!=null?`<div class="ovh3-mark" style="left:${mark}%"><span class="ovh3-mark-l">plan today</span></div>`:''}
+        <div class="ovh3-hover"><span class="ovh3-hover-v"></span></div>
+      </div>
+      <div class="ovh3-labels"><span><b>${fmt(totalSpend)}</b> spent</span><span>${mark!=null?`<b>${fmt(expected)}</b> plan by today`:''}</span><span><b>${fmt(target)}</b> target</span></div></div>`;
+  }
+
+  /* ---- collapsed history ---- */
+  let histHtml='';
+  if(!isQuarter&&!isPast&&target){
+    const pt=spSamePointYTDHistory(year,month,currentDay,dim,'team');
+    const hist=pt.values.map(v=>({m:v.m,atPoint:v.spend,finished:spMonthActual(year,v.m,'team'),cutoff:v.cutoff}));
+    if(hist.length){
+      const avgAt=pt.average||0, avgFin=hist.reduce((a,x)=>a+x.finished,0)/hist.length;
+      const tiles=hist.map(x=>`<div class="ovh2-nt"><span class="ovh2-nt-m">${MONTH_NAMES[x.m]}</span><span class="ovh2-nt-r">by day ${x.cutoff}: <b>${fmt(x.atPoint)}</b></span><span class="ovh2-nt-r fin">finished <b>${fmt(x.finished)}</b></span></div>`).join('')
+        +`<div class="ovh2-nt cur"><span class="ovh2-nt-m">${MONTH_NAMES[month]} · now</span><span class="ovh2-nt-r">day ${currentDay}: <b>${fmt(totalSpend)}</b></span><span class="ovh2-nt-r proj">vs normal <b>${totalSpend>=avgAt?'+':'−'}${fmt(Math.abs(totalSpend-avgAt))}</b></span></div>`;
+      histHtml=`<details class="ovh3-more"><summary><span class="ovh3-chev"></span>Compare with your last ${hist.length} month${hist.length!==1?'s':''} — normally <b>${fmt(avgAt)}</b> by day ${currentDay}</summary>
+        <div class="ovh3-hist-wrap"><div class="ovh3-hist-sum">By day ${currentDay} you'd normally be at <b>${fmt(avgAt)}</b> and finish the month around <b>${fmt(avgFin)}</b>. These are actuals, not targets — context for whether this start is unusual.</div><div class="ovh2-norm-tiles">${tiles}</div></div></details>`;
+    }
+  }
+
+  const footNote=isQuarter?'Quarter totals. Switch to a month for the pace plan.'
+    :isPast?'Completed month — final figures.'
+    :'The weighted plan spreads the target over weekdays, not calendar days.';
+
+  el.className=`ovh3 tone-${tone}`;
+  el.innerHTML=`<div class="ovh3-top">
+      <div class="ovh3-lead">
+        <div class="ovh3-eye">${isQuarter?`Spent in Q${q}`:`Spent in ${periodName}`}<span class="ovh3-pill"><span class="d"></span>${statusTxt}</span></div>
+        <div class="ovh3-big">${fmt(totalSpend)}</div>
+        <div class="ovh3-delta">${delta}</div>
+      </div>
+      <div class="ovh3-stats">${stats}</div>
+    </div>
+    ${track}
+    <div class="ovh3-foot">${histHtml}<button class="rv-pace-btn" onclick="openTargetPaceModal()">Pace plan &amp; history</button><span class="ovh3-foot-note">${footNote}</span></div>`;
+
+  spV7WireTrack(el,target,totalSpend);
+  const tgtSub=document.getElementById('cardTargetSub'); if(tgtSub&&target)tgtSub.textContent=`${fmt(Math.max(0,target-totalSpend))} remaining · view pace & history`;
+  const pi=document.getElementById('paceInfo');
+  if(pi)pi.textContent=isQuarter?`full quarter view · Q${q}`:isPast?`completed month · final figures`:`weighted weekday plan · day ${currentDay} of ${dim}`;
+};
+
+/* The Snapshot cards below are a single-month engine (spV2Context falls back to
+   the live month whenever "All Qn" is selected), so in quarter view they don't
+   describe the quarter. Say so instead of letting them read as the period total. */
+const spV7BaseRenderFn=render;
+render=function(){
+  const out=spV7BaseRenderFn.apply(this,arguments);
+  try{spV7QuarterSnapshot();}catch(e){console.error('quarter snapshot failed',e);}
+  try{spV7FixEmptyState();}catch(e){}
+  try{spV7FilterProviders();}catch(e){}
+  try{if(spV7UserDriven())spV7SaveView();}catch(e){}
+  try{if(!spV7Restored)setTimeout(spV7RestoreView,500);}catch(e){}
+  return out;
+};
+
+/* Empty-period escape hatch said "View Q2 instead" — but if you land here by
+   fat-fingering September, the thing you want is the month you were just on. */
+function spV7FixEmptyState(){
+  const f=document.getElementById('ovFuture');
+  if(!f||f.style.display==='none')return;
+  const btn=f.querySelector('.qf-btn'); if(!btn)return;
+  const now=new Date(), cm=now.getMonth()+1, cq=Math.floor(now.getMonth()/3)+1;
+  btn.textContent=`Back to ${MONTH_NAMES[cm]}`;
+  btn.onclick=()=>{
+    activeQ=cq;
+    const qb=document.querySelector('[data-q="'+cq+'"]');
+    if(qb&&!qb.classList.contains('active')){qb.click();setTimeout(()=>{activeMonth=cm;buildMonthBtns(cq);render();},60);}
+    else{activeMonth=cm;buildMonthBtns(cq);render();}
+  };
+}
+
+/* The Snapshot engine is month-only by construction (spV2Context falls back to the
+   live month whenever "All Qn" is selected). Rather than bend it, build real
+   quarter cards for quarter view — no month-vs-month comparisons, because
+   "normal by now" has no meaning across three months. */
+function spV7QuarterSnapshot(){
+  const t=[...document.querySelectorAll('#pageOverview .ov-sec-title')].find(e=>/^\s*Snapshot/.test(e.textContent||''));
+  const sub=t&&t.querySelector('span');
+  const mount=document.getElementById('spSnapshotV2');
+  if(activeMonth!==0){
+    if(sub)sub.textContent='headline numbers for the period';
+    if(mount)mount.dataset.q='';
+    return;
+  }
+  const q=activeQ;
+  const months=(QUARTER_MONTHS[q]||[]).filter(x=>x.num).map(x=>x.num);
+  const rows=(typeof allRows!=='undefined'?allRows:[]).filter(r=>months.includes(r.month));
+  if(sub)sub.textContent=`Q${q} totals — the whole quarter, not a single month`;
+  if(!mount||!rows.length)return;
+
+  const spend=rows.reduce((a,r)=>a+r.spend,0);
+  const units=rows.reduce((a,r)=>a+r.qty,0);
+  const orders=countOrders(rows);
+  const active=new Set(rows.map(r=>localDateKey(r.date))).size;
+  const asins=new Set(rows.filter(r=>r.asin).map(r=>r.asin)).size;
+  const target=months.reduce((a,m)=>a+((liveTargets[m]||{}).team||0),0);
+  const priced=rows.filter(r=>r.buyPrice>0);
+  const avgBuy=priced.length?priced.reduce((a,r)=>a+r.buyPrice,0)/priced.length:0;
+  const top=(key)=>{const m={};rows.forEach(r=>{const k=r[key];if(k)m[k]=(m[k]||0)+r.spend;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1])[0]||null;};
+  const tp=top('provider'), ts=top('supplier');
+  const byMonth=months.map(m=>({m,v:rows.filter(r=>r.month===m).reduce((a,r)=>a+r.spend,0)}));
+  const best=byMonth.slice().sort((a,b)=>b.v-a.v)[0];
+  const done=months.filter(m=>isMonthPast(m,new Date().getFullYear()));
+  const pct=target?spend/target*100:0;
+  const tone=!target?'target':pct>=100?'spend-green':pct>=90?'spend-yellow':'spend-red';
+
+  const card=(cls,label,tag,value,sub2,isName)=>`<div class="spv2-card ${cls}" style="cursor:default;">
+    <div class="spv2-label"><span>${label}</span>${tag?`<span class="spv2-mini">${tag}</span>`:''}</div>
+    <div class="spv2-value${isName?' name':''}">${value}</div><div class="spv2-sub">${sub2||''}</div></div>`;
+
+  mount.dataset.q=String(q);
+  mount.innerHTML=`
+    <div class="spv2-grid">
+      ${card(tone,'Total spend',`Q${q}`,fmt(spend),target?`${pct.toFixed(1)}% of the ${fmt(target)} quarter target`:'no quarter target set')}
+      ${card('target','Quarter target','SUM OF MONTHS',target?fmt(target):'—',target?`${fmt(Math.max(0,target-spend))} still to go`:'add targets in your Targets sheet')}
+      ${card('units','Units bought','QUARTER',units.toLocaleString(),`${orders} true orders · ${rows.length} SKU lines`)}
+      ${card('cog','Avg cost / unit','QUARTER',fmtDec(units?spend/units:0),`across ${units.toLocaleString()} units`)}
+      ${card('buyprice','Avg buy price','PRODUCT MIX',fmtDec(avgBuy),`${priced.length} priced lines`)}
+      ${card('active','Active buying days','CADENCE',String(active),active?`${fmt(spend/active)} per active day`:'no buying days')}
+    </div>
+    <div class="spv2-grid">
+      ${card('spendday','Avg order value','CONTEXT',fmt(orders?spend/orders:0),`${orders} orders across the quarter`)}
+      ${card('orders','Busiest month','CONTRIBUTION',best&&best.v?MONTH_NAMES[best.m]:'—',best&&best.v?`${fmt(best.v)} · ${Math.round(best.v/spend*100)}% of Q${q}`:'no spend yet',true)}
+      ${card('asins','Unique ASINs','BREADTH',asins.toLocaleString(),`${rows.length} lines bought`)}
+      ${card('provider','Top provider','CONTRIBUTION',tp?esc(tp[0]):'—',tp?`${fmt(tp[1])} · ${Math.round(tp[1]/spend*100)}% of the quarter`:'no provider data',true)}
+      ${card('supplier','Top supplier','CONTRIBUTION',ts?esc(ts[0]):'—',ts?`${fmt(ts[1])} · ${Math.round(ts[1]/spend*100)}% of the quarter`:'no supplier data',true)}
+      ${card('coverage','Months complete','PROGRESS',`${done.length}/${months.length}`,done.length<months.length?`${MONTH_NAMES[months[done.length]]} still running`:`Q${q} is finished`)}
+    </div>`;
+}
+
+/* The hero now states the pace verdict, so drop the signal that repeats it —
+   Signals is only worth space when it's telling you something new. */
+const spV7BaseSignals=computeSignals;
+computeSignals=function(rows,ms){
+  let out=[]; try{out=spV7BaseSignals.apply(this,arguments)||[];}catch(e){out=[];}
+  return out.filter(s=>!/Early read only|Team is (below|above) the weighted plan|Final target result:|Selected-period view\.|Quarter view\./i.test(String(s.text||'')));
+};
+const spV7BaseRender=renderSignals;
+renderSignals=function(elId,signals,limit){
+  const el=document.getElementById(elId);
+  const wrap=el&&el.closest('.ovh-wrap');
+  if(el&&(!signals||!signals.length)){
+    el.innerHTML=''; el.style.display='none';
+    if(wrap)wrap.classList.add('no-sig');
+    return;
+  }
+  if(el)el.style.display='';
+  if(wrap)wrap.classList.remove('no-sig');
+  return spV7BaseRender.call(this,elId,signals,limit);
+};
+
+/* ---------- 1. PROVIDER PACE BUG ----------
+   paceColor/paceLabel were hardcoded to spMonthlyRead(y,m,'team'), so every
+   provider row was compared against the TEAM's plan-by-today. That's why Jack
+   (£8k target), Arbi (£3k) and TFTJ (£7k) all read "£869.94 below weighted plan".
+   Each provider's own expectation is its target x the same elapsed plan fraction. */
+function spV7PlanFrac(year,month){
+  try{const p=spMonthlyRead(year,month,'team');
+    if(!p||!p.target)return null;
+    return (p.expected||0)/p.target;}catch(e){return null;}
+}
+paceColor=function(spent,target,progress,month,year){
+  if(!target)return '#4f8ef7';
+  if(month&&year){
+    if(spIsPastMonth(year,month))return spent>=target?'#22c55e':'#f43f5e';
+    const f=spV7PlanFrac(year,month); const exp=(f!=null?target*f:target*progress);
+    if(!exp)return '#4f8ef7';
+    const r=spent/exp; return r>=1?'#22c55e':r>=.9?'#f59e0b':'#f43f5e';
+  }
+  return '#4f8ef7';
+};
+paceLabel=function(spent,target,progress,month,year){
+  if(!target)return '';
+  if(month&&year){
+    if(spIsPastMonth(year,month))
+      return spent>=target?`target hit · ${fmt(spent-target)} over`:`finished ${fmt(target-spent)} short`;
+    const f=spV7PlanFrac(year,month); const exp=(f!=null?target*f:target*progress);
+    if(!exp)return 'early read';
+    const d=spent-exp;
+    if(spent<=0)return `nothing yet · ${fmt(exp)} due by today`;
+    return d>=0?`${fmt(d)} ahead of their ${fmt(exp)} plan`:`${fmt(-d)} behind their ${fmt(exp)} plan`;
+  }
+  return '';
+};
+
+/* ---------- 1a. SUPPLIER NAMES ----------
+   "gillette / Gillette", "huawei / Huawei / HUAWEI" and friends were counted as
+   separate suppliers, splitting their totals across every chart and dropdown.
+   One row also had a price (157.96) sitting in the supplier column. */
+const spV7BaseSupplier=cleanSupplierName;
+const SPV7_SUPPLIER_ALIASES={
+  gillete:'Gillette',gillette:'Gillette',
+  harveynorman:'Harvey Norman',
+  portugaliaonline:'Portugalia Online',
+  tradewindsorientalshop:'Tradewinds Oriental Shop',
+  vikingdirect:'Viking Direct',
+  skinnyfoodco:'Skinny Food Co',
+  henry:'Henry',myhenry:'Henry',
+  lookfantastic:'Look Fantastic',
+  hollandbarrett:'Holland & Barrett',
+  delonghi:'De Longhi',
+  currysbusiness:'Currys Business',
+  marksElectrical:'Marks Electrical'
+};
+cleanSupplierName=function(raw){
+  const v=(raw||'').toString().trim().replace(/\s+/g,' ');
+  if(!v)return '';
+  /* a bare number in the supplier column is a mis-keyed row, not a shop */
+  if(/^[£$€]?[\d.,]+$/.test(v))return 'Unknown supplier';
+  const base=spV7BaseSupplier(v);
+  const key=base.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(SPV7_SUPPLIER_ALIASES[key])return SPV7_SUPPLIER_ALIASES[key];
+  /* Casing variants collapse into one. Short all-caps names are left alone so
+     genuine acronyms (JBL, AO) don't turn into "Jbl". */
+  const title=()=>base.toLowerCase().replace(/\b([a-z])/g,c=>c.toUpperCase());
+  if(base===base.toLowerCase()&&base.length>2)return title();
+  if(base===base.toUpperCase()&&base.length>4)return title();
+  return base;
+};
+
+/* ---------- 1a2. SHEET ERROR REPORT ----------
+   Rows the dashboard silently drops (no date / no provider / no spend / bad date)
+   were invisible: real spend that never reached any number. Keep the raw sheet
+   values so we can name the exact tab + row to fix. */
+const SPV7_RAW={};
+let spV7RawPromise=null;
+/* The boot fetch fires before this layer loads, so pull the raw values ourselves — once. */
+function spV7EnsureRaw(){
+  if(spV7RawPromise)return spV7RawPromise;
+  const qs=[];for(let q=1;q<=Math.min(4,currentQuarterNumber());q++)qs.push(q);
+  spV7RawPromise=Promise.all(qs.map(q=>{
+    const tab=QUARTER_TABS[q];
+    return fetchTab(tab).then(v=>{SPV7_RAW[tab]=v;}).catch(()=>{});
+  }));
+  return spV7RawPromise;
+}
+function spV7Cell(r,i){return (r&&i<r.length?(r[i]||''):'').toString().trim();}
+/* 0 -> A, 14 -> O, 26 -> AA — so we can name the exact cell to paste into */
+function spV7ColLetter(i){let s='';i=Number(i);do{s=String.fromCharCode(65+(i%26))+s;i=Math.floor(i/26)-1;}while(i>=0);return s;}
+/* gid per tab, so every flagged row can open straight at the cell in Google Sheets */
+const SPV7_GID={'Q1 AMZ - OA':1153840108,'Q2 AMZ - OA':73546848,'Q3 AMZ - OA':637414571,
+  'Lavarion Q1':1362903403,'Lavarion Q2':1709944088,'Lavarion Q3':1640030518,'Targets':68607441};
+function spV7SheetLink(tab,cell){
+  const gid=SPV7_GID[tab];
+  if(gid===undefined)return null;
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=${gid}&range=${cell}`;
+}
+function spV7Copy(txt,btn){
+  const done=()=>{if(!btn)return;const o=btn.textContent;btn.textContent='Copied';btn.classList.add('ok');setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok');},1100);};
+  try{navigator.clipboard.writeText(txt).then(done,()=>{spV7CopyFallback(txt);done();});}
+  catch(e){spV7CopyFallback(txt);done();}
+}
+function spV7CopyFallback(t){try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);}catch(e){}}
+window.spV7Copy=spV7Copy;
+function spV7Num(s){
+  const v=parseFloat((s||'').toString().replace(/[£,\s]/g,''));
+  return isNaN(v)?null:v;
+}
+/* Ignore list — "this one's on purpose". Survives refreshes, per browser. */
+const SPV7_IGN_KEY='dash:sheetIgnore';
+function spV7LoadIgn(){try{return JSON.parse(localStorage.getItem(SPV7_IGN_KEY)||'{}')||{};}catch(e){return {};}}
+function spV7SaveIgn(o){try{localStorage.setItem(SPV7_IGN_KEY,JSON.stringify(o));}catch(e){}}
+let SPV7_IGN=spV7LoadIgn();
+function spV7Ignore(k){SPV7_IGN[k]=1;spV7SaveIgn(SPV7_IGN);spV7Refresh();}
+function spV7Unignore(k){delete SPV7_IGN[k];spV7SaveIgn(SPV7_IGN);spV7Refresh();}
+function spV7IgnoreMany(keys){keys.split('~~').forEach(k=>{if(k)SPV7_IGN[k]=1;});spV7SaveIgn(SPV7_IGN);spV7Refresh();}
+function spV7UnignoreAll(){SPV7_IGN={};spV7SaveIgn(SPV7_IGN);spV7Refresh();}
+function spV7Refresh(){
+  const el=document.querySelector('.sq-wrap');
+  if(el)el.outerHTML=spV7SheetErrorHtml();
+  spV7UpdateErrorChip();
+}
+window.spV7Ignore=spV7Ignore;window.spV7Unignore=spV7Unignore;
+window.spV7IgnoreMany=spV7IgnoreMany;window.spV7UnignoreAll=spV7UnignoreAll;
+
+/* Your sheet already carries the whole-order total on every line, which is a
+   second opinion on the ASIN Spend column. Where the lines don't add up to it,
+   either spend is counted twice or a buy was never logged. */
+const SPV7_COL_ORDER_TOTAL=15;
+
+/* Work out the exact corrected value and the exact cell it goes in.
+   The dashboard reads your sheet with a read-only key, so it can't write the fix —
+   but it can do the arithmetic and hand you the value to paste. */
+function spV7SuggestFix(b,why){
+  if(/no spend value|not a number/.test(why)){
+    if(b.buy>0&&b.qty>0)return {note:`${fmt(b.buy)} buy price × ${b.qty} unit${b.qty!==1?'s':''}`,
+      value:(b.buy*b.qty).toFixed(2),cell:spV7ColLetter(COL_SPEND)+b.row};
+    return {note:'no buy price or quantity to work it out from'};
+  }
+  if(/not dd\/mm\/yyyy|date year/.test(why)){
+    const d=(b.date||'').replace(/\D/g,'');
+    if(d.length===8)return {note:'the slashes are off — this is what it should read',
+      value:`${d.slice(0,2)}/${d.slice(2,4)}/${d.slice(4)}`,cell:spV7ColLetter(COL_DATE)+b.row};
+    return {note:'date needs re-entering as dd/mm/yyyy'};
+  }
+  if(/no provider/.test(why))return {note:'only you know whose buy this was — no way to infer it'};
+  if(/no date/.test(why))return {note:'needs a date before it can be counted'};
+  return null;
+}
+
+function spV7SheetIssues(){
+  const known=new Set(Object.keys(PROVIDER_COLORS));
+  const dropped=[],badProv=[],badSup=[],badDate=[],parsed=[];
+  Object.keys(SPV7_RAW).sort().forEach(tab=>{
+    const v=SPV7_RAW[tab]||[];
+    for(let i=HEADER_ROWS;i<v.length;i++){
+      const r=v[i], row=i+1;
+      const date=spV7Cell(r,COL_DATE), prov=spV7Cell(r,COL_PROVIDER), sup=spV7Cell(r,COL_SUPPLIER);
+      const name=spV7Cell(r,COL_NAME), oid=spV7Cell(r,COL_ORDER_ID), rawSpend=spV7Cell(r,COL_SPEND);
+      if(!date&&!prov&&!sup&&!name&&!rawSpend)continue;
+      const spend=spV7Num(rawSpend), buy=spV7Num(spV7Cell(r,COL_BUY_PRICE));
+      const qty=parseInt((spV7Cell(r,COL_QTY)||'').replace(/[,\s]/g,''))||1;
+      const asin=spV7Cell(r,COL_ASIN), sku=spV7Cell(r,COL_SKU);
+      const otot=spV7Num(spV7Cell(r,SPV7_COL_ORDER_TOTAL));
+      const base={tab,row,date,prov,sup,name,oid,spend,buy,qty,rawSpend,asin,sku,otot};
+      let why=null;
+      if(!date)why='no date';
+      else if(!prov)why='no provider';
+      else if(spend===null||spend<=0)why=rawSpend?`spend "${rawSpend}" is not a number`:'no spend value';
+      else{
+        const p=date.split('/');
+        if(p.length!==3||p.some(x=>!/^\d+$/.test(x)))why=`date "${date}" is not dd/mm/yyyy`;
+        else{const yy=+p[2];if(yy<2024||yy>new Date().getFullYear()+1)why=`date year ${yy} looks wrong`;}
+      }
+      if(why){dropped.push({...base,why,key:`${tab}|${row}|dropped`,fix:spV7SuggestFix(base,why)});continue;}
+      parsed.push(base);
+      if(prov&&!known.has(prov))badProv.push({...base,why:`provider is "${prov}" — not one of your ${known.size} providers`,key:`${tab}|${row}|prov`,
+        fix:{note:`looks like the row slipped a column — "${prov}" belongs in Bought From`,value:prov,cell:spV7ColLetter(COL_SUPPLIER)+row}});
+      if(sup&&/^[£$€]?[\d.,\s]+$/.test(sup))badSup.push({...base,why:`supplier is "${sup}" — that looks like a price`,key:`${tab}|${row}|sup`,
+        fix:{note:`the price ${sup} should be in Asin Spend, not Bought From`,value:sup,cell:spV7ColLetter(COL_SPEND)+row}});
+    }
+  });
+  /* reconcile each order against its own Order Total column */
+  const byOrder={};
+  parsed.forEach(x=>{if(x.oid)(byOrder[x.tab+'|'+x.oid]=byOrder[x.tab+'|'+x.oid]||[]).push(x);});
+  const dbl=[];
+  Object.values(byOrder).forEach(g=>{
+    const tots=g.map(x=>x.otot).filter(v=>v!=null&&v>0);
+    if(!tots.length)return;
+    const ot=Math.max(...tots), lines=g.reduce((a,x)=>a+x.spend,0), gap=ot-lines;
+    if(Math.abs(gap)<=Math.max(1,ot*0.02))return;
+    const over=gap<0;
+    dbl.push({rows:g,oid:g[0].oid,spend:lines,name:g[0].name,over:over?-gap:0,under:over?0:gap,
+      tab:g[0].tab,asin:g[0].asin,sku:g[0].sku,ot,lines,
+      key:`${g[0].tab}|${g.map(x=>x.row).join('-')}|recon`,
+      why:over
+        ? `the ${g.length} line${g.length!==1?'s':''} add up to ${fmt(lines)}, but the order total says ${fmt(ot)} — ${fmt(-gap)} too much`
+        : `the order total is ${fmt(ot)} but the line${g.length!==1?'s':''} only add up to ${fmt(lines)} — ${fmt(gap)} unaccounted for`,
+      fix:{note:over?'a line total is probably repeated across the split lines':'a buy from this order may never have been logged'}});
+  });
+  dbl.sort((a,b)=>Math.abs(b.ot-b.lines)-Math.abs(a.ot-a.lines));
+  const all=[...dropped,...badProv,...badSup,...dbl];
+  const live=x=>!SPV7_IGN[x.key];
+  const ignored=all.filter(x=>!live(x));
+  /* an ignore for something that no longer exists is dead weight — drop it */
+  const valid=new Set(all.map(x=>x.key));
+  let pruned=false;
+  Object.keys(SPV7_IGN).forEach(k=>{if(!valid.has(k)){delete SPV7_IGN[k];pruned=true;}});
+  if(pruned)spV7SaveIgn(SPV7_IGN);
+  const act=a=>a.filter(live);
+  return {dropped:act(dropped),badProv:act(badProv),badSup:act(badSup),badDate,dbl:act(dbl),ignored,
+    droppedSpend:act(dropped).reduce((a,x)=>a+(x.spend||0),0),
+    count:act(dropped).length+act(badProv).length+act(badSup).length+act(dbl).length};
+}
+
+const spV7BaseDQ=(typeof renderDataQuality==='function')?renderDataQuality:null;
+renderDataQuality=function(rows){
+  let head='';
+  try{head=spV7SheetErrorHtml();}catch(e){console.error('sheet error report failed',e);}
+  return head+(spV7BaseDQ?spV7BaseDQ.apply(this,arguments):'');
+};
+function spV7SheetErrorHtml(){
+  if(!Object.keys(SPV7_RAW).length){
+    spV7EnsureRaw().then(()=>{
+      if(!Object.keys(SPV7_RAW).length){
+        const e2=document.querySelector('.sq-wrap');
+        if(e2)e2.innerHTML=`<div class="sq-head"><div><div class="sq-title">Sheet errors</div><div class="sq-note">Couldn't read the raw sheets just now — check your connection and reopen this tab.</div></div></div>`;
+        return;
+      }
+      const el=document.querySelector('.sq-wrap');
+      if(el)el.outerHTML=spV7SheetErrorHtml();
+      spV7UpdateErrorChip();
+    });
+    return `<div class="sq-wrap"><div class="sq-head"><div><div class="sq-title">Sheet errors</div><div class="sq-note">Reading your Q sheets row by row…</div></div></div></div>`;
+  }
+  const iss=spV7SheetIssues();
+  const locCell=(x,cell)=>{
+    const url=spV7SheetLink(x.tab,cell);
+    const label=x.rows?`rows ${x.rows.map(r=>r.row).join(', ')}`:`row ${x.row}`;
+    return `<td class="sq-loc">${esc(x.tab)}${url
+      ? `<a class="sq-open" href="${url}" target="_blank" rel="noopener" title="Open ${x.tab} at ${cell} in Google Sheets">${label} <span class="sq-ext">↗</span></a>`
+      : `<b>${label}</b>`}</td>`;
+  };
+  const cp=(v,label)=>v?`<button class="sq-cp" onclick="spV7Copy('${esc(String(v)).replace(/'/g,"\\'")}',this)" title="Copy ${label}">${esc(String(v))}</button>`:'';
+  const idCell=(x)=>`<td class="sq-id">${cp(x.asin,'ASIN')}${x.sku?`<span class="sq-id-s">${cp(x.sku,'SKU')}</span>`:''}${x.oid?`<span class="sq-id-s">${cp(x.oid,'order ID')}</span>`:''}${!x.asin&&!x.sku&&!x.oid?'<span class="sq-none">no ids</span>':''}</td>`;
+  const fixCell=(x)=>{
+    const f=x.fix;
+    if(!f)return `<td class="sq-fx"><span class="sq-none">—</span></td>`;
+    if(!f.value)return `<td class="sq-fx"><span class="sq-fx-n">${esc(f.note)}</span></td>`;
+    return `<td class="sq-fx"><button class="sq-fixbtn" onclick="spV7Copy('${esc(f.value).replace(/'/g,"\\'")}',this)" title="Copy this value, then paste it into ${f.cell}">Copy ${esc(f.value)}</button>
+      <span class="sq-fx-n">into <b>${esc(f.cell)}</b> · ${esc(f.note)}</span></td>`;
+  };
+  const ig=(k)=>`<td class="sq-act"><button class="sq-ig" onclick="spV7Ignore('${k}')" title="On purpose — stop flagging this row">Ignore</button></td>`;
+  const block=(title,note,list)=>{
+    if(!list.length)return '';
+    const allKeys=list.map(x=>x.key).join('~~');
+    const fixable=list.filter(x=>x.fix&&x.fix.value);
+    const bulk=fixable.length?`<button class="sq-ig" onclick="spV7Copy('${fixable.map(x=>`${x.tab}\\t${x.fix.cell}\\t${x.fix.value}`).join('\\n')}',this)" title="Copy every suggested value as tab-separated rows">Copy ${fixable.length===1?'the fix':'all '+fixable.length+' fixes'}</button>`:'';
+    return `<div class="sq-block"><div class="sq-block-h"><span class="sq-block-t">${title}</span><span class="sq-block-c">${list.length}</span>
+        <span class="sq-block-btns">${bulk}<button class="sq-ig" onclick="spV7IgnoreMany('${allKeys}')" title="Mark all of these as intentional">Ignore all ${list.length}</button></span></div>
+      <div class="sq-note">${note}</div>
+      <div class="sq-tblwrap"><table class="sq-tbl"><thead><tr><th>Where to fix</th><th>What's wrong</th><th>Product</th><th>ASIN · SKU · order</th><th>Suggested fix</th><th></th></tr></thead><tbody>
+      ${list.map(x=>`<tr>${locCell(x,(x.fix&&x.fix.cell)||('A'+x.row))}<td class="sq-why">${esc(x.why)}</td><td class="sq-nm">${esc((x.name||'—').slice(0,58))}<div class="sq-mu2">${esc(x.date||'—')} · ${esc(x.prov||'—')} · ${esc(x.sup||'—')}</div></td>${idCell(x)}${fixCell(x)}${ig(x.key)}</tr>`).join('')}
+      </tbody></table></div></div>`;
+  };
+  const over=iss.dbl.reduce((a,x)=>a+(x.over||0),0), under=iss.dbl.reduce((a,x)=>a+(x.under||0),0);
+  const dblHtml=iss.dbl.length?`<div class="sq-block"><div class="sq-block-h"><span class="sq-block-t">Order lines don't add up to the order total</span><span class="sq-block-c">${iss.dbl.length}</span>
+    <span class="sq-block-btns"><button class="sq-ig" onclick="spV7IgnoreMany('${iss.dbl.map(x=>x.key).join('~~')}')">Ignore all ${iss.dbl.length}</button></span></div>
+    <div class="sq-note">Your sheet records the whole-order total on every line, so it can be checked against the ASIN Spend column. Where they disagree, either a line total got repeated across split lines or a buy was never logged.
+    ${over?`Overstating by <b>${fmt(over)}</b>.`:''} ${under?`And <b>${fmt(under)}</b> of ordered value has no line against it.`:''}</div>
+    <div class="sq-tblwrap"><table class="sq-tbl"><thead><tr><th>Where to fix</th><th>What's wrong</th><th>Product</th><th>ASIN · order</th><th>Order total vs lines</th><th></th></tr></thead><tbody>
+    ${iss.dbl.map(x=>`<tr>${locCell(x,spV7ColLetter(COL_SPEND)+x.rows[0].row)}<td class="sq-why">${esc(x.why)}</td><td class="sq-nm">${esc((x.name||'—').slice(0,52))}<div class="sq-mu2">${esc(x.fix.note)}</div></td>${idCell(x)}<td class="sq-fx"><span class="sq-fx-n"><b>${fmt(x.ot)}</b> on the order<br>${fmt(x.lines)} across ${x.rows.length} line${x.rows.length!==1?'s':''}</span></td>${ig(x.key)}</tr>`).join('')}
+    </tbody></table></div></div>`:'';
+  const ignHtml=iss.ignored.length?`<details class="sq-ign"><summary><span class="sq-chev"></span>${iss.ignored.length} ignored on purpose<button class="sq-ig" onclick="event.preventDefault();event.stopPropagation();spV7UnignoreAll();">Un-ignore all</button></summary>
+    <div class="sq-tblwrap" style="margin-top:9px;"><table class="sq-tbl"><thead><tr><th>Where</th><th>What was flagged</th><th>Product</th><th></th></tr></thead><tbody>
+    ${iss.ignored.map(x=>`<tr><td class="sq-loc">${esc(x.tab)}<b>row${x.rows?'s '+x.rows.map(r=>r.row).join(', '):' '+x.row}</b></td><td class="sq-mu">${esc(x.why)}</td><td class="sq-nm">${esc((x.name||'—').slice(0,60))}</td><td class="sq-act"><button class="sq-ig" onclick="spV7Unignore('${x.key}')">Restore</button></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="sq-note" style="margin-top:8px;">Ignoring only hides the warning — it doesn't change any number. If you later fix the row in the sheet, its entry drops off this list automatically.</div></details>`:'';
+  const clean=!iss.count;
+  return `<div class="sq-wrap${clean?' ok':''}">
+    <div class="sq-head">
+      <div><div class="sq-title">Sheet errors${clean?'':` · ${iss.count}`}</div>
+      <div class="sq-note">${clean?(iss.ignored.length?'Nothing left to investigate — everything else is marked as intentional.':'Every row in your Q sheets parses cleanly — nothing is being dropped.')
+        :`Found in your Purchase Sheet. Each one names the tab and row so you can jump straight to it. Anything that's deliberate, hit <b>Ignore</b> and it won't come back. This tab never edits your sheet.`}</div></div>
+      ${iss.dropped.length?`<div class="sq-big"><div class="sq-big-v">${iss.dropped.length}</div><div class="sq-big-l">rows ignored<br>by the dashboard</div></div>`:''}
+    </div>
+    ${block('Rows the dashboard ignores completely',
+      `These never reach a single number anywhere in the app — not the Overview, not Trends, not your targets. ${iss.dropped.filter(x=>x.spend>0).length?`<b>${iss.dropped.filter(x=>x.spend>0).length}</b> of them do have a spend value, worth <b>${fmt(iss.droppedSpend)}</b>, but are dropped for another reason.`:''} Fill in the missing cell and they appear straight away.`,
+      iss.dropped,["What's missing",'Product','Date · provider · supplier'])}
+    ${block('Provider column holds something else',
+      'The provider column should be one of your team names. A supplier name here means the buy is credited to the wrong place.',
+      iss.badProv,["What's wrong",'Product','Date · provider · supplier'])}
+    ${block('Supplier column holds a price',
+      'A number in the supplier cell usually means a row got shifted one column across.',
+      iss.badSup,["What's wrong",'Product','Date · provider · supplier'])}
+    ${dblHtml}
+    ${ignHtml}
+  </div>`;
+}
+
+/* ---- the nudge on load ---- */
+let spV7Alerted=false;
+function spV7MaybeAlert(){
+  if(spV7Alerted)return;
+  let iss; try{iss=spV7SheetIssues();}catch(e){return;}
+  if(!iss.count)return;
+  try{if(sessionStorage.getItem('dash:sheetErrSeen')==='1')return;}catch(e){}
+  spV7Alerted=true;
+  try{sessionStorage.setItem('dash:sheetErrSeen','1');}catch(e){}
+  const lost=iss.dropped.filter(x=>x.spend>0).reduce((a,x)=>a+x.spend,0);
+  const bits=[];
+  if(iss.dropped.length)bits.push(`<li><b>${iss.dropped.length}</b> row${iss.dropped.length!==1?'s':''} the dashboard skips entirely${lost>0?` — <b>${fmt(lost)}</b> of logged spend that never reaches a single number`:''}</li>`);
+  if(iss.badProv.length)bits.push(`<li><b>${iss.badProv.length}</b> row${iss.badProv.length!==1?'s':''} where the provider column holds something else</li>`);
+  if(iss.badSup.length)bits.push(`<li><b>${iss.badSup.length}</b> row${iss.badSup.length!==1?'s':''} with a price sitting in the supplier column</li>`);
+  if(iss.dbl.length)bits.push(`<li><b>${iss.dbl.length}</b> order${iss.dbl.length!==1?'s':''} where the total looks repeated across split lines</li>`);
+  /* a banner, not a modal — it shouldn't block you every session */
+  if(document.getElementById('sqBanner'))return;
+  const el=document.createElement('div');
+  el.id='sqBanner';el.className='sqb';
+  el.innerHTML=`<span class="sqb-dot"></span>
+    <div class="sqb-txt"><b>${iss.count} thing${iss.count!==1?'s':''} in your sheet worth a look</b>
+      <span>${iss.dropped.length} row${iss.dropped.length!==1?'s':''} skipped entirely${lost>0?` (${fmt(lost)} of logged spend)`:''}${iss.dbl.length?` · ${iss.dbl.length} order${iss.dbl.length!==1?'s':''} that don't add up`:''}${iss.badProv.length+iss.badSup.length?` · ${iss.badProv.length+iss.badSup.length} in the wrong column`:''}</span></div>
+    <button class="sqb-go">Show me the rows</button><button class="sqb-x" title="Hide until next time">×</button>`;
+  el.querySelector('.sqb-x').onclick=()=>el.remove();
+  el.querySelector('.sqb-go').onclick=()=>{switchPage('hub');setTimeout(()=>{setHubView('quality');setTimeout(()=>{const w=document.querySelector('.sq-wrap');if(w)w.scrollIntoView({block:'start',behavior:'smooth'});},250);},140);};
+  const hdr=document.querySelector('header');
+  if(hdr&&hdr.parentNode)hdr.parentNode.insertBefore(el,hdr.nextSibling);
+}
+
+/* header chip doubles as the way in */
+let spV7ChipWaiting=false;
+function spV7UpdateErrorChip(){
+  const host=document.querySelector('.header-right'); if(!host)return;
+  if(!Object.keys(SPV7_RAW).length){
+    /* guard: if the fetch comes back empty this must not re-arm itself forever */
+    if(spV7ChipWaiting)return;
+    spV7ChipWaiting=true;
+    spV7EnsureRaw().then(()=>{if(Object.keys(SPV7_RAW).length)spV7UpdateErrorChip();});
+    return;
+  }
+  let n=0; try{n=spV7SheetIssues().count;}catch(e){return;}
+  let chip=document.getElementById('sheetErrChip');
+  if(!n){if(chip)chip.remove();return;}
+  if(!chip){
+    chip=document.createElement('button');
+    chip.id='sheetErrChip';chip.className='sq-chip';
+    chip.onclick=()=>{switchPage('hub');setTimeout(()=>setHubView('quality'),120);};
+    host.insertBefore(chip,host.firstChild);
+  }
+  chip.title='Rows in your Purchase Sheet that need a fix — click to see them';
+  chip.innerHTML=`<span class="sq-chip-d"></span>${n} sheet ${n===1?'error':'errors'}`;
+  try{spV7MaybeAlert();}catch(e){}
+}
+
+if(typeof updateDataHealth==='function'){
+  const spV7BaseHealth=updateDataHealth;
+  updateDataHealth=function(){const o=spV7BaseHealth.apply(this,arguments);try{spV7UpdateErrorChip();}catch(e){}return o;};
+}
+
+/* ---------- 1b. TARGET / PACE MODAL ----------
+   The builder stays as-is; this pass fixes what was wrong and restyles the top.
+   Fixed: weeks that haven't started were shown red and "behind"; the normal-start
+   figure disagreed with the Overview; a day-1 projection was presented as a verdict. */
+const spV7BasePaceModal=openTargetPaceModal;
+openTargetPaceModal=function(){
+  spV7BasePaceModal.apply(this,arguments);
+  try{spV7PolishPace();}catch(e){console.error('pace modal polish failed',e);}
+};
+
+function spV7PolishPace(){
+  const body=document.getElementById('targetPaceModalBody'); if(!body)return;
+  const rowsAll=spGetAllRows();
+  const m=(activeMonth&&activeMonth!==0)?activeMonth:new Date().getMonth()+1;
+  const yrs=rowsAll.filter(r=>r.month===m).map(r=>r.year);
+  const y=yrs.length?Math.max(...yrs):new Date().getFullYear();
+  const full=spMonthlyPlan(y,m,'team');
+  const cutoff=spLastDateForMonth(y,m);
+  const elapsed=full.days.filter(d=>d.key<=cutoff);
+  const actual=spSum(elapsed,d=>d.actual), expected=spSum(elapsed,d=>d.plan), target=full.target||0;
+  const dim=full.days.length, curDay=elapsed.length||1;
+  const past=spIsPastMonth(y,m);
+  const rec=spRecoveryPlan(y,m,'team');
+  const wkLeft=Array.isArray(rec.weekdays)?rec.weekdays.length:0;
+  const remaining=Math.max(0,target-actual);
+  const status=spPlanStatus({fromK:spFirstDateForMonth(y,m),toK:cutoff,days:elapsed,target:past?target:expected,actual});
+  const early=status.label==='Early read';
+  const pt=spSamePointYTDHistory(y,m,curDay,dim,'team');
+  const normByNow=pt.average||0;
+  const activeDays=new Set(spActualForMonth(y,m,'team').filter(r=>localDateKey(r.date)<=cutoff).map(r=>localDateKey(r.date))).size;
+
+  /* ---- 1. spend-first hero ---- */
+  const hero=body.querySelector('.tpx-hero');
+  if(hero){
+    const tone=status.className==='neutral'?'':status.className;
+    const gap=actual-expected;
+    let say;
+    if(!target)say=`No target is set for ${MONTH_NAMES[m]} in your Targets sheet, so there's no plan to pace against.`;
+    else if(past)say=`Finished <b>${fmt(Math.abs(actual-target))} ${actual>=target?'over':'short of'}</b> the <span class="n">${fmt(target)}</span> target — <span class="n">${Math.round(actual/target*100)}%</span> achieved.`;
+    else if(early)say=`Only day ${curDay} of ${dim} with <span class="n">${activeDays}</span> buying day${activeDays!==1?'s':''} logged. The plan wants <span class="n">${fmt(expected)}</span> by now — you're <b>${fmt(Math.abs(gap))} ${gap>=0?'ahead':'behind'}</b>.`;
+    else say=`Day ${curDay} of ${dim}. The plan wants <span class="n">${fmt(expected)}</span> by now — you're <b>${fmt(Math.abs(gap))} ${gap>=0?'ahead of':'behind'}</b> it.`;
+
+    const s=(l,v,sub,cls)=>`<div class="tpx-h2-s"><div class="tpx-h2-s-l">${l}</div><div class="tpx-h2-s-v ${cls||''}">${v}</div><div class="tpx-h2-s-s">${sub||''}</div></div>`;
+    const stats=past
+      ? s('Target',target?fmt(target):'—',target?`for ${MONTH_NAMES[m]}`:'not set','acc')
+        +s('Achieved',target?Math.round(actual/target*100)+'%':'—',target?fmt(Math.abs(actual-target))+(actual>=target?' over':' short'):'—',target?(actual>=target?'pos':'neg'):'')
+        +s('Active buying days',String(activeDays),activeDays?fmt(actual/activeDays)+' per active day':'no buying days')
+        +s('Normally by day '+curDay,normByNow?fmt(normByNow):'—','average of earlier months')
+      : s('Plan by today',target?fmt(expected):'—',`weighted · day ${curDay} of ${dim}`,'acc')
+        +s('Left to hit target',target?fmt(remaining):'—',target?`of the ${fmt(target)} target`:'no target set')
+        +s('Per weekday from here',wkLeft&&target?fmt(remaining/wkLeft):'—',wkLeft?`${wkLeft} weekday${wkLeft!==1?'s':''} left`:'no weekdays left')
+        +s('Normally by day '+curDay,normByNow?fmt(normByNow):'—','your actual earlier months');
+
+    /* A projection off one or two buying days isn't a verdict — say so instead. */
+    const oldVerdict=hero.querySelector('.tpx-verdict');
+    let foot='';
+    if(!target)foot='';
+    else if(early)foot=`<span class="ic"></span><span><b>No finish projection yet.</b> Any run-rate off ${activeDays} buying day${activeDays!==1?'s':''} would swing wildly. The weekly plan and recovery dates below are the useful read until the month has a few more active days.</span>`;
+    else if(!past&&oldVerdict)foot=`<span class="ic"></span><span>${oldVerdict.innerHTML.replace(/<span class="tpx-vbadge">.*?<\/span>/,'').trim()}</span>`;
+
+    hero.className=`tpx-hero2 ${tone}`;
+    hero.innerHTML=`<div class="tpx-h2-l">
+        <div class="tpx-h2-eye">Spent in ${MONTH_NAMES[m]}<span class="tpx-h2-pill"><span class="d"></span>${status.label}</span></div>
+        <div class="tpx-h2-big">${fmt(actual)}</div>
+        <div class="tpx-h2-say">${say}</div>
+      </div>
+      <div class="tpx-h2-r">${stats}</div>
+      ${foot?`<div class="tpx-h2-foot">${foot}</div>`:''}`;
+  }
+
+  /* ---- 2. drop the duplicated "Spent" tile now the hero owns that number ---- */
+  body.querySelectorAll('.tpx-kpi').forEach(k=>{
+    const l=k.querySelector('.tpx-kpi-l');
+    if(l&&/^spent$/i.test(l.textContent.trim()))k.remove();
+  });
+
+  /* ---- 3. weekly plan: past / current / not-started-yet ---- */
+  const wkGrid=body.querySelector('#tpWeekPlan .tpx-grid');
+  if(wkGrid){
+    const weeks=spWeekBlocks(full,cutoff);
+    wkGrid.innerHTML=weeks.map(w=>{
+      const ds=w.days.map(d=>d.date).sort((a,b)=>a-b);
+      const first=ds[0], last=ds[ds.length-1];
+      const f=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+      const label=(!first)?'':(ds.length===1?f(first):`${f(first)} – ${f(last)}`);
+      const startK=localDateKey(first||w.start), endK=localDateKey(last||w.start);
+      const isCur=cutoff>=startK&&cutoff<=endK&&!past;
+      const isFuture=startK>cutoff&&!past;
+      const pct=w.plan?Math.min(100,w.actual/w.plan*100):0;
+      const gap=w.actual-w.plan;
+      let val,bar,sub,cls='';
+      if(isFuture){
+        cls=' wk-future';
+        val=`<small>plan</small> ${fmt(w.plan)}`;
+        bar='';
+        sub=`<div class="tpx-cell-s mut">not started yet</div>`;
+      } else if(isCur){
+        cls=' cur';
+        const left=Math.max(0,w.plan-w.actual);
+        val=`${fmt(w.actual)} <small>/ ${fmt(w.plan)}</small>`;
+        bar=`<div class="tpx-cell-bar"><i style="width:${pct}%;background:${gap>=0?'var(--pos)':'var(--acc)'}"></i></div>`;
+        sub=`<div class="tpx-cell-s ${gap>=0?'':'acc'}" style="${gap>=0?'color:var(--pos)':''}">${gap>=0?fmt(gap)+' ahead this week':fmt(left)+' left this week'}</div>`;
+      } else {
+        val=`${fmt(w.actual)} <small>/ ${fmt(w.plan)}</small>`;
+        bar=`<div class="tpx-cell-bar"><i style="width:${pct}%;background:${gap>=0?'var(--pos)':'var(--neg)'}"></i></div>`;
+        sub=`<div class="tpx-cell-s" style="color:${gap>=0?'var(--pos)':'var(--neg)'}">${gap>=0?fmt(gap)+' ahead':fmt(-gap)+' behind'}</div>`;
+      }
+      return `<div class="tpx-cell${cls}"><div class="tpx-cell-l">${label}${isCur?' · now':''}</div><div class="tpx-cell-v">${val}</div>${bar||'<div class="tpx-cell-bar"></div>'}${sub}</div>`;
+    }).join('');
+    const note=body.querySelector('#tpWeekPlan .tpx-h-n');
+    if(note)note.textContent='Mon–Sun · weekday-weighted · only the days inside '+MONTH_NAMES[m];
+  }
+
+  /* ---- 4. nav highlights the section you're actually looking at ---- */
+  const nav=body.querySelector('.tpx-nav');
+  if(nav){
+    const btns=[...nav.querySelectorAll('button')];
+    const secs=[...body.querySelectorAll('.tpx-sec')];
+    const spy=()=>{
+      const base=body.getBoundingClientRect().top+72;
+      let idx=0;
+      secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=base)idx=i;});
+      btns.forEach((b,i)=>b.classList.toggle('on',i===idx));
+    };
+    if(body._tpSpy)body.removeEventListener('scroll',body._tpSpy);
+    body._tpSpy=spy;
+    body.addEventListener('scroll',spy,{passive:true});
+    /* Scroll events on this container are unreliable, so drive it off visibility too. */
+    if(body._tpObs)body._tpObs.disconnect();
+    if(window.IntersectionObserver){
+      body._tpObs=new IntersectionObserver(spy,{root:body,threshold:[0,.01,.5,1],rootMargin:'-60px 0px 0px 0px'});
+      secs.forEach(s=>body._tpObs.observe(s));
+    }
+    spy();
+  }
+}
+
+/* ---------- 1c. TODAY: use the same weighted plan as everywhere else ----------
+   Today compared spend against target ÷ calendar days (£193.55), while the
+   Overview and pace modal used the weekday-weighted plan (£86.99). Same target,
+   two different "am I on pace" answers. */
+const spV7BaseToday=buildToday;
+buildToday=function(){
+  const run=()=>{
+    const out=spV7BaseToday.apply(this,arguments);
+    try{spV7FixToday();}catch(e){console.error('today fix failed',e);}
+    return out;
+  };
+  const out=spV7DayOffset===0?run():spV7WithDate(spV7DayFor(spV7DayOffset),run);
+  try{spV7DayNav();}catch(e){}
+  return out;
+};
+function spV7FixToday(){
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth()+1, k=localDateKey(now);
+  const plan=spMonthlyPlan(y,m,'team');
+  if(!plan||!plan.target)return;
+  const day=plan.days.find(d=>d.key===k);
+  if(!day)return;
+  const todayPlan=day.plan||0;
+  const src=(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:allRows;
+  const spentToday=src.filter(r=>localDateKey(r.date)===k).reduce((a,r)=>a+r.spend,0);
+  const isWknd=[0,6].includes(now.getDay());
+  const diff=spentToday-todayPlan, ratio=todayPlan?spentToday/todayPlan:0;
+
+  const v=document.getElementById('todayVsTarget'), s=document.getElementById('todayVsTargetSub');
+  if(v)v.textContent=fmt(todayPlan);
+  if(s)s.textContent=`${diff>=0?'+':''}${fmt(diff)} vs today's plan (${Math.round(ratio*100)}%)`;
+  const card=document.getElementById('todayTargetCard');
+  if(card)card.className='card '+(diff>=0?'card-green2':ratio>=.9?'card-amber':'card-red');
+  const lbl=card&&card.querySelector('.card-label');
+  if(lbl)lbl.textContent=isWknd?"today's plan · weekend":"today's plan";
+
+  const hero=document.getElementById('todayHero');
+  const sub=hero&&hero.querySelector('.tdh-sub, .tdh-verdict-sub');
+  if(sub&&/daily target/.test(sub.textContent)){
+    sub.textContent=sub.textContent.replace(/\d+% of the £[\d,.]+ daily target\./,
+      `${Math.round(ratio*100)}% of today's ${fmt(todayPlan)} weighted plan${isWknd?' (weekends run lighter)':''}.`);
+  }
+}
+
+/* ---------- 1d. TRENDS: stop treating the in-progress month as a finished one ----------
+   August was 1 day old but was averaged in as a full month, counted as a missed
+   target, and shown as the "lowest month" / "dearest cost per unit" record. */
+const spV7BaseGrowth=buildGrowth;
+buildGrowth=function(){
+  const out=spV7BaseGrowth.apply(this,arguments);
+  try{spV7FixTrends();}catch(e){console.error('trends fix failed',e);}
+  try{spV7TrendsNav();}catch(e){}
+  return out;
+};
+function spV7FixTrends(){
+  const rows=(typeof allYearRows!=='undefined'&&allYearRows)||[];
+  if(!rows.length)return;
+  const keys=[...new Set(rows.map(r=>r.year+'-'+String(r.month).padStart(2,'0')))].sort();
+  const ms=keys.map(k=>{
+    const [yy,mm]=k.split('-').map(Number);
+    const mr=rows.filter(r=>r.year===yy&&r.month===mm);
+    const spend=mr.reduce((a,r)=>a+r.spend,0), units=mr.reduce((a,r)=>a+r.qty,0);
+    return {y:yy,m:mm,spend,units,cpu:units?spend/units:0,target:(liveTargets[mm]||{}).team||0,
+      past:isMonthPast(mm,yy),label:MONTH_NAMES[mm].slice(0,3),full:MONTH_NAMES[mm]};
+  });
+  const done=ms.filter(s=>s.past&&s.spend>0);
+  const live=ms.find(s=>!s.past&&s.spend>0);
+  if(!done.length)return;
+  const avgDone=done.reduce((a,s)=>a+s.spend,0)/done.length;
+  const measured=done.filter(s=>s.target>0).length;
+  const hits=done.filter(s=>s.target>0&&s.spend>=s.target).length;
+  const growth=done.slice(1).map((s,i)=>done[i].spend>0?(s.spend-done[i].spend)/done[i].spend*100:null).filter(v=>v!==null);
+  const avgGrowth=growth.length?growth.reduce((a,b)=>a+b,0)/growth.length:null;
+  const cpuDone=done.filter(s=>s.cpu>0);
+  const loMonth=done.reduce((a,b)=>b.spend<a.spend?b:a,done[0]);
+  const hiCpu=cpuDone.length?cpuDone.reduce((a,b)=>b.cpu>a.cpu?b:a,cpuDone[0]):null;
+  const loCpu=cpuDone.length?cpuDone.reduce((a,b)=>b.cpu<a.cpu?b:a,cpuDone[0]):null;
+  const liveDay=live?new Date().getDate():0;
+
+  /* KPI strip */
+  const strip=document.getElementById('trendsKpiStrip');
+  if(strip)[...strip.children].forEach(t=>{
+    const l=(t.children[0]||{}).textContent, val=t.children[1], sub=t.children[2];
+    if(!l||!val||!sub)return;
+    const key=l.trim().toLowerCase();
+    if(key==='avg/month'){val.textContent=fmt(avgDone);sub.textContent=done.length+' completed months';}
+    if(key==='hit rate'){val.textContent=hits+'/'+measured;sub.textContent=measured?Math.round(hits/measured*100)+'% of completed months':'no targets set';}
+    if(key==='ytd spend'&&live)sub.textContent=`${done.length} complete + ${live.label} (day ${liveDay})`;
+    if(key==='avg cost/unit')sub.textContent='year to date, all units';
+  });
+
+  /* Hero lines */
+  const hero=document.getElementById('trendsHero');
+  if(hero)[...hero.children].forEach(d=>{
+    const t=d.textContent||'';
+    if(/vs last month/.test(t)&&live){
+      const prev=done[done.length-1];
+      d.innerHTML=`<strong>${live.full}</strong> is <strong>${liveDay} day${liveDay!==1?'s':''} in</strong> at ${fmt(live.spend)}. Last completed month, ${prev.full}, finished on <strong>${fmt(prev.spend)}</strong> — too early to compare the two.`;
+    }
+    if(/Target performance/.test(t)){
+      let missStreak=0; for(let i=done.length-1;i>=0;i--){if(done[i].target>0&&done[i].spend<done[i].target)missStreak++;else break;}
+      let hitStreak=0; for(let i=done.length-1;i>=0;i--){if(done[i].target>0&&done[i].spend>=done[i].target)hitStreak++;else break;}
+      const note=hitStreak>1?` Currently on a <strong style="color:var(--green)">${hitStreak}-month hit streak.</strong>`
+        :missStreak>1?` <strong style="color:var(--red)">${missStreak} consecutive misses</strong> — worth reviewing targets or strategy.`:'';
+      d.innerHTML=`Target performance: <strong>${hits}/${measured} completed months hit</strong> (${measured?Math.round(hits/measured*100):0}% hit rate).${note}${live?` ${live.full} is still open.`:''}`;
+    }
+    if(/Average monthly growth rate/.test(t)&&avgGrowth!==null){
+      const col=avgGrowth>=0?'var(--green)':'var(--red)';
+      d.innerHTML=`Average monthly growth rate: <strong style="color:${col}">${avgGrowth>=0?'+':''}${avgGrowth.toFixed(1)}%</strong> month on month across completed months.`;
+    }
+    if(/Avg cost\/unit has/.test(t)&&done.length>=2){
+      const first=done[0], last=done[done.length-1], d2=last.cpu-first.cpu;
+      const col=d2>0?'var(--red)':'var(--green)';
+      d.innerHTML=`Avg cost/unit has <strong style="color:${col}">${d2>0?'risen':'fallen'} ${fmtDec(Math.abs(d2))}</strong> from ${first.full} to ${last.full} — ${d2>0?'costs are increasing.':'you are paying less per unit.'}`;
+    }
+  });
+
+  /* Records — a month that is one day old is not your lowest month */
+  const rec=document.getElementById('trendsRecords');
+  if(rec)[...rec.children].forEach(t=>{
+    const l=(t.querySelector('.rec-label')||{}).textContent||'';
+    const val=t.querySelector('.rec-val'), sub=t.querySelector('.rec-sub');
+    if(!val||!sub)return;
+    if(/lowest month/i.test(l)){val.textContent=fmt(loMonth.spend);sub.textContent=loMonth.label+' · completed months only';}
+    if(/dearest cost/i.test(l)&&hiCpu){val.textContent=fmtDec(hiCpu.cpu);sub.textContent=hiCpu.label+' · completed months only';}
+    if(/cheapest cost/i.test(l)&&loCpu){val.textContent=fmtDec(loCpu.cpu);sub.textContent=loCpu.label+' · completed months only';}
+  });
+
+  /* Consistency score — same problem, a partial month made buying look volatile */
+  const cons=document.getElementById('trendsConsistency');
+  if(cons&&done.length>=2){
+    const vals=done.map(s=>s.spend);
+    const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+    const sd=Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0)/vals.length);
+    const cv=mean?sd/mean:0;
+    const score=Math.max(0,Math.min(100,Math.round(100-cv*100)));
+    const label=score>=85?'Rock steady':score>=70?'Steady':score>=50?'Lumpy':'Volatile';
+    const scls=score>=70?'good':score>=50?'warn':'bad';
+    const hi=done.slice().sort((a,b)=>b.spend-a.spend)[0], lo=done.slice().sort((a,b)=>a.spend-b.spend)[0];
+    const mx=Math.max(...vals);
+    const bars=done.map(s=>{const dev=mean?(s.spend-mean)/mean:0;const h=Math.max(4,Math.min(100,s.spend/mx*100));
+      return `<div class="cons-col" title="${s.full}: ${fmt(s.spend)} (${dev>=0?'+':''}${Math.round(dev*100)}% vs avg)"><div class="cons-bar-wrap"><div class="cons-bar" style="height:${h}%;background:${Math.abs(dev)>0.25?'#fb7185':'#4f8ef7'};"></div></div><div class="cons-ml">${s.label}</div></div>`;}).join('');
+    cons.innerHTML=`<div class="rv-card-title">Spend consistency</div><div class="rv-card-note">How even your monthly spend is across <b>completed</b> months${live?` — ${live.full} is excluded while it's still running`:''}. You sell through within ~90 days, so steady spend now means steady, predictable sales later.</div>
+      <div class="cons-wrap">
+        <div class="cons-score-box cons-${scls}"><div class="cons-score">${score}</div><div class="cons-label">${label}</div><div class="cons-outof">/ 100</div></div>
+        <div class="cons-right">
+          <div class="cons-chart">${bars}<div class="cons-avg" title="average ${fmt(mean)}"></div></div>
+          <div class="cons-read">Averaging <b>${fmt(mean)}/mo</b> with swings of about ±${Math.round(cv*100)}%. Biggest month ${hi.full} (${fmt(hi.spend)}), lightest ${lo.full} (${fmt(lo.spend)}). ${score>=70?'Tighten the gap further and future months get even more predictable.':'Pulling the light months up toward the average is the single biggest win for steady future sales.'}</div>
+        </div>
+      </div>`;
+  }
+
+  /* One honest line at the top so the scope is never a guess */
+  try{spV7UpdateErrorChip();}catch(e){}
+  if(live){
+    const host=document.getElementById('trendsHero');
+    let n=document.getElementById('trendsScopeNote');
+    if(!n&&host){n=document.createElement('div');n.id='trendsScopeNote';n.className='lav-note-row';n.style.margin='0 0 10px';host.parentNode.insertBefore(n,host);}
+    if(n)n.textContent=`${live.full} is ${liveDay} day${liveDay!==1?'s':''} old, so it's left out of averages, hit rate, records and the consistency score — it still appears in the month cards and charts below.`;
+  }
+}
+
+/* ---------- 1e. OA vs A2A — rebuilt ----------
+   Was two donuts carrying four numbers between them, a dead lower-left quadrant,
+   and ten identical tiles. Now: two stacked bars that read left-to-right, and a
+   straight A2A-vs-OA comparison table where the columns do the comparing. */
+if(typeof buildOaA2a==='function'){
+  buildOaA2a=function(rows,totalSpend){
+    const host=document.querySelector('.oa-a2a-row'); if(!host)return;
+    ['chartOaA2a','chartA2aRegion'].forEach(id=>{const c=window.Chart&&Chart.getChart(id);if(c)c.destroy();});
+    const isAmz=r=>(r.supplier||'').trim().toLowerCase().startsWith('amazon');
+    const isUK=r=>(r.supplier||'').trim().toLowerCase().includes('amazon uk');
+    const a2a=rows.filter(isAmz), oa=rows.filter(r=>!isAmz(r));
+    const uk=a2a.filter(isUK), eu=a2a.filter(r=>!isUK(r));
+    const S=rs=>rs.reduce((a,r)=>a+r.spend,0), U=rs=>rs.reduce((a,r)=>a+r.qty,0);
+    const aS=S(a2a),oS=S(oa),ukS=S(uk),euS=S(eu),tot=aS+oS;
+    const aO=countOrders(a2a),oO=countOrders(oa);
+    const price=rs=>{const p=rs.filter(r=>r.buyPrice>0);return p.length?p.reduce((a,r)=>a+r.buyPrice,0)/p.length:0;};
+    const asins=rs=>new Set(rs.filter(r=>r.asin).map(r=>r.asin)).size;
+    const pc=(v,t)=>t?(v/t*100):0;
+    const seg=(label,val,total,colour)=>{const p=pc(val,total);return p<=0?'':
+      `<span class="oa2-seg" style="width:${p}%;background:${colour}" title="${label} ${fmt(val)}">${p>=11?`<em>${p.toFixed(0)}%</em>`:''}</span>`;};
+    const key=(c,l,v,t)=>`<span class="oa2-key"><i style="background:${c}"></i>${l}<b>${fmt(v)}</b><u>${pc(v,t).toFixed(1)}%</u></span>`;
+    const rowCmp=(label,a,o,hint)=>`<tr><th>${label}${hint?`<span>${hint}</span>`:''}</th><td class="a">${a}</td><td class="o">${o}</td></tr>`;
+    host.className='oa2';
+    host.removeAttribute('style');
+    host.innerHTML=`
+      <div class="oa2-bars">
+        <div class="oa2-block">
+          <div class="oa2-h">Channel split<span>${fmt(tot)} in this period</span></div>
+          <div class="oa2-bar">${seg('A2A',aS,tot,'#f0b429')}${seg('OA',oS,tot,'#22c55e')}</div>
+          <div class="oa2-keys">${key('#f0b429','A2A',aS,tot)}${key('#22c55e','OA',oS,tot)}</div>
+        </div>
+        <div class="oa2-block">
+          <div class="oa2-h">A2A marketplace<span>${aS>0?fmt(aS)+' through Amazon':'no A2A buying yet'}</span></div>
+          <div class="oa2-bar">${seg('Amazon UK',ukS,aS,'#fb923c')}${seg('Amazon EU',euS,aS,'#a78bfa')}</div>
+          <div class="oa2-keys">${key('#fb923c','Amazon UK',ukS,aS)}${key('#a78bfa','Amazon EU',euS,aS)}</div>
+        </div>
+      </div>
+      <div class="oa2-cmp">
+        <table class="oa2-tbl"><thead><tr><th></th><th class="a">A2A</th><th class="o">OA</th></tr></thead><tbody>
+          ${rowCmp('Spent',fmt(aS),fmt(oS))}
+          ${rowCmp('Orders',aO.toLocaleString(),oO.toLocaleString())}
+          ${rowCmp('Units',U(a2a).toLocaleString(),U(oa).toLocaleString())}
+          ${rowCmp('Avg order',aO?fmt(aS/aO):'—',oO?fmt(oS/oO):'—')}
+          ${rowCmp('Units / order',aO?(U(a2a)/aO).toFixed(1):'—',oO?(U(oa)/oO).toFixed(1):'—')}
+          ${rowCmp('Avg buy price',price(a2a)?fmtDec(price(a2a)):'—',price(oa)?fmtDec(price(oa)):'—')}
+          ${rowCmp('Unique ASINs',asins(a2a).toLocaleString(),asins(oa).toLocaleString())}
+        </tbody></table>
+      </div>`;
+  };
+}
+
+/* ---------- 1f. SETTINGS ---------- */
+const SPV7_SET_KEY='dash:providerRanges';
+function spV7Ranges(){try{return JSON.parse(localStorage.getItem(SPV7_SET_KEY)||'{}')||{};}catch(e){return {};}}
+let SPV7_RANGES=spV7Ranges();
+function spV7SaveRanges(){try{localStorage.setItem(SPV7_SET_KEY,JSON.stringify(SPV7_RANGES));}catch(e){}}
+function spV7ProviderActive(p,month){
+  const r=SPV7_RANGES[p]; if(!r)return true;
+  const from=+r.from||1, to=+r.to||12;
+  return month>=from&&month<=to;
+}
+function spV7SetRange(p,which,val){
+  SPV7_RANGES[p]=SPV7_RANGES[p]||{from:1,to:12};
+  SPV7_RANGES[p][which]=+val;
+  if(SPV7_RANGES[p].from===1&&SPV7_RANGES[p].to===12)delete SPV7_RANGES[p];
+  spV7SaveRanges();spV7BuildSettings();
+  try{render();}catch(e){}
+}
+window.spV7SetRange=spV7SetRange;
+function spV7ResetRanges(){SPV7_RANGES={};spV7SaveRanges();spV7BuildSettings();try{render();}catch(e){}}
+window.spV7ResetRanges=spV7ResetRanges;
+
+function spV7BuildSettings(){
+  const host=document.getElementById('setBody'); if(!host)return;
+  const provs=Object.keys(PROVIDER_COLORS);
+  const cm=new Date().getMonth()+1;
+  const opts=(sel)=>Array.from({length:12},(_,i)=>`<option value="${i+1}"${sel===i+1?' selected':''}>${MONTH_NAMES[i+1]}</option>`).join('');
+  const active=provs.filter(p=>spV7ProviderActive(p,cm)).length;
+  host.innerHTML=`
+    <div class="set-head">
+      <div><div class="set-title">Who's buying, and when</div>
+      <div class="set-note">Providers come and go through the year. Set the months each one is actually running and they'll drop out of the Provider Breakdown for months they weren't — instead of sitting there on £0 dragging the page down. <b>${active} of ${provs.length}</b> are active in ${MONTH_NAMES[cm]}.</div></div>
+      <button class="set-reset" onclick="spV7ResetRanges()">Reset all to all-year</button>
+    </div>
+    <div class="set-grid">
+      ${provs.map(p=>{
+        const r=SPV7_RANGES[p]||{from:1,to:12};
+        const on=spV7ProviderActive(p,cm);
+        const all=(!SPV7_RANGES[p]);
+        return `<div class="set-row${on?'':' off'}">
+          <div class="set-p"><span class="set-dot" style="background:${PROVIDER_COLORS[p]}"></span>${esc(p)}
+            <span class="set-state">${all?'all year':on?'active now':'not in '+MONTH_NAMES[cm]}</span></div>
+          <div class="set-sel"><label>from</label><select onchange="spV7SetRange('${p}','from',this.value)">${opts(+r.from||1)}</select>
+            <label>to</label><select onchange="spV7SetRange('${p}','to',this.value)">${opts(+r.to||12)}</select></div>
+        </div>`;}).join('')}
+    </div>
+    <div class="set-foot">Saved in this browser only — it changes what the dashboard shows, never your sheet. Targets still come straight from the Targets tab.</div>`;
+}
+
+/* hide inactive providers from the breakdown */
+function spV7FilterProviders(){
+  if(activeMonth===0)return;
+  let hidden=0;
+  document.querySelectorAll('#providerGrid .prow').forEach(row=>{
+    const b=row.querySelector('.prov-badge');
+    const name=(b&&(b.dataset.prov||b.textContent.trim()))||'';
+    if(name&&!spV7ProviderActive(name,activeMonth)){row.style.display='none';hidden++;}
+    else row.style.display='';
+  });
+  const card=document.querySelector('.targets-card');
+  let note=document.getElementById('provHiddenNote');
+  if(hidden&&card){
+    if(!note){note=document.createElement('div');note.id='provHiddenNote';note.className='lav-note-row';note.style.margin='10px 0 0';card.appendChild(note);}
+    note.innerHTML=`${hidden} provider${hidden!==1?'s':''} hidden — not running in ${MONTH_NAMES[activeMonth]}. <a onclick="switchPage('settings')" style="color:var(--accent);cursor:pointer;">Change in Settings</a>`;
+  } else if(note) note.remove();
+}
+
+/* ---------- 1j. REMEMBER WHERE YOU WERE ----------
+   The boot saved dash:page then immediately overwrote it with 'overview', so it
+   never actually restored. Now the page, quarter and month all come back. */
+const SPV7_VIEW='dash:lastView';
+const SPV7_BOOT=Date.now();
+let spV7Restored=false, spV7CurPage='overview';
+/* the boot fires its own switchPage('overview'), so anything in the first
+   couple of seconds is the app starting up, not you choosing a page */
+function spV7UserDriven(){return Date.now()-SPV7_BOOT>2500;}
+function spV7SaveView(page){
+  if(page)spV7CurPage=page;
+  try{localStorage.setItem(SPV7_VIEW,JSON.stringify({
+    page:spV7CurPage,
+    q:typeof activeQ!=='undefined'?activeQ:null,
+    m:typeof activeMonth!=='undefined'?activeMonth:null,
+    lq:typeof lavQ!=='undefined'?lavQ:null,
+    lm:typeof lavM!=='undefined'?lavM:null}));}catch(e){}
+}
+function spV7RestoreView(){
+  if(spV7Restored)return; spV7Restored=true;
+  let v=null; try{v=JSON.parse(localStorage.getItem(SPV7_VIEW)||'null');}catch(e){}
+  if(!v)return;
+  const finish=()=>{
+    if(v.lq!=null&&typeof lavQ!=='undefined'){lavQ=v.lq;if(v.lm!=null)lavM=v.lm;}
+    if(v.page&&v.page!=='overview'&&v.page!==spV7CurPage)switchPage(v.page);
+  };
+  try{
+    if(v.q&&v.q!==activeQ){
+      const qb=document.querySelector('[data-q="'+v.q+'"]');
+      if(qb){qb.click();setTimeout(()=>{
+        if(v.m!=null){activeMonth=v.m;buildMonthBtns(v.q);render();}
+        finish();},900);return;}
+    }
+    if(v.m!=null&&v.m!==activeMonth){activeMonth=v.m;buildMonthBtns(activeQ);render();}
+    finish();
+  }catch(e){}
+}
+
+/* ---------- 1k. MAKE THE AUTO-REFRESH VISIBLE ----------
+   It re-read your sheet every 5 minutes in complete silence, so you could never
+   tell whether the number in front of you was 10 seconds or 10 minutes old. */
+let spV7Baseline=null, spV7LastFetch=Date.now();
+function spV7Snapshot(){
+  const rows=(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:(typeof allRows!=='undefined'?allRows:[]);
+  return {n:rows.length,spend:rows.reduce((a,r)=>a+r.spend,0)};
+}
+function spV7Toast(html){
+  let t=document.getElementById('spToast');
+  if(!t){t=document.createElement('div');t.id='spToast';t.className='sptoast';document.body.appendChild(t);
+    t.onclick=()=>t.classList.remove('on');}
+  t.innerHTML=html;
+  t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),9000);
+}
+function spV7RelTime(){
+  const el=document.getElementById('lastUpdated'); if(!el)return;
+  const s=Math.max(0,Math.round((Date.now()-spV7LastFetch)/1000));
+  el.textContent=s<45?'updated just now':s<90?'updated 1 min ago':s<3600?`updated ${Math.round(s/60)} min ago`:'updated a while ago';
+  el.title='Your sheet is re-read every 5 minutes';
+}
+if(typeof loadAndRender==='function'){
+  const spV7BaseLoad=loadAndRender;
+  loadAndRender=async function(){
+    const before=spV7Snapshot();
+    const out=await spV7BaseLoad.apply(this,arguments);
+    spV7LastFetch=Date.now();
+    try{
+      const after=spV7Snapshot();
+      if(!spV7Baseline)spV7Baseline=after;
+      else if(after.n>before.n){
+        const dn=after.n-spV7Baseline.n, ds=after.spend-spV7Baseline.spend;
+        if(dn>0)spV7Toast(`<b>${dn} new buy${dn!==1?'s':''}</b> · ${fmt(ds)} since you opened this<span>tap to dismiss</span>`);
+      }
+      spV7RelTime();
+    }catch(e){}
+    return out;
+  };
+}
+setInterval(()=>{try{spV7RelTime();}catch(e){}},20000);
+
+/* ---------- 1i. TODAY: look at any day, not just today ----------
+   The whole page was hardcoded to new Date() with one control on it, so on a
+   quiet Sunday there was nothing to see and no way to check Saturday.
+   buildToday reads the clock in ~15 places, so rather than reimplement it we
+   pin the clock for the duration of one synchronous call and restore it after. */
+let spV7DayOffset=0;
+function spV7WithDate(when,fn){
+  const Real=Date;
+  function Pinned(...a){return a.length?new Real(...a):new Real(when.getTime());}
+  Pinned.prototype=Real.prototype;
+  Object.setPrototypeOf(Pinned,Real);
+  Pinned.now=()=>when.getTime();
+  window.Date=Pinned;
+  try{return fn();}finally{window.Date=Real;}
+}
+function spV7DayFor(off){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+off);return d;}
+function spV7ShiftDay(n){
+  spV7DayOffset=Math.min(0,spV7DayOffset+n);
+  buildToday();
+}
+function spV7GoToday(){spV7DayOffset=0;buildToday();}
+window.spV7ShiftDay=spV7ShiftDay;window.spV7GoToday=spV7GoToday;
+
+function spV7DayNav(){
+  const head=document.querySelector('#pageToday .ov-page-head'); if(!head)return;
+  let nav=document.getElementById('todayNav');
+  if(!nav){
+    nav=document.createElement('div');nav.id='todayNav';nav.className='tdnav';
+    head.appendChild(nav);
+  }
+  const d=spV7DayFor(spV7DayOffset);
+  const rel=spV7DayOffset===0?'Today':spV7DayOffset===-1?'Yesterday':`${-spV7DayOffset} days ago`;
+  nav.innerHTML=`<button onclick="spV7ShiftDay(-1)" title="Previous day">‹</button>
+    <span class="tdnav-l">${rel}<em>${d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})}</em></span>
+    <button onclick="spV7ShiftDay(1)" ${spV7DayOffset===0?'disabled':''} title="Next day">›</button>
+    ${spV7DayOffset!==0?`<button class="tdnav-now" onclick="spV7GoToday()">Back to today</button>`:''}`;
+  const sub=document.getElementById('todayDate');
+  if(sub)sub.textContent=spV7DayOffset===0
+    ?'Live view of what’s been bought so far today.'
+    :`What was bought on ${d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})} — a completed day.`;
+}
+
+/* ---------- 1g. TRENDS: a way to move around a very long page ---------- */
+function spV7TrendsNav(){
+  const page=document.getElementById('pageGrowth'); if(!page)return;
+  const main=page.querySelector('main'); if(!main)return;
+  /* anchor on the real content blocks — only two of them carry .ov-sec-title */
+  const MAP=[['trendsKpiStrip','Headlines'],['trendsRecords','Highs & lows'],['trendsMonthCards','Month by month'],
+    ['growthChart','Spend curve'],['trendsConsistency','Consistency'],['trendsMomWhy','What moved'],
+    ['trendsProvCompareChart','Providers'],['trendsYoY','Year on year'],['trendsDomChart','Day of month'],
+    ['trendsInsightTiles','Insights'],['trendsUKEUChart','UK vs EU'],['trendsAOVChart','Order value']];
+  const secs=[];
+  MAP.forEach(([id,label])=>{
+    const el=document.getElementById(id); if(!el)return;
+    const box=el.closest('.rv-card,.stats-section,.chart-card')||el;
+    if(!box.id)box.id='tsec_'+id;
+    secs.push({id:box.id,label});
+  });
+  if(secs.length<3)return;
+  let nav=document.getElementById('trendsNav');
+  const same=nav&&nav.dataset.sig===secs.map(s=>s.label).join('|');
+  if(same)return;
+  if(!nav){nav=document.createElement('div');nav.id='trendsNav';nav.className='tnav';}
+  nav.dataset.sig=secs.map(s=>s.label).join('|');
+  nav.innerHTML=`<span class="tnav-l">Jump to</span>`+secs.map(s=>`<button data-t="${s.id}">${esc(s.label)}</button>`).join('')+
+    `<button class="tnav-top" data-top="1">↑ Top</button>`;
+  nav.onclick=e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    if(b.dataset.top){window.scrollTo({top:0,behavior:'smooth'});return;}
+    const el=document.getElementById(b.dataset.t);
+    if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-74,behavior:'smooth'});
+  };
+  const hero=document.getElementById('trendsHero');
+  if(hero&&hero.parentNode&&!document.getElementById('trendsNav'))hero.parentNode.insertBefore(nav,hero);
+}
+
+/* ---------- 1h. REVIEW: fold the filter wall away ----------
+   Seven ways to pick a period stacked on top of each other before you see any
+   data. Presets stay out; the rest go behind one button. */
+function spV7CompactReview(){
+  document.querySelectorAll('#pageReview .rv-toolbar').forEach(tb=>{
+    if(tb.dataset.compact)return;
+    const fields=[...tb.children].filter(c=>c.classList&&c.classList.contains('rv-field'));
+    if(fields.length<3)return;
+    const wrap=document.createElement('div');
+    wrap.className='rv-more'; wrap.style.display='none';
+    fields.forEach(f=>wrap.appendChild(f));
+    const btn=document.createElement('button');
+    btn.type='button'; btn.className='rv-more-btn';
+    const label=()=>`${wrap.style.display==='none'?'▾':'▴'} More filters <b>${fields.length}</b>`;
+    btn.innerHTML=label();
+    btn.onclick=()=>{wrap.style.display=wrap.style.display==='none'?'':'none';btn.classList.toggle('on',wrap.style.display!=='none');btn.innerHTML=label();};
+    tb.appendChild(btn);
+    tb.parentNode.insertBefore(wrap,tb.nextSibling);
+    tb.dataset.compact='1';
+  });
+}
+
+/* ---------- 2. LAVARION PAGE ---------- */
+const LAV_TABS={1:'Lavarion Q1',2:'Lavarion Q2',3:'Lavarion Q3',4:'Lavarion Q4'};
+let lavRows=[], lavLoaded=false, lavLoading=false, lavShowAll=false;
+let lavQ=Math.floor(new Date().getMonth()/3)+1, lavM=new Date().getMonth()+1;
+const LAV_COLORS=['#a855f7','#22c55e','#f59e0b','#38bdf8','#f43f5e','#84cc16','#fb923c','#818cf8','#e879f9','#2dd4bf','#facc15','#f472b6'];
+
+function lavNum(s){const v=parseFloat((s||'').toString().replace(/[£,\s]/g,''));return isNaN(v)?0:v;}
+function lavSupplier(raw){
+  const v=(raw||'').toString().trim().replace(/\s+/g,' ');
+  if(!v)return 'Unknown';
+  const k=v.toLowerCase().replace(/[^a-z0-9]+/g,'');
+  if(/^tesco/.test(k))return 'Tesco';
+  if(/^(alibaba|allibaba)/.test(k))return 'Alibaba';
+  if(/^victoria/.test(k))return "Victoria's Secret";
+  if(/^stax/.test(k))return 'Stax';
+  if(/^freefromdirect/.test(k))return 'Free From Direct';
+  if(/^coffeesuppliesdirect/.test(k))return 'Coffee Supplies Direct';
+  if(/^amazon/.test(k))return 'Amazon';
+  if(/^abbuilding/.test(k))return 'AB Building Supplies';
+  if(/^walker/.test(k))return 'Walkers Direct';
+  return v;
+}
+function lavParse(values){
+  const out=[]; if(!values||values.length<2)return out;
+  const hdr=values[0].map(h=>(h||'').toString().trim().toLowerCase());
+  const idx={}; hdr.forEach((h,i)=>{if(!(h in idx))idx[h]=i;});
+  const get=(r,k)=>(k in idx && idx[k]<r.length)?(r[idx[k]]||'').toString().trim():'';
+  for(let i=1;i<values.length;i++){
+    const r=values[i]; if(!r||!r.length)continue;
+    const ds=get(r,'date'); if(!ds)continue;
+    const p=ds.split('/'); let date=null;
+    if(p.length===3)date=new Date(+p[2],+p[1]-1,+p[0]); else date=new Date(ds);
+    if(!date||isNaN(date))continue;
+    const qty=lavNum(get(r,'quanity bought')||get(r,'quantity bought')||get(r,'qty'))||0;
+    const buyPrice=lavNum(get(r,'buy price'));
+    let spend=lavNum(get(r,'spent')); if(!spend)spend=buyPrice*qty;
+    if(spend<=0)continue;
+    out.push({date,month:date.getMonth()+1,year:date.getFullYear(),
+      name:get(r,'name').replace(/\s+/g,' ').trim(),
+      supplier:lavSupplier(get(r,'bought from')),
+      supplierRaw:get(r,'bought from'),
+      account:get(r,'account')||'—',
+      orderId:get(r,'order id'),
+      invoice:get(r,'link to invoice'),
+      arrived:get(r,'arrived'),
+      notes:get(r,'notes'),
+      qty,buyPrice,spend});
+  }
+  return out;
+}
+async function lavLoad(){
+  if(lavLoaded||lavLoading)return;
+  lavLoading=true;
+  const qs=[1,2,3,4];
+  const res=await Promise.all(qs.map(q=>fetchTab(LAV_TABS[q]).then(lavParse).catch(()=>[])));
+  lavRows=[]; res.forEach(a=>lavRows.push(...a));
+  lavRows.sort((a,b)=>b.date-a.date);
+  lavLoaded=true; lavLoading=false;
+}
+function lavYear(){const now=new Date().getFullYear();const ys=lavRows.map(r=>r.year).filter(y=>y<=now);return ys.length?Math.max(...ys):now;}
+function lavMonthsOfQ(q){return [q*3-2,q*3-1,q*3];}
+function lavRowsFor(q,m,y){
+  y=y||lavYear();
+  return lavRows.filter(r=>{
+    if(r.year!==y)return false;
+    if(q===0)return true;
+    const ms=lavMonthsOfQ(q);
+    return m===0?ms.includes(r.month):r.month===m;
+  });
+}
+function lavBuildBtns(){
+  const qb=document.getElementById('lavQBtns'); if(!qb)return;
+  qb.innerHTML='';
+  [{v:1,l:'Q1'},{v:2,l:'Q2'},{v:3,l:'Q3'},{v:4,l:'Q4'},{v:0,l:'Year'}].forEach(o=>{
+    const b=document.createElement('button');
+    b.className='tab-btn'+(lavQ===o.v?' active':'');
+    b.textContent=o.l;
+    b.onclick=()=>{lavQ=o.v;lavM=o.v===0?0:lavMonthsOfQ(o.v)[0];lavShowAll=false;lavBuildBtns();lavRender();};
+    qb.appendChild(b);
+  });
+  const mw=document.getElementById('lavMWrap'), mb=document.getElementById('lavMBtns');
+  if(lavQ===0){mw.style.display='none';return;}
+  mw.style.display='';
+  mb.innerHTML='';
+  lavMonthsOfQ(lavQ).concat([0]).forEach(m=>{
+    const b=document.createElement('button');
+    b.className='tab-btn'+(lavM===m?' active':'');
+    b.textContent=m===0?('All Q'+lavQ):MONTH_NAMES[m].slice(0,3);
+    b.onclick=()=>{lavM=m;lavShowAll=false;lavBuildBtns();lavRender();};
+    mb.appendChild(b);
+  });
+}
+/* "-", "n/a" and blanks are placeholders, not order IDs. Grouping on them merged
+   unrelated buys into one "order" and dropped blank-ID rows from the count. */
+function lavOrderKey(r){
+  const id=(r.orderId||'').trim();
+  if(id&&!/^(-+|n\/?a|none|tbc|\?+)$/i.test(id))return 'id:'+id;
+  return 'day:'+localDateKey(r.date)+'|'+r.supplier;
+}
+function lavCountOrders(rs){return new Set(rs.map(lavOrderKey)).size;}
+function lavToggleAll(){lavShowAll=!lavShowAll;lavRender();}
+window.lavToggleAll=lavToggleAll;
+
+function lavBars(map,total,limit,kind){
+  const sorted=Object.entries(map).sort((a,b)=>b[1].spend-a[1].spend);
+  if(!sorted.length)return '<div class="lav-empty">Nothing in this period.</div>';
+  const max=sorted[0][1].spend;
+  return sorted.slice(0,limit||8).map(([name,v],i)=>{
+    const on=lavFilter.kind===kind&&lavFilter.value===name;
+    const esc2=esc(name).replace(/'/g,"\\'");
+    return `<div class="lav-bar${on?' on':''}" onclick="lavSetFilter('${kind}','${esc2}')" title="Show only ${esc(name)} in the activity below">
+    <div class="lav-bar-n">${esc(name)}${on?' <span class="lav-bar-x">clear</span>':''}</div>
+    <div class="lav-bar-v">${fmt(v.spend)}<em>${total?Math.round(v.spend/total*100):0}%${v.units?' · '+v.units.toLocaleString()+' units':''}${v.orders?' · '+v.orders+' order'+(v.orders!==1?'s':''):''}</em></div>
+    <div class="lav-bar-t"><div class="lav-bar-f" style="width:${max?v.spend/max*100:0}%;background:${LAV_COLORS[i%LAV_COLORS.length]}"></div></div>
+  </div>`;}).join('');
+}
+let lavFilter={kind:null,value:null};
+function lavSetFilter(kind,value){
+  if(lavFilter.kind===kind&&lavFilter.value===value)lavFilter={kind:null,value:null};
+  else lavFilter={kind,value};
+  lavShowAll=false;lavRender();try{spV7SaveView();}catch(e){}
+  const a=document.getElementById('lavActivity');
+  if(a&&lavFilter.kind)a.closest('.lav-card').scrollIntoView({block:'start',behavior:'smooth'});
+}
+window.lavSetFilter=lavSetFilter;
+
+function lavRender(){
+  if(!lavLoaded)return;
+  const body=document.getElementById('lavBody'); if(!body)return;
+  body.style.display='';
+  const y=lavYear();
+  const rows=lavRowsFor(lavQ,lavM,y);
+  const label=lavQ===0?String(y):(lavM===0?`Q${lavQ} ${y}`:`${MONTH_NAMES[lavM]} ${y}`);
+  document.getElementById('lavTitle').textContent=`Lavarion · ${label}`;
+
+  const total=rows.reduce((a,r)=>a+r.spend,0);
+  const units=rows.reduce((a,r)=>a+r.qty,0);
+  const orders=countOrders(rows);
+  const activeDays=new Set(rows.map(r=>localDateKey(r.date))).size;
+  const avgUnit=units?total/units:0;
+  const lines=rows.length;
+
+  /* previous comparable period */
+  let prevTotal=0,prevLabel='';
+  if(lavQ===0){prevTotal=lavRows.filter(r=>r.year===y-1).reduce((a,r)=>a+r.spend,0);prevLabel=String(y-1);}
+  else if(lavM===0){const pq=lavQ-1; if(pq>=1){prevTotal=lavRowsFor(pq,0,y).reduce((a,r)=>a+r.spend,0);prevLabel='Q'+pq;}}
+  else {const pm=lavM-1; if(pm>=1){prevTotal=lavRows.filter(r=>r.year===y&&r.month===pm).reduce((a,r)=>a+r.spend,0);prevLabel=MONTH_NAMES[pm];}}
+  const diff=total-prevTotal;
+
+  /* Lavarion is a separate book — deliberately no OA comparison here */
+  const supCount=new Set(rows.map(r=>r.supplier)).size;
+
+  /* hero */
+  const now=new Date(), curY=now.getFullYear(), curM=now.getMonth()+1, curQ=Math.floor(now.getMonth()/3)+1;
+  let periodTag='complete';
+  if(y===curY){
+    if(lavQ===0)periodTag='year to date';
+    else if(lavM===0&&lavQ===curQ)periodTag='quarter to date';
+    else if(lavM===curM)periodTag='live';
+  }
+  const lineTxt=`<span class="n">${lines}</span> buy line${lines!==1?'s':''} across <span class="n">${orders}</span> order${orders!==1?'s':''}.`;
+  const deltaLine=(prevLabel&&prevTotal>0)
+    ? `<b>${diff>=0?'+':'−'}${fmt(Math.abs(diff))}</b> vs ${prevLabel} (<span class="n">${fmt(prevTotal)}</span>) · ${lineTxt}`
+    : lineTxt;
+  const heroStats=
+    st('Units bought',units.toLocaleString(),`${orders} order${orders!==1?'s':''} · ${lines} line${lines!==1?'s':''}`)
+    +st('Avg cost / unit',units?fmt(avgUnit):'—','across every unit bought','accent')
+    +st('Active buying days',activeDays,activeDays?fmt(total/activeDays)+' per active day':'no buying yet')
+    +st('Suppliers used',String(supCount),orders?`${fmt(total/orders)} average order`:'no orders yet');
+  document.getElementById('lavHero').innerHTML=
+    `<div class="ovh3 tone-neutral"><div class="ovh3-top">
+      <div class="ovh3-lead">
+        <div class="ovh3-eye">Lavarion spend · ${esc(label)}<span class="ovh3-pill"><span class="d"></span>${periodTag}</span></div>
+        <div class="ovh3-big">${fmt(total)}</div>
+        <div class="ovh3-delta">${deltaLine}</div>
+      </div>
+      <div class="ovh3-stats">${heroStats}</div>
+    </div></div>`;
+
+  /* needs attention */
+  const openRows=rows.filter(r=>{const a=(r.arrived||'').toLowerCase();return a!=='confirmed';});
+  const issues=openRows.filter(r=>(r.arrived||'').toLowerCase()==='issue');
+  const pending=openRows.filter(r=>!r.arrived);
+  const noInv=rows.filter(r=>!r.invoice);
+  const strays=lavRows.filter(r=>r.year>new Date().getFullYear());
+  let attn=[];
+  if(issues.length)attn.push(`<b>${issues.length}</b> delivery ${issues.length===1?'issue':'issues'} flagged, worth ${fmt(issues.reduce((a,r)=>a+r.spend,0))}`);
+  if(pending.length)attn.push(`<b>${pending.length}</b> line${pending.length!==1?'s':''} still with no arrival status`);
+  if(noInv.length)attn.push(noInv.length===lines?`<b>no invoice links</b> on any of the ${lines} lines`:`<b>${noInv.length}</b> line${noInv.length!==1?'s':''} missing an invoice link`);
+  if(strays.length)attn.push(`<b>${strays.length}</b> row${strays.length!==1?'s':''} dated ${[...new Set(strays.map(r=>r.year))].join(', ')} — probably a typo in the sheet`);
+  document.getElementById('lavAttention').innerHTML=attn.length
+    ? `<div class="lav-attn"><span class="ic"></span><span><b>Worth a look —</b> ${attn.join(' · ')}.</span></div>`
+    : (lines?`<div class="lav-note-row">All ${lines} lines in ${esc(label)} are confirmed received with invoices attached.</div>`:'');
+
+  /* chart — every month of the year */
+  const monthly=[];
+  for(let m=1;m<=12;m++)monthly.push(lavRows.filter(r=>r.year===y&&r.month===m).reduce((a,r)=>a+r.spend,0));
+  const sel=lavQ===0?[]:(lavM===0?lavMonthsOfQ(lavQ):[lavM]);
+  document.getElementById('lavChartSub').textContent=`${y} · ${fmt(monthly.reduce((a,b)=>a+b,0))} for the year`;
+  const cv=document.getElementById('lavChart');
+  if(cv&&window.Chart){
+    const old=Chart.getChart(cv); if(old)old.destroy();
+    new Chart(cv,{type:'bar',data:{labels:MONTH_NAMES.slice(1).map(m=>m.slice(0,3)),
+      datasets:[{data:monthly,backgroundColor:monthly.map((_,i)=>sel.length&&!sel.includes(i+1)?'rgba(168,85,247,.22)':'rgba(168,85,247,.85)'),borderRadius:5,borderSkipped:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},
+        scales:{x:{grid:{display:false},ticks:{color:'#6c7c93',font:{size:10}}},
+                y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#6c7c93',font:{size:10},callback:v=>'£'+(v>=1000?(v/1000)+'k':v)}}}}});
+  }
+
+  /* suppliers + accounts */
+  const supMap={},acctMap={},prodMap={},ordMap={};
+  rows.forEach(r=>{
+    const s=supMap[r.supplier]=supMap[r.supplier]||{spend:0,units:0,oids:new Set()};
+    s.spend+=r.spend;s.units+=r.qty;s.oids.add(lavOrderKey(r));
+    const a=acctMap[r.account]=acctMap[r.account]||{spend:0,units:0,oids:new Set()};
+    a.spend+=r.spend;a.units+=r.qty;a.oids.add(lavOrderKey(r));
+    const pn=r.name||'(unnamed)';
+    const p=prodMap[pn]=prodMap[pn]||{spend:0,units:0,lines:0,sups:new Set()};
+    p.spend+=r.spend;p.units+=r.qty;p.lines++;p.sups.add(r.supplier);
+    const ok=lavOrderKey(r);
+    const o=ordMap[ok]=ordMap[ok]||{spend:0,units:0,lines:0,date:r.date,sup:r.supplier,oid:r.orderId};
+    o.spend+=r.spend;o.units+=r.qty;o.lines++;
+  });
+  Object.values(supMap).forEach(v=>v.orders=v.oids.size);
+  Object.values(acctMap).forEach(v=>v.orders=v.oids.size);
+  document.getElementById('lavSuppliers').innerHTML=lavBars(supMap,total,9,'supplier');
+  document.getElementById('lavAccounts').innerHTML=lavBars(acctMap,total,7,'account');
+
+  const ords=Object.entries(ordMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,7);
+  document.getElementById('lavOrders').innerHTML=ords.length?`<div class="lav-ords">${ords.map(([k,o])=>{
+    const on=lavFilter.kind==='order'&&lavFilter.value===k;
+    return `<div class="lav-ord${on?' on':''}" onclick="lavSetFilter('order','${String(k).replace(/'/g,"\\'")}')" title="Show this order's lines below">
+      <div class="lav-ord-l"><div class="lav-ord-s">${esc(o.sup)}</div><div class="lav-ord-m">${o.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · ${o.lines} line${o.lines!==1?'s':''} · ${o.units.toLocaleString()} units</div></div>
+      <div class="lav-ord-v">${fmt(o.spend)}</div></div>`;}).join('')}</div>`
+    :'<div class="lav-empty">No orders in this period.</div>';
+
+  /* products */
+  const prods=Object.entries(prodMap).sort((a,b)=>b[1].spend-a[1].spend).slice(0,10);
+  document.getElementById('lavProducts').innerHTML=prods.length?`<div class="lav-tbl-wrap"><table class="lav-tbl">
+    <thead><tr><th>Product</th><th class="num">Units</th><th class="num">Avg unit</th><th class="num">Spent</th><th class="num">% of period</th></tr></thead>
+    <tbody>${prods.map(([n,v])=>`<tr class="lav-prow${lavFilter.kind==='product'&&lavFilter.value===n?' on':''}" onclick="lavSetFilter('product','${esc(n).replace(/'/g,"\\'")}')" title="Show only this product below"><td class="nm">${esc(n)}<div class="lav-none">${[...v.sups].slice(0,3).map(esc).join(' · ')}${v.sups.size>3?' +'+(v.sups.size-3):''}</div></td>
+      <td class="num">${v.units.toLocaleString()}</td><td class="num mu">${v.units?fmt(v.spend/v.units):'—'}</td>
+      <td class="num"><b>${fmt(v.spend)}</b></td><td class="num mu">${total?(v.spend/total*100).toFixed(1):0}%</td></tr>`).join('')}</tbody></table></div>`
+    :'<div class="lav-empty">No products in this period.</div>';
+
+  /* activity — honours whatever you clicked above */
+  let actRows=rows;
+  if(lavFilter.kind==='supplier')actRows=rows.filter(r=>r.supplier===lavFilter.value);
+  else if(lavFilter.kind==='account')actRows=rows.filter(r=>r.account===lavFilter.value);
+  else if(lavFilter.kind==='product')actRows=rows.filter(r=>(r.name||'(unnamed)')===lavFilter.value);
+  else if(lavFilter.kind==='order')actRows=rows.filter(r=>lavOrderKey(r)===lavFilter.value);
+  const sortedRows=actRows.slice().sort((a,b)=>b.date-a.date||b.spend-a.spend);
+  const cap=lavShowAll?sortedRows.length:40;
+  const shown=sortedRows.slice(0,cap);
+  const fTotal=sortedRows.reduce((a,r)=>a+r.spend,0);
+  const chip=lavFilter.kind?`<button class="lav-chip" onclick="lavSetFilter('${lavFilter.kind}','${String(lavFilter.value).replace(/'/g,"\\'")}')">${esc(String(lavFilter.value))} · ${fmt(fTotal)} <span>×</span></button>`:'';
+  document.getElementById('lavActSub').innerHTML=chip
+    ? `${chip} ${sortedRows.length} of ${lines} lines`
+    : `${lines} line${lines!==1?'s':''} in ${label}${lines>cap?` · showing latest ${cap}`:''}`;
+  const tg=document.getElementById('lavActToggle');
+  if(tg){ if(sortedRows.length>40){tg.style.display='';tg.textContent=lavShowAll?'Show latest 40':`Show all ${sortedRows.length}`;} else tg.style.display='none'; }
+  /* a column with one value everywhere is just dead width */
+  const showAcct=new Set(shown.map(r=>r.account)).size>1;
+  const showInv=shown.some(r=>r.invoice);
+  const showSup=lavFilter.kind!=='supplier';
+  document.getElementById('lavActivity').innerHTML=shown.length?`<div class="lav-tbl-wrap"><table class="lav-tbl lav-act">
+    <thead><tr><th class="c-date">Date</th><th>Product</th>${showSup?'<th class="c-sup">Supplier</th>':''}${showAcct?'<th class="c-acct">Account</th>':''}<th class="num c-qty">Qty</th><th class="num c-unit">Unit</th><th class="num c-spent">Spent</th><th class="c-arr">Arrived</th>${showInv?'<th class="c-inv">Invoice</th>':''}</tr></thead>
+    <tbody>${shown.map(r=>{
+      const a=(r.arrived||'').toLowerCase();
+      const tag=a==='confirmed'?'<span class="lav-tag ok">Confirmed</span>':a==='issue'?'<span class="lav-tag issue">Issue</span>':'<span class="lav-tag pend">Pending</span>';
+      return `<tr><td class="mu c-date">${r.date.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</td>
+      <td class="nm">${esc(r.name||'—')}${r.notes?`<div class="lav-none">${esc(r.notes)}</div>`:''}</td>
+      ${showSup?`<td>${esc(r.supplier)}</td>`:''}${showAcct?`<td class="mu">${esc(r.account)}</td>`:''}
+      <td class="num">${r.qty.toLocaleString()}</td><td class="num mu">${r.buyPrice?fmt(r.buyPrice):'—'}</td>
+      <td class="num"><b>${fmt(r.spend)}</b></td><td class="c-arr">${tag}</td>
+      ${showInv?`<td>${r.invoice?`<a class="lav-inv" href="${esc(r.invoice)}" target="_blank" rel="noopener">Invoice ↗</a>`:'<span class="lav-none">—</span>'}</td>`:''}</tr>`;}).join('')}</tbody></table></div>
+    ${!showAcct&&shown.length?`<div class="lav-tblnote">All on <b>${esc(shown[0].account)}</b>${!showInv?' · no invoices attached to any of these lines':''}</div>`:(!showInv&&shown.length?'<div class="lav-tblnote">No invoices attached to any of these lines</div>':'')}`
+    :'<div class="lav-empty">Nothing matches that filter in this period.</div>';
+
+  const lastBuy=sortedRows[0];
+  document.getElementById('lavHeadNote').textContent=lines
+    ? `${lines} buy line${lines!==1?'s':''} · last buy ${lastBuy.date.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`
+    : 'no Lavarion buying in this period';
+}
+
+/* hook the page into nav */
+const spV7SwitchPage=switchPage;
+switchPage=function(page){
+  const lav=document.getElementById('pageLavarion');
+  const set=document.getElementById('pageSettings');
+  try{spV7CurPage=page;if(spV7UserDriven()){spV7Restored=true;spV7SaveView(page);}}catch(e){}
+  if(page==='review')setTimeout(()=>{try{spV7CompactReview();}catch(e){}},300);
+  if(page==='settings'){
+    ['pageOverview','pageToday','pageGrowth','pageHub','pageReview','pageLavarion'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+    if(set)set.style.display='block';
+    document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes('settings')));
+    spV7BuildSettings();
+    return;
+  }
+  if(set)set.style.display='none';
+  if(page==='lavarion'){
+    ['pageOverview','pageToday','pageGrowth','pageHub','pageReview'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+    if(lav)lav.style.display='block';
+    document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes('lavarion')));
+    try{localStorage.setItem('dash:page','lavarion');}catch(e){}
+    if(!lavLoaded){
+      const l=document.getElementById('lavLoading'); if(l)l.style.display='flex';
+      lavLoad().then(()=>{
+        const l2=document.getElementById('lavLoading'); if(l2)l2.style.display='none';
+        if(!lavRowsFor(lavQ,lavM,lavYear()).length){
+          const y=lavYear();
+          for(let m=12;m>=1;m--){ if(lavRows.some(r=>r.year===y&&r.month===m)){lavQ=Math.floor((m-1)/3)+1;lavM=m;break;} }
+        }
+        lavBuildBtns();lavRender();
+      });
+    } else { lavBuildBtns();lavRender(); }
+    if(typeof allYearRows!=='undefined'&&!(allYearRows&&allYearRows.length)&&typeof loadAllAndBuildGrowth==='function'){
+      loadAllAndBuildGrowth().then(()=>{if(lavLoaded)lavRender();}).catch(()=>{});
+    }
+    return;
+  }
+  if(lav)lav.style.display='none';
+  return spV7SwitchPage.apply(this,arguments);
+};
+
+})();
+</script>
 </body>
 </html>
