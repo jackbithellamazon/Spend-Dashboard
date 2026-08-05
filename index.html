@@ -1302,6 +1302,7 @@ footer{box-shadow:0 -1px 0 rgba(255,255,255,.04);}
     <button class="page-nav-btn" onclick="switchPage('hub')">Buying Hub</button>
     <button class="page-nav-btn" onclick="switchPage('review')">Review</button>
     <button class="page-nav-btn lav-nav-btn" onclick="switchPage('lavarion')">Lavarion</button>
+    <button class="page-nav-btn all-nav-btn" onclick="switchPage('overall')" title="OA + Lavarion combined">Overall</button>
     <button class="page-nav-btn set-nav-btn" onclick="switchPage('settings')" title="Settings">Settings</button>
   </div>
   <div class="header-right">
@@ -8428,6 +8429,24 @@ spInstallPaceUI();
   </div>
 </main>
 </div>
+<div id="pageOverall" style="display:none;">
+<main>
+  <div class="ov-page-head ov-head-row">
+    <div class="ov-head-left">
+      <div class="ov-eyebrow all-eye">Everything</div>
+      <div class="ov-title" id="allTitle">Overall spend</div>
+      <div class="ov-page-sub">OA / A2A and Lavarion added together. Every other page keeps them apart.</div>
+    </div>
+    <div class="ov-head-right">
+      <div class="selectors"><div class="selector-group">
+        <span class="selector-label">period</span>
+        <select id="allPeriod" class="hub-select" onchange="spV7RenderOverall()"></select>
+      </div></div>
+    </div>
+  </div>
+  <div id="allBody"></div>
+</main>
+</div>
 <div id="pageSettings" style="display:none;">
 <main>
   <div class="ov-page-head">
@@ -8524,7 +8543,8 @@ spInstallPaceUI();
 
 /* --- hero v3: the number you came for --- */
 .ovh3{--acc:#5b8def;display:block;background:linear-gradient(180deg,#0c131f,#090e17);border:1px solid rgba(148,163,184,.16);border-radius:16px;padding:15px 18px 13px;}
-.ovh3.tone-good{--acc:#37c46f;}.ovh3.tone-warn{--acc:#e2ac26;}.ovh3.tone-bad{--acc:#f0566b;}.ovh3.tone-neutral{--acc:#5b8def;}
+/* green = at or above plan · amber = within 10% below · red = worse than that */
+.ovh3.tone-good{--acc:#22c55e;}.ovh3.tone-warn{--acc:#f0b429;}.ovh3.tone-bad{--acc:#f43f5e;}.ovh3.tone-neutral{--acc:#5b8def;}
 .ovh-wrap .ovh3{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:none;margin-bottom:0;}
 .ovh3-top{display:grid;grid-template-columns:minmax(230px,.85fr) 2fr;gap:26px;align-items:center;}
 .ovh3-eye{display:flex;align-items:center;gap:9px;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7d8fa8;margin-bottom:8px;flex-wrap:wrap;}
@@ -8542,9 +8562,13 @@ spInstallPaceUI();
 .ovh3-st-v.pos{color:#5fd68c;}.ovh3-st-v.neg{color:#f0868f;}.ovh3-st-v.accent{color:#8ab5ff;}
 .ovh3-st-s{font-size:10px;color:#7688a0;margin-top:7px;line-height:1.3;}
 .ovh3-track{margin-top:20px;}
-.ovh3-bar{position:relative;height:18px;background:#0e1626;border:1px solid rgba(148,163,184,.12);border-radius:9px;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);cursor:crosshair;overflow:visible;}
-.ovh3-fill{position:relative;height:100%;border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 72%,#000),var(--acc));min-width:4px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;box-shadow:0 0 14px -2px var(--acc);}
-.ovh3-fill-pct{font-size:9.5px;font-weight:800;color:rgba(255,255,255,.9);padding-right:7px;letter-spacing:.02em;}
+.ovh3-bar{position:relative;height:20px;background:#0b1220;border:1px solid rgba(148,163,184,.14);border-radius:10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.55);cursor:crosshair;overflow:visible;}
+.ovh3-fill{position:relative;z-index:2;height:100%;border-radius:9px;background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 88%,#fff 12%),var(--acc));min-width:4px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;box-shadow:0 0 16px -3px var(--acc),inset 0 1px 0 rgba(255,255,255,.22);}
+.ovh3-fill-pct{font-size:10px;font-weight:800;color:rgba(0,0,0,.62);padding-right:8px;letter-spacing:.02em;}
+/* the stretch between you and today's plan */
+.ovh3-gap{position:absolute;top:0;bottom:0;z-index:1;border-radius:3px;}
+.ovh3-gap.short{background:repeating-linear-gradient(115deg,rgba(244,63,94,.34) 0 6px,rgba(244,63,94,.14) 6px 12px);border-top:1px solid rgba(244,63,94,.3);border-bottom:1px solid rgba(244,63,94,.3);}
+.ovh3-gap.over{background:repeating-linear-gradient(115deg,rgba(34,197,94,.26) 0 6px,rgba(34,197,94,.1) 6px 12px);}
 .ovh3-tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(148,163,184,.18);z-index:1;}
 .ovh3-tick em{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-style:normal;font-size:8.5px;color:#5d6f88;white-space:nowrap;font-variant-numeric:tabular-nums;}
 .ovh3-mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:#eef4ff;border-radius:2px;box-shadow:0 0 0 2px #0a0f18;z-index:3;}
@@ -8615,6 +8639,43 @@ spInstallPaceUI();
 .oa2-tbl td.a{color:#ffd98a;}.oa2-tbl td.o{color:#a7f3c4;}
 .oa2-tbl tr:last-child th,.oa2-tbl tr:last-child td{border-bottom:none;}
 @media(max-width:1000px){.oa2{grid-template-columns:1fr !important;}}
+
+/* 8 nav items now — keep them on one line and stop "Buying Hub" wrapping */
+.page-nav{flex-wrap:nowrap;margin:0 14px;}
+.page-nav-btn{white-space:nowrap;padding:6px 11px;font-size:12.5px;}
+@media(max-width:1400px){.page-nav-btn{padding:6px 9px;font-size:12px;}}
+
+/* --- Overall (OA + Lavarion) --- */
+#pageOverall .ov-eyebrow.all-eye{color:#5eead4;}
+#pageOverall .ov-eyebrow.all-eye::before{background:#5eead4;}
+.all-nav-btn.active{background:#14b8a6;}
+#allPeriod{min-width:190px;font-size:12px;padding:7px 10px;}
+.allsplit{display:flex;height:100%;width:100%;border-radius:9px;overflow:hidden;}
+.allsplit span{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:rgba(0,0,0,.6);transition:width .5s cubic-bezier(.4,0,.2,1);}
+.allsplit-oa{background:linear-gradient(180deg,#6ea6ff,#4f8ef7);}
+.allsplit-lav{background:linear-gradient(180deg,#c88cff,#a855f7);}
+.allkey{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:-1px;}
+.allkey.oa{background:#4f8ef7;}.allkey.lav{background:#a855f7;}
+.allchart{display:flex;align-items:flex-end;gap:10px;height:190px;padding-top:6px;}
+.allb{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;}
+.allb.dim{opacity:.32;}
+.allb-stack{width:100%;max-width:52px;display:flex;flex-direction:column-reverse;justify-content:flex-start;height:100%;border-radius:6px;overflow:hidden;background:#101724;}
+.allb-oa{background:#4f8ef7;border-radius:0 0 6px 6px;transition:height .5s;}
+.allb-lav{background:#a855f7;transition:height .5s;}
+.allb span{font-size:9.5px;color:var(--muted);font-weight:600;}
+
+/* --- Lavarion "worth a look" chips --- */
+.lav-attn{align-items:center;flex-wrap:wrap;gap:9px;}
+.lav-att-l{font-size:11.5px;font-weight:800;color:#fcd88a;letter-spacing:.02em;}
+.lav-att{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);color:#e4d2ae;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;cursor:pointer;transition:.14s;white-space:nowrap;}
+.lav-att b{font-weight:800;margin-right:2px;}
+.lav-att:hover{background:rgba(255,255,255,.11);color:#fff;}
+.lav-att.bad{border-color:rgba(244,63,94,.4);color:#fb8a99;}
+.lav-att.warn{border-color:rgba(245,158,11,.4);color:#f3bd52;}
+.lav-att.mut{border-color:rgba(148,163,184,.3);color:#a9b8c9;}
+.lav-att.on{background:rgba(255,255,255,.16);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);}
+.lav-att-note{font-size:11px;color:#b9a98a;}
 
 /* --- Settings --- */
 #pageSettings .ov-eyebrow.set-eye{color:#38bdf8;}
@@ -9054,7 +9115,12 @@ buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
     else {
       const stt=spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK});
       const gap=totalSpend-expected;
-      tone=stt.className==='neutral'?'neutral':stt.className;
+      /* Jack's rule: green = at or above the plan, amber = within 10% below it,
+         red = anything worse. Applies even on an early read — the label still
+         says "Early read" so the confidence caveat is kept, but the colour
+         always answers "am I on it or not". */
+      const ratio=expected>0?totalSpend/expected:1;
+      tone=ratio>=1?'good':ratio>=0.9?'warn':'bad';
       statusTxt=stt.label;
       delta=stt.label==='Early read'
         ? `Only day ${currentDay} — too early to call. Plan says <span class="n">${fmt(expected)}</span> by now, you're <b>${fmt(Math.abs(gap))} ${gap>=0?'ahead':'behind'}</b>.`
@@ -9114,10 +9180,19 @@ buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
     const fill=Math.min(100,totalSpend/target*100);
     const mark=(!isQuarter&&!isPast&&expected)?Math.min(100,expected/target*100):null;
     const ticks=[25,50,75].map(p=>`<i class="ovh3-tick" style="left:${p}%"><em>${fmt(target*p/100).replace(/\.00$/,'')}</em></i>`).join('');
+    /* the stretch between where you are and where the plan wants you today —
+       tinted red/amber when short, green when you're past it */
+    let gapBand='';
+    if(mark!=null&&Math.abs(mark-fill)>0.15){
+      const behind=fill<mark;
+      gapBand=`<div class="ovh3-gap ${behind?'short':'over'}" style="left:${Math.min(fill,mark)}%;width:${Math.abs(mark-fill)}%"
+        title="${behind?fmt(expected-totalSpend)+' short of today’s plan':fmt(totalSpend-expected)+' past today’s plan'}"></div>`;
+    }
     track=`<div class="ovh3-track" data-target="${target}" data-spent="${totalSpend}">
       <div class="ovh3-bar" role="img" aria-label="${Math.round(fill)}% of target">
         ${ticks}
         <div class="ovh3-fill" style="width:${fill}%"><span class="ovh3-fill-pct">${fill>=7?Math.round(fill)+'%':''}</span></div>
+        ${gapBand}
         ${mark!=null?`<div class="ovh3-mark" style="left:${mark}%"><span class="ovh3-mark-l">plan today</span></div>`:''}
         <div class="ovh3-hover"><span class="ovh3-hover-v"></span></div>
       </div>
@@ -9978,6 +10053,81 @@ if(typeof buildOaA2a==='function'){
   };
 }
 
+/* ---------- 1L. OVERALL — the only place the two books are added up ----------
+   Deliberately small: one dropdown, the combined number, and the split. Every
+   other page keeps OA/A2A and Lavarion apart, which is how Jack works. */
+function spV7BuildPeriodOptions(){
+  const sel=document.getElementById('allPeriod'); if(!sel||sel.options.length)return;
+  const y=new Date().getFullYear(), cm=new Date().getMonth()+1;
+  let html=`<option value="y">${y} — whole year</option>`;
+  for(let q=4;q>=1;q--)html+=`<option value="q${q}">Q${q} ${y}</option>`;
+  for(let m=12;m>=1;m--)html+=`<option value="m${m}"${m===cm?' selected':''}>${MONTH_NAMES[m]} ${y}</option>`;
+  sel.innerHTML=html;
+}
+function spV7OverallRows(kind){
+  const y=new Date().getFullYear();
+  const oa=((typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:(typeof allRows!=='undefined'?allRows:[]))
+    .filter(r=>r.year===y);
+  const lav=(typeof lavRows!=='undefined'?lavRows:[]).filter(r=>r.year===y);
+  const inP=r=>{
+    if(kind.k==='y')return true;
+    if(kind.k==='q')return Math.floor((r.month-1)/3)+1===kind.v;
+    return r.month===kind.v;
+  };
+  return {oa:oa.filter(inP),lav:lav.filter(inP),oaAll:oa,lavAll:lav,year:y};
+}
+function spV7RenderOverall(){
+  const body=document.getElementById('allBody'); if(!body)return;
+  spV7BuildPeriodOptions();
+  const raw=(document.getElementById('allPeriod')||{}).value||('m'+(new Date().getMonth()+1));
+  const kind=raw==='y'?{k:'y'}:raw[0]==='q'?{k:'q',v:+raw.slice(1)}:{k:'m',v:+raw.slice(1)};
+  const {oa,lav,oaAll,lavAll,year}=spV7OverallRows(kind);
+  const S=rs=>rs.reduce((a,r)=>a+r.spend,0);
+  const oaS=S(oa), lavS=S(lav), tot=oaS+lavS;
+  const label=kind.k==='y'?`${year}`:kind.k==='q'?`Q${kind.v} ${year}`:`${MONTH_NAMES[kind.v]} ${year}`;
+  document.getElementById('allTitle').textContent=`Overall spend · ${label}`;
+  const pc=v=>tot?(v/tot*100):0;
+  const U=rs=>rs.reduce((a,r)=>a+r.qty,0);
+  /* monthly stack for the year */
+  const months=[];
+  for(let m=1;m<=12;m++)months.push({m,oa:S(oaAll.filter(r=>r.month===m)),lav:S(lavAll.filter(r=>r.month===m))});
+  const mx=Math.max(1,...months.map(x=>x.oa+x.lav));
+  const sel=kind.k==='m'?[kind.v]:kind.k==='q'?[kind.v*3-2,kind.v*3-1,kind.v*3]:[];
+  const bars=months.map(x=>{
+    const on=!sel.length||sel.includes(x.m), t=x.oa+x.lav;
+    return `<div class="allb${on?'':' dim'}" title="${MONTH_NAMES[x.m]}: ${fmt(t)}">
+      <div class="allb-stack"><div class="allb-oa" style="height:${x.oa/mx*100}%"></div><div class="allb-lav" style="height:${x.lav/mx*100}%"></div></div>
+      <span>${MONTH_NAMES[x.m].slice(0,3)}</span></div>`;}).join('');
+  body.innerHTML=`
+    <div class="ovh3 tone-neutral" style="--acc:#5b8def">
+      <div class="ovh3-top">
+        <div class="ovh3-lead">
+          <div class="ovh3-eye">Everything bought · ${esc(label)}</div>
+          <div class="ovh3-big">${fmt(tot)}</div>
+          <div class="ovh3-delta"><span class="n">${(oa.length+lav.length).toLocaleString()}</span> buy lines · <span class="n">${U(oa).toLocaleString()}</span> OA units and <span class="n">${U(lav).toLocaleString()}</span> Lavarion units.</div>
+        </div>
+        <div class="ovh3-stats">
+          <div class="ovh3-st"><div class="ovh3-st-l">OA / A2A</div><div class="ovh3-st-v accent">${fmt(oaS)}</div><div class="ovh3-st-s">${pc(oaS).toFixed(1)}% of everything</div></div>
+          <div class="ovh3-st"><div class="ovh3-st-l">Lavarion</div><div class="ovh3-st-v" style="color:#c084fc">${fmt(lavS)}</div><div class="ovh3-st-s">${pc(lavS).toFixed(1)}% of everything</div></div>
+          <div class="ovh3-st"><div class="ovh3-st-l">OA buy lines</div><div class="ovh3-st-v">${oa.length.toLocaleString()}</div><div class="ovh3-st-s">${lav.length.toLocaleString()} Lavarion lines</div></div>
+          <div class="ovh3-st"><div class="ovh3-st-l">Avg cost / unit</div><div class="ovh3-st-v">${(U(oa)+U(lav))?fmtDec(tot/(U(oa)+U(lav))):'—'}</div><div class="ovh3-st-s">across both books</div></div>
+        </div>
+      </div>
+      <div class="ovh3-track">
+        <div class="ovh3-bar" style="cursor:default">
+          <div class="allsplit"><span class="allsplit-oa" style="width:${pc(oaS)}%">${pc(oaS)>=12?pc(oaS).toFixed(0)+'%':''}</span><span class="allsplit-lav" style="width:${pc(lavS)}%">${pc(lavS)>=12?pc(lavS).toFixed(0)+'%':''}</span></div>
+        </div>
+        <div class="ovh3-labels"><span><i class="allkey oa"></i><b>${fmt(oaS)}</b> OA / A2A</span><span></span><span><i class="allkey lav"></i><b>${fmt(lavS)}</b> Lavarion</span></div>
+      </div>
+    </div>
+    <div class="lav-card" style="margin-top:14px;">
+      <div class="lav-card-h">Both books by month<span>${year} · ${fmt(S(oaAll)+S(lavAll))} altogether</span></div>
+      <div class="allchart">${bars}</div>
+    </div>
+    <div class="lav-note-row">This is the only page that adds them together. Overview, Today, Trends, Buying Hub and Review are OA / A2A only; Lavarion has its own page.</div>`;
+}
+window.spV7RenderOverall=spV7RenderOverall;
+
 /* ---------- 1f. SETTINGS ---------- */
 const SPV7_SET_KEY='dash:providerRanges';
 function spV7Ranges(){try{return JSON.parse(localStorage.getItem(SPV7_SET_KEY)||'{}')||{};}catch(e){return {};}}
@@ -10412,8 +10562,15 @@ function lavRender(){
   if(pending.length)attn.push(`<b>${pending.length}</b> line${pending.length!==1?'s':''} still with no arrival status`);
   if(noInv.length)attn.push(noInv.length===lines?`<b>no invoice links</b> on any of the ${lines} lines`:`<b>${noInv.length}</b> line${noInv.length!==1?'s':''} missing an invoice link`);
   if(strays.length)attn.push(`<b>${strays.length}</b> row${strays.length!==1?'s':''} dated ${[...new Set(strays.map(r=>r.year))].join(', ')} — probably a typo in the sheet`);
-  document.getElementById('lavAttention').innerHTML=attn.length
-    ? `<div class="lav-attn"><span class="ic"></span><span><b>Worth a look —</b> ${attn.join(' · ')}.</span></div>`
+  /* clickable — each one filters the activity table below to those rows */
+  const attChip=(kind,label,n,tone)=>`<button class="lav-att ${tone}${lavFilter.kind===kind?' on':''}" onclick="lavSetFilter('${kind}','1')"><b>${n}</b> ${label}</button>`;
+  const chips=[];
+  if(issues.length)chips.push(attChip('issue','delivery '+(issues.length===1?'issue':'issues'),issues.length,'bad'));
+  if(pending.length)chips.push(attChip('pending','awaiting arrival',pending.length,'warn'));
+  if(noInv.length)chips.push(attChip('noinv','without an invoice',noInv.length,'mut'));
+  const strayTxt=strays.length?`<span class="lav-att-note">${strays.length} row${strays.length!==1?'s':''} dated ${[...new Set(strays.map(r=>r.year))].join(', ')} — probably a typo</span>`:'';
+  document.getElementById('lavAttention').innerHTML=(chips.length||strayTxt)
+    ? `<div class="lav-attn"><span class="ic"></span><span class="lav-att-l">Worth a look</span>${chips.join('')}${strayTxt}</div>`
     : (lines?`<div class="lav-note-row">All ${lines} lines in ${esc(label)} are confirmed received with invoices attached.</div>`:'');
 
   /* chart — every month of the year */
@@ -10474,11 +10631,16 @@ function lavRender(){
   else if(lavFilter.kind==='account')actRows=rows.filter(r=>r.account===lavFilter.value);
   else if(lavFilter.kind==='product')actRows=rows.filter(r=>(r.name||'(unnamed)')===lavFilter.value);
   else if(lavFilter.kind==='order')actRows=rows.filter(r=>lavOrderKey(r)===lavFilter.value);
+  else if(lavFilter.kind==='issue')actRows=rows.filter(r=>(r.arrived||'').toLowerCase()==='issue');
+  else if(lavFilter.kind==='pending')actRows=rows.filter(r=>!r.arrived);
+  else if(lavFilter.kind==='noinv')actRows=rows.filter(r=>!r.invoice);
   const sortedRows=actRows.slice().sort((a,b)=>b.date-a.date||b.spend-a.spend);
   const cap=lavShowAll?sortedRows.length:40;
   const shown=sortedRows.slice(0,cap);
   const fTotal=sortedRows.reduce((a,r)=>a+r.spend,0);
-  const chip=lavFilter.kind?`<button class="lav-chip" onclick="lavSetFilter('${lavFilter.kind}','${String(lavFilter.value).replace(/'/g,"\\'")}')">${esc(String(lavFilter.value))} · ${fmt(fTotal)} <span>×</span></button>`:'';
+  const FLAG={issue:'delivery issues',pending:'awaiting arrival',noinv:'no invoice'};
+  const chipLabel=FLAG[lavFilter.kind]||String(lavFilter.value);
+  const chip=lavFilter.kind?`<button class="lav-chip" onclick="lavSetFilter('${lavFilter.kind}','${String(lavFilter.value).replace(/'/g,"\\'")}')">${esc(chipLabel)} · ${fmt(fTotal)} <span>×</span></button>`:'';
   document.getElementById('lavActSub').innerHTML=chip
     ? `${chip} ${sortedRows.length} of ${lines} lines`
     : `${lines} line${lines!==1?'s':''} in ${label}${lines>cap?` · showing latest ${cap}`:''}`;
@@ -10515,14 +10677,27 @@ switchPage=function(page){
   const set=document.getElementById('pageSettings');
   try{spV7CurPage=page;if(spV7UserDriven()){spV7Restored=true;spV7SaveView(page);}}catch(e){}
   if(page==='review')setTimeout(()=>{try{spV7CompactReview();}catch(e){}},300);
-  if(page==='settings'){
-    ['pageOverview','pageToday','pageGrowth','pageHub','pageReview','pageLavarion'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
-    if(set)set.style.display='block';
-    document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes('settings')));
-    spV7BuildSettings();
+  const all=document.getElementById('pageOverall');
+  if(page==='settings'||page==='overall'){
+    ['pageOverview','pageToday','pageGrowth','pageHub','pageReview','pageLavarion','pageOverall','pageSettings']
+      .forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+    const target=page==='settings'?set:all;
+    if(target)target.style.display='block';
+    const want=page==='settings'?'settings':'overall';
+    document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim().toLowerCase()===want));
+    if(page==='settings')spV7BuildSettings();
+    else{
+      /* needs both books loaded */
+      const needOA=!(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length);
+      const needLav=(typeof lavLoaded!=='undefined'&&!lavLoaded);
+      spV7RenderOverall();
+      if(needOA&&typeof loadAllAndBuildGrowth==='function')loadAllAndBuildGrowth().then(spV7RenderOverall).catch(()=>{});
+      if(needLav&&typeof lavLoad==='function')lavLoad().then(spV7RenderOverall).catch(()=>{});
+    }
     return;
   }
   if(set)set.style.display='none';
+  if(all)all.style.display='none';
   if(page==='lavarion'){
     ['pageOverview','pageToday','pageGrowth','pageHub','pageReview'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
     if(lav)lav.style.display='block';
