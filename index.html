@@ -8673,7 +8673,7 @@ spInstallPaceUI();
 #pageLookup .ov-eyebrow.lk-eye{color:#fbbf24;}
 #pageLookup .ov-eyebrow.lk-eye::before{background:#fbbf24;}
 .lk-nav-btn.active{background:#f59e0b;color:#1a1206;}
-.lk-bar{display:flex;flex-direction:column;gap:11px;margin-bottom:18px;}
+.lk-bar{display:flex;flex-direction:column;gap:11px;margin-bottom:18px;max-width:1020px;}
 .lk-search{display:flex;align-items:flex-start;gap:11px;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:13px 15px;transition:border-color .15s;}
 .lk-search:focus-within{border-color:rgba(251,191,36,.5);}
 .lk-search svg{color:var(--muted);margin-top:5px;flex:0 0 auto;}
@@ -8728,6 +8728,24 @@ spInstallPaceUI();
 .lk-cp.ok{color:#5fd68c;border-color:rgba(34,197,94,.45);}
 .lk-cp.big{font-size:13px;padding:5px 11px;color:#fbbf24;border-color:rgba(251,191,36,.3);}
 .lk-tbl td.sku .lk-cp{max-width:230px;}
+.lk-tblnote{padding:11px 18px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);background:#080d15;}
+.lk-tblnote b{color:#fbbf24;font-weight:700;}
+/* when it was bought — the "have we had these in recently" strip */
+.lk-strip{padding:15px 20px 16px;border-bottom:1px solid var(--border);background:#080d15;}
+.lk-strip-h{display:flex;align-items:baseline;gap:11px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#7a8ca4;font-weight:800;margin-bottom:13px;flex-wrap:wrap;}
+.lk-strip-h span{text-transform:none;letter-spacing:0;font-weight:400;font-size:10.5px;color:var(--muted);}
+.lk-months{display:flex;gap:6px;align-items:flex-end;}
+.lk-m{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;}
+.lk-m-bar{width:100%;height:46px;display:flex;align-items:flex-end;border-radius:5px;overflow:hidden;
+  background:linear-gradient(180deg,transparent 0,transparent calc(100% - 2px),rgba(148,163,184,.18) calc(100% - 2px));}
+.lk-m.has .lk-m-bar{background:rgba(148,163,184,.06);}
+.lk-m-bar i{display:block;width:100%;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:4px;transition:height .4s;}
+.lk-m.out.has .lk-m-bar i{background:#4a5a72;}
+.lk-m.out{opacity:.55;}
+.lk-m-q{font-size:10px;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums;min-height:12px;}
+.lk-m.out .lk-m-q{color:var(--muted);}
+.lk-m-l{font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.lk-m.has .lk-m-l{color:#c3cfdd;}
 @media(max-width:1000px){.lk-ans-row{grid-template-columns:repeat(2,minmax(0,1fr));}.lk-s:nth-child(odd){border-left:none;}.lk-s:nth-child(n+3){border-top:1px solid var(--border);}.lk-ans-big b{font-size:40px;}}
 
 /* --- Overall (OA + Lavarion) --- */
@@ -10266,17 +10284,40 @@ function spV7LkTotals(rs){
 }
 function spV7LkRowsTable(rs){
   const sorted=rs.slice().sort((x,y)=>y.date-x.date);
+  /* one product in the results? then the title is already in the header —
+     repeating it on every row just eats the widest column */
+  const oneProduct=new Set(sorted.map(r=>r.name)).size===1;
+  const oneAsin=new Set(sorted.map(r=>r.asin)).size===1;
   return `<div class="lk-tblwrap"><table class="lk-tbl">
-    <thead><tr><th>Date</th><th>Product</th><th>ASIN</th><th>SKU</th><th>Order</th><th class="n">Qty</th><th>Bought from</th></tr></thead>
+    <thead><tr><th>Date</th>${oneProduct?'':'<th>Product</th>'}${oneAsin?'':'<th>ASIN</th>'}<th>SKU</th><th>Order</th><th class="n">Qty</th><th>Bought from</th></tr></thead>
     <tbody>${sorted.map(r=>`<tr>
-      <td class="d">${r.date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'})}</td>
-      <td class="nm">${esc(r.name||'—')}</td>
-      <td class="id">${r.asin?`<button class="lk-cp" onclick="spV7Copy('${esc(r.asin)}',this)">${esc(r.asin)}</button>`:'—'}</td>
+      <td class="d">${r.date.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})}</td>
+      ${oneProduct?'':`<td class="nm">${esc(r.name||'—')}</td>`}
+      ${oneAsin?'':`<td class="id">${r.asin?`<button class="lk-cp" onclick="spV7Copy('${esc(r.asin)}',this)">${esc(r.asin)}</button>`:'—'}</td>`}
       <td class="id sku">${r.sku?`<button class="lk-cp" onclick="spV7Copy('${esc(r.sku).replace(/'/g,"\\'")}',this)">${esc(r.sku)}</button>`:'—'}</td>
       <td class="id">${r.orderId?`<button class="lk-cp" onclick="spV7Copy('${esc(r.orderId).replace(/'/g,"\\'")}',this)">${esc(r.orderId)}</button>`:'—'}</td>
       <td class="n qty">${r.qty.toLocaleString()}</td>
       <td>${esc(r.supplier||'—')}${r.provider?`<span class="lk-prov">${esc(r.provider)}</span>`:''}</td>
-    </tr>`).join('')}</tbody></table></div>`;
+    </tr>`).join('')}</tbody></table></div>
+    ${oneProduct?`<div class="lk-tblnote">Every line above is the same product${oneAsin&&sorted[0].asin?` · <b>${esc(sorted[0].asin)}</b>`:''} — so it's left out of the table.</div>`:''}`;
+}
+/* when in the year the buying actually happened — the thing you want when
+   you're chasing stock and asking "have we had these in recently?" */
+function spV7LkMonthStrip(rs,a,b){
+  const y=new Date().getFullYear();
+  const per={}; rs.forEach(r=>{if(r.year===y)per[r.month]=(per[r.month]||0)+r.qty;});
+  const mx=Math.max(1,...Object.values(per));
+  const from=+a.slice(5,7), to=+b.slice(5,7);
+  const cells=[];
+  for(let m=1;m<=12;m++){
+    const q=per[m]||0, inR=m>=from&&m<=to;
+    cells.push(`<div class="lk-m${q?' has':''}${inR?'':' out'}" title="${MONTH_NAMES[m]}: ${q?q.toLocaleString()+' units':'nothing bought'}">
+      <div class="lk-m-bar"><i style="height:${q?Math.max(9,q/mx*100):0}%"></i></div>
+      <span class="lk-m-q">${q?q.toLocaleString():''}</span><span class="lk-m-l">${MONTH_NAMES[m].slice(0,1)}</span></div>`);
+  }
+  const active=Object.keys(per).length;
+  return `<div class="lk-strip"><div class="lk-strip-h">When it was bought<span>${active} month${active!==1?'s':''} with buying this year · shaded months are outside your date range</span></div>
+    <div class="lk-months">${cells.join('')}</div></div>`;
 }
 function spV7LkSingle(res,label,a,b){
   if(!res.rows.length)return `<div class="lk-none"><b>Nothing bought</b><span>No buy lines match “${esc(res.term)}” in ${esc(label)}. Try a wider date range, or check the ASIN.</span></div>`;
@@ -10286,6 +10327,10 @@ function spV7LkSingle(res,label,a,b){
   const asins=[...new Set(res.rows.map(r=>r.asin).filter(Boolean))];
   const sups={}; res.rows.forEach(r=>{sups[r.supplier]=(sups[r.supplier]||0)+r.qty;});
   const supList=Object.entries(sups).sort((x,y)=>y[1]-x[1]);
+  const dOne=d=>d?d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+  const sameDay=t.first&&t.last&&localDateKey(t.first)===localDateKey(t.last);
+  const days=(t.first&&t.last)?Math.round((t.last-t.first)/86400000):0;
+  const spanTxt=days>=60?`spread over ${Math.round(days/30)} months`:days>0?`${days} day${days!==1?'s':''} apart`:'';
   return `<div class="lk-ans">
     <div class="lk-ans-top">
       <div class="lk-ans-l">
@@ -10295,12 +10340,15 @@ function spV7LkSingle(res,label,a,b){
       <div class="lk-ans-big"><b>${t.units.toLocaleString()}</b><span>units bought</span></div>
     </div>
     <div class="lk-ans-row">
-      <div class="lk-s"><div class="lk-s-l">In this range</div><div class="lk-s-v">${esc(label)}</div><div class="lk-s-s">${t.lines} buy line${t.lines!==1?'s':''}</div></div>
       <div class="lk-s"><div class="lk-s-l">Orders</div><div class="lk-s-v">${t.orders.toLocaleString()}</div><div class="lk-s-s">${t.units&&t.orders?(t.units/t.orders).toFixed(1)+' units per order':'—'}</div></div>
       <div class="lk-s"><div class="lk-s-l">Spent</div><div class="lk-s-v">${fmt(t.spend)}</div><div class="lk-s-s">${t.units?fmtDec(t.spend/t.units)+' per unit':'—'}</div></div>
-      <div class="lk-s"><div class="lk-s-l">First bought</div><div class="lk-s-v">${t.first?t.first.toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—'}</div><div class="lk-s-s">last ${t.last?t.last.toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—'}</div></div>
+      <div class="lk-s"><div class="lk-s-l">${sameDay?'Bought on':'Bought between'}</div>
+        <div class="lk-s-v">${sameDay?dOne(t.first):dOne(t.first)+' → '+dOne(t.last)}</div>
+        <div class="lk-s-s">${sameDay?'all on one day':spanTxt}</div></div>
       <div class="lk-s"><div class="lk-s-l">Bought from</div><div class="lk-s-v sm">${supList.length?esc(supList[0][0]):'—'}</div><div class="lk-s-s">${supList.length>1?supList.length+' suppliers in total':'only source'}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Buy lines</div><div class="lk-s-v">${t.lines.toLocaleString()}</div><div class="lk-s-s">${esc(label).toLowerCase()}</div></div>
     </div>
+    ${spV7LkMonthStrip(res.rows,a,b)}
     ${spV7LkRowsTable(res.rows)}</div>`;
 }
 function spV7LkBulk(results,label){
