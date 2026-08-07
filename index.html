@@ -2354,9 +2354,9 @@ footer{box-shadow:0 -1px 0 rgba(255,255,255,.04);}
 .rv-verdict.miss{background:linear-gradient(135deg,#5a1717,#7e2424);}
 .rv-verdict.pace{background:linear-gradient(135deg,#5a390a,#7e4f0e);}
 .rv-verdict-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
-.rv-verdict-badge{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:6px 13px;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(4px);}
+.rv-verdict-badge{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:6px 13px;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;}
 .rv-verdict-title{font-family:var(--font-head);font-size:21px;font-weight:800;color:#fff;letter-spacing:-.02em;}
-.rv-verdict-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;}
+.rv-verdict-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;}
 .rv-vg{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px;}
 .rv-vg-label{font-size:9px;color:rgba(255,255,255,.72);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:700;}
 .rv-vg-val{font-size:23px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
@@ -5269,7 +5269,8 @@ function buildToday(){
     const dsub=document.getElementById('todayDate'); if(dsub) dsub.textContent="Live view of what's been bought so far today.";
     const orders=todayRows.length?new Set(todayRows.map(r=>r.orderId)).size:0;
     const units=todayRows.reduce((a,r)=>a+r.qty,0);
-    const allProvs=[...new Set(src.map(r=>r.provider).filter(Boolean))];
+    const allProvs=[...new Set(src.map(r=>r.provider).filter(Boolean))]
+      .filter(p=>!(window.spV7IsHidden&&window.spV7IsHidden(p)));
     const activeProvs=[...new Set(todayRows.map(r=>r.provider).filter(Boolean))];
     const silent=allProvs.filter(p=>!activeProvs.includes(p));
     const avgDay=allDays.length?allDays.reduce((a,d)=>a+d.spend,0)/allDays.length:0;
@@ -7444,7 +7445,7 @@ openProviderDiag = function(encP,fromKey,toKey){
   const provPoint=spSamePointYTDHistory(y,m,cutoffDay,dimM,p);
   const provAtPoint={}; provPoint.values.forEach(v=>{provAtPoint[v.m]=v.spend;});
   const provAvgAtPoint=provPoint.average||0;
-  const history=histRows.map(h=>{const pct=h.target?Math.round(h.spend/h.target*100):null;const atPoint=h.current?spend:(h.y===y&&provAtPoint[h.m]!=null?provAtPoint[h.m]:null);const perDay=h.active?h.spend/h.active:0;const tag=h.current?'<span class="tpx-tag live">current</span>':(h.target?(h.spend>=h.target?'<span class="tpx-tag hit">hit</span>':'<span class="tpx-tag miss">miss</span>'):'<span class="tpx-tag none">no min</span>');return `<tr${h.current?' class="cur"':''}><td>${spMonthLabel(h.y,h.m)}</td><td>${atPoint!=null?fmt(atPoint):'—'}</td><td class="mono">${h.current?'—':fmt(h.spend)}</td><td>${h.target?fmt(h.target):'—'}</td><td class="${pct===null?'':pct>=100?'g':'r'}">${pct===null?'—':pct+'%'}</td><td>${perDay?fmt(perDay):'—'}</td><td>${h.active}</td><td>${tag}</td></tr>`;}).join('');
+  const history=histRows.map(h=>{const pct=h.target?Math.round(h.spend/h.target*100):null;const atPoint=h.current?spend:(h.y===y&&provAtPoint[h.m]!=null?provAtPoint[h.m]:null);const perDay=h.active?h.spend/h.active:0;const tag=h.current?'<span class="tpx-tag live">current</span>':(h.target?(h.spend>=h.target?'<span class="tpx-tag hit">hit</span>':'<span class="tpx-tag miss">miss</span>'):'<span class="tpx-tag none">no min</span>');return `<tr${h.current?' class="cur"':''}><td>${spMonthLabel(h.y,h.m)}</td><td>${atPoint!=null?fmt(atPoint):'—'}</td><td class="mono">${h.current?'—':fmt(h.spend)}</td><td>${h.target?fmt(h.target):'—'}</td><td class="${pct===null||h.current?'':pct>=100?'g':'r'}"${h.current?' title="Part month — this is against the full-month minimum, so it climbs as the month runs"':''}>${pct===null?'—':pct+'%'+(h.current?' so far':'')}</td><td>${perDay?fmt(perDay):'—'}</td><td>${h.active}</td><td>${tag}</td></tr>`;}).join('');
   document.getElementById('provModalTitle').textContent=p;
   const _psub=document.getElementById('provModalSub'); if(_psub)_psub.textContent=`Provider deep dive · ${spKeyDate(fromKey).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}–${spKeyDate(toKey).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}`;
   const _pback=document.getElementById('provBackBtn'); if(_pback)_pback.style.display=fromPace?'inline-flex':'none';
@@ -7460,7 +7461,7 @@ openProviderDiag = function(encP,fromKey,toKey){
     <div class="tpx-kpis">${kpis}</div>
     <div class="tpx-sec"><div class="tpx-h"><div class="tpx-h-t">What the data shows</div></div><div class="tpx-ins">${reasons.map(r=>`<div class="tpx-ins-i ${st.className==='bad'?'bad':st.className==='good'?'good':'info'}">${r}</div>`).join('')}</div></div>
     <div class="tpx-sec"><div class="tpx-h"><div class="tpx-h-t">Questions to ask ${esc(p)}</div></div><div class="tpx-ins">${questions.map(q=>`<div class="tpx-ins-i warn">${q}</div>`).join('')}</div></div>
-    <div class="tpx-sec"><div class="tpx-h"><div class="tpx-h-t">Month-by-month pace</div><div class="tpx-h-n">where they were by day ${cutoffDay} vs where they finished</div></div><div class="tpx-tblwrap"><table class="tpx-tbl"><thead><tr><th>Month</th><th>By day ${cutoffDay}</th><th>Finished</th><th>Minimum</th><th>%</th><th>£/day</th><th>Active</th><th>Status</th></tr></thead><tbody>${history}</tbody></table></div></div>
+    <div class="tpx-sec"><div class="tpx-h"><div class="tpx-h-t">Month-by-month pace</div><div class="tpx-h-n">where they were by day ${cutoffDay} vs where they finished</div></div><div class="tpx-tblwrap"><table class="tpx-tbl"><thead><tr><th>Month</th><th>By day ${cutoffDay}</th><th>Finished</th><th>Minimum</th><th>% of min</th><th>£/day</th><th>Active</th><th>Status</th></tr></thead><tbody>${history}</tbody></table></div></div>
   </div>`;
   const _pb=document.getElementById('provModalBody'); if(_pb)_pb.scrollTop=0;
   document.getElementById('provModal').classList.add('show');
@@ -7469,26 +7470,46 @@ openProviderDiag = function(encP,fromKey,toKey){
 /* Scorecard prioritises minimum-target achievement and evidence, rather than a black-box score. */
 buildProviderScorecard = function(){
   const el=document.getElementById('rvScorecardBody');if(!el)return;const rows=spGetAllRows();const now=new Date(),y=now.getFullYear(),m=now.getMonth()+1,todayK=localDateKey(now);
-  const provs=[...new Set(rows.filter(r=>r.provider&&r.year===y).map(r=>r.provider))];if(!provs.length){el.innerHTML='<div class="rv-empty">No provider data yet.</div>';return;}
+  const provs=[...new Set(rows.filter(r=>r.provider&&r.year===y).map(r=>r.provider))]
+    .filter(p=>!(window.spV7IsHidden&&window.spV7IsHidden(p)));
+  if(!provs.length){el.innerHTML='<div class="rv-empty">No provider data yet.</div>';return;}
   const data=provs.map(p=>{
     const ytd=spSum(rows.filter(r=>r.provider===p&&r.year===y),r=>r.spend);const curPlan=spMonthlyRead(y,m,p);const curSt=curPlan.target?spPlanStatus({...curPlan,target:curPlan.expected,actual:curPlan.actual,toK:curPlan.toK}):{label:'No min',className:'neutral'};
     let measured=0,hit=0;for(let mo=1;mo<m;mo++){const t=(liveTargets[mo]||{})[p]||0;if(t){measured++;if(spMonthActual(y,mo,p)>=t)hit++;}}
     const base=spProviderBaseline(p,y,m);const last=rows.filter(r=>r.provider===p).reduce((a,r)=>!a||r.date>a?r.date:a,null);const since=last?Math.round((spKeyDate(todayK)-spKeyDate(localDateKey(last)))/86400000):null;
     return {p,ytd,curPlan,curSt,measured,hit,base,since};
   }).sort((a,b)=>b.ytd-a.ytd);
-  const body=data.map(d=>{const col=PROVIDER_COLORS[d.p]||'#4f8ef7';const hitTxt=d.measured?`${d.hit}/${d.measured}`:'—';const cur=d.curPlan.target?`${Math.round(d.curPlan.actual/d.curPlan.expected*100)}%`: '—';const last=d.since==null?'—':`${d.since}d`;const warn=d.base.typGap&&d.since>d.base.typGap+2;return `<tr class="clk" onclick="openProviderDiag('${encodeURIComponent(d.p)}','${spFirstDateForMonth(y,m)}','${todayK}')"><td><span class="prov-badge" style="background:${col}22;border:1px solid ${col}44"><span class="prov-badge-dot" style="background:${col}"></span>${esc(d.p)}</span></td><td class="num">${fmt(d.ytd)}</td><td><span class="rv-tag ${d.curSt.className==='good'?'hit':d.curSt.className==='bad'?'miss':'none'}">${d.curSt.label}</span></td><td>${cur}</td><td>${hitTxt}</td><td>${d.base.activeAvg?d.base.activeAvg.toFixed(1):'—'}</td><td style="color:${warn?'var(--red)':'var(--text)'};font-weight:600;">${last}</td></tr>`;}).join('');
+  const body=data.map(d=>{const col=PROVIDER_COLORS[d.p]||'#4f8ef7';const hitTxt=d.measured?`${d.hit}/${d.measured}`:'—';/* your rule: at or above plan is green, within 10% is amber, below that is red */
+  const curPct=d.curPlan.target&&d.curPlan.expected?d.curPlan.actual/d.curPlan.expected:null;
+  const curCol=curPct===null?'var(--muted)':curPct>=1?'var(--green)':curPct>=0.9?'var(--amber)':'var(--red)';
+  const cur=curPct===null?'—':`<span style="color:${curCol};font-weight:700;">${Math.round(curPct*100)}%</span>`;const last=d.since==null?'—':`${d.since}d`;const warn=d.base.typGap&&d.since>d.base.typGap+2;return `<tr class="clk" onclick="openProviderDiag('${encodeURIComponent(d.p)}','${spFirstDateForMonth(y,m)}','${todayK}')"><td><span class="prov-badge" style="background:${col}22;border:1px solid ${col}44"><span class="prov-badge-dot" style="background:${col}"></span>${esc(d.p)}</span></td><td class="num">${fmt(d.ytd)}</td><td><span class="rv-tag ${d.curSt.className==='good'?'hit':d.curSt.className==='bad'?'miss':'none'}">${d.curSt.label}</span></td><td>${cur}</td><td>${hitTxt}</td><td>${d.base.activeAvg?d.base.activeAvg.toFixed(1):'—'}</td><td style="color:${warn?'var(--red)':'var(--text)'};font-weight:600;">${last}</td></tr>`;}).join('');
   el.innerHTML=`<div class="rv-card-note" style="margin:0 0 14px;">Provider targets are minimum expectations. Replen / un-targeted sources remain visible as contribution, but are not marked as a miss.</div><table class="rv-perf sc-table"><thead><tr><th>Provider</th><th>YTD spend</th><th>Current status</th><th>Vs weighted plan</th><th>Min targets hit</th><th>Typical active days</th><th>Last buy</th></tr></thead><tbody>${body}</tbody></table>`;
 };
 
+/* a month still running can be hit early, but it can't be "missed" yet */
+function spCmpStatus(spend,target,isOpen){
+  if(spend>=target)return '<span class="rv-tag hit">hit</span>';
+  if(isOpen)return '<span class="rv-tag none">still open</span>';
+  return '<span class="rv-tag miss">miss</span>';
+}
 /* Compare months: reason behind the movement, not just a diff table. */
 runReviewCompare = function(){
   const el=document.getElementById('rvCompareBody');if(!el)return;const a=+(document.getElementById('rvCmpA')||{}).value,b=+(document.getElementById('rvCmpB')||{}).value;if(!a||!b){el.innerHTML='<div class="rv-empty">Pick two months to compare.</div>';return;}
   const y=new Date().getFullYear();const sa=spMonthlyStats(y,a,'team'),sb=spMonthlyStats(y,b,'team');const ta=(liveTargets[a]||{}).team||0,tb=(liveTargets[b]||{}).team||0;const delta=sb.spend-sa.spend,activeDelta=sb.active-sa.active,avgDelta=sb.avgActive-sa.avgActive;
-  let reason='';if(delta<0&&activeDelta<0&&avgDelta>=0)reason=`Spend fell mainly because there were <b>${Math.abs(activeDelta)} fewer active buying days</b>; spend per active day actually improved.`;else if(delta<0&&activeDelta>=0&&avgDelta<0)reason=`Buying frequency held up, but <b>spend per active day fell</b> by ${fmt(Math.abs(avgDelta))}.`;else if(delta<0)reason=`Both activity and spend per active day fell, so the drop is mixed rather than one simple cause.`;else if(delta>0&&activeDelta>0)reason=`Growth came mainly from <b>${activeDelta} more active buying days</b>.`;else if(delta>0&&avgDelta>0)reason=`Growth came from stronger buying days: <b>${fmt(avgDelta)}</b> more per active day.`;else reason='Overall spend was broadly flat; check provider movement for the detail.';
-  const provs=[...new Set(spGetAllRows().filter(r=>r.year===y&&(r.month===a||r.month===b)).map(r=>r.provider).filter(Boolean))];const movements=provs.map(p=>({p,va:spMonthActual(y,a,p),vb:spMonthActual(y,b,p)})).map(x=>({...x,d:x.vb-x.va})).sort((x,z)=>Math.abs(z.d)-Math.abs(x.d));
+  /* an in-progress month isn't comparable to a finished one — say so instead of
+     calling a 7-day August a "drop" */
+  const nowD=new Date(), curM=nowD.getMonth()+1, curY=nowD.getFullYear(), dayN=nowD.getDate();
+  const openM=(y===curY)?(a===curM?a:(b===curM?b:0)):0;
+  const openNote=openM?`<div class="rv-open-note"><b>${MONTH_NAMES[openM]} is only ${dayN} day${dayN===1?'':'s'} in.</b> It's being compared against a finished month, so every total below will look low until the month closes.</div>`:'';
+  let reason='';if(openM)reason=`Part-month against a full month — read the per-active-day figure rather than the totals.`;else if(delta<0&&activeDelta<0&&avgDelta>=0)reason=`Spend fell mainly because there were <b>${Math.abs(activeDelta)} fewer active buying days</b>; spend per active day actually improved.`;else if(delta<0&&activeDelta>=0&&avgDelta<0)reason=`Buying frequency held up, but <b>spend per active day fell</b> by ${fmt(Math.abs(avgDelta))}.`;else if(delta<0)reason=`Both activity and spend per active day fell, so the drop is mixed rather than one simple cause.`;else if(delta>0&&activeDelta>0)reason=`Growth came mainly from <b>${activeDelta} more active buying days</b>.`;else if(delta>0&&avgDelta>0)reason=`Growth came from stronger buying days: <b>${fmt(avgDelta)}</b> more per active day.`;else reason='Overall spend was broadly flat; check provider movement for the detail.';
+  const provs=[...new Set(spGetAllRows().filter(r=>r.year===y&&(r.month===a||r.month===b)).map(r=>r.provider).filter(Boolean))]
+    .filter(p=>!(window.spV7IsHidden&&window.spV7IsHidden(p)));const movements=provs.map(p=>({p,va:spMonthActual(y,a,p),vb:spMonthActual(y,b,p)})).map(x=>({...x,d:x.vb-x.va})).sort((x,z)=>Math.abs(z.d)-Math.abs(x.d));
   const mrows=movements.map(x=>`<tr class="clk" onclick="openProviderDiag('${encodeURIComponent(x.p)}','${spFirstDateForMonth(y,b)}','${spLastDateForMonth(y,b)}')"><td>${esc(x.p)}</td><td class="num">${fmt(x.va)}</td><td class="num">${fmt(x.vb)}</td><td style="color:${x.d>=0?'var(--green)':'var(--red)'};font-weight:700;">${spFmtDelta(x.d)}</td><td>${tb&&(liveTargets[b]||{})[x.p]?fmt((liveTargets[b]||{})[x.p]):'<span class="hub-muted">no min</span>'}</td></tr>`).join('');
-  const tile=(l,av,bv,fmtFn)=>`<div class="rv-tile"><div class="rv-tile-label">${l}</div><div class="rv-tile-val">${fmtFn(bv)}</div><div class="rv-tile-sub">${spFmtDelta(bv-av)} vs ${MONTH_NAMES[a]}</div></div>`;
-  el.innerHTML=`<div class="rv-card" style="margin-bottom:14px;"><div class="rv-card-title">${MONTH_NAMES[a]} → ${MONTH_NAMES[b]} ${y}</div><div class="rv-card-note">${reason}</div><div class="rv-tiles" style="grid-template-columns:repeat(4,1fr);margin-top:16px;margin-bottom:0;">${tile('Spend',sa.spend,sb.spend,fmt)}${tile('Active buying days',sa.active,sb.active,v=>String(v))}${tile('Spend / active day',sa.avgActive,sb.avgActive,fmt)}${tile('Orders',sa.orders,sb.orders,v=>String(v))}</div></div><div class="rv-card" style="margin-bottom:14px;"><div class="rv-card-title">Target context</div><div class="rv-card-note">A target can deliberately be a stretch; this shows the fact, not a judgement.</div><table class="rv-perf"><thead><tr><th>Metric</th><th>${MONTH_NAMES[a]}</th><th>${MONTH_NAMES[b]}</th></tr></thead><tbody><tr><td>Team target</td><td class="num">${ta?fmt(ta):'—'}</td><td class="num">${tb?fmt(tb):'—'}</td></tr><tr><td>Target achieved</td><td class="num">${ta?Math.round(sa.spend/ta*100)+'%':'—'}</td><td class="num">${tb?Math.round(sb.spend/tb*100)+'%':'—'}</td></tr><tr><td>Target status</td><td>${ta?`<span class="rv-tag ${sa.spend>=ta?'hit':'miss'}">${sa.spend>=ta?'hit':'miss'}</span>`:'—'}</td><td>${tb?`<span class="rv-tag ${sb.spend>=tb?'hit':'miss'}">${sb.spend>=tb?'hit':'miss'}</span>`:'—'}</td></tr></tbody></table></div><div class="rv-card"><div class="rv-card-title">Who moved</div><div class="rv-card-note">Sorted by contribution to the total change. Click a provider for evidence and investigation prompts.</div><table class="rv-perf"><thead><tr><th>Provider</th><th>${MONTH_NAMES[a]}</th><th>${MONTH_NAMES[b]}</th><th>Movement</th><th>Current minimum</th></tr></thead><tbody>${mrows}</tbody></table></div>`;
+  /* days and orders are counts — they were being printed as "−£13.00 vs July" */
+  const tile=(l,av,bv,fmtFn,unit)=>{const d=bv-av;const sign=d>=0?'+':'−';
+    const body=unit?`${sign}${Math.abs(Math.round(d))} ${unit}${Math.abs(Math.round(d))===1?'':'s'}`:spFmtDelta(d);
+    return `<div class="rv-tile"><div class="rv-tile-label">${l}</div><div class="rv-tile-val">${fmtFn(bv)}</div><div class="rv-tile-sub">${body} vs ${MONTH_NAMES[a]}</div></div>`;};
+  el.innerHTML=`${openNote}<div class="rv-card" style="margin-bottom:14px;"><div class="rv-card-title">${MONTH_NAMES[a]} → ${MONTH_NAMES[b]} ${y}</div><div class="rv-card-note">${reason}</div><div class="rv-tiles" style="grid-template-columns:repeat(4,1fr);margin-top:16px;margin-bottom:0;">${tile('Spend',sa.spend,sb.spend,fmt)}${tile('Active buying days',sa.active,sb.active,v=>String(v),'day')}${tile('Spend / active day',sa.avgActive,sb.avgActive,fmt)}${tile('Orders',sa.orders,sb.orders,v=>String(v),'order')}</div></div><div class="rv-card" style="margin-bottom:14px;"><div class="rv-card-title">Target context</div><div class="rv-card-note">A target can deliberately be a stretch; this shows the fact, not a judgement.</div><table class="rv-perf"><thead><tr><th>Metric</th><th>${MONTH_NAMES[a]}</th><th>${MONTH_NAMES[b]}</th></tr></thead><tbody><tr><td>Team target</td><td class="num">${ta?fmt(ta):'—'}</td><td class="num">${tb?fmt(tb):'—'}</td></tr><tr><td>Target achieved</td><td class="num">${ta?Math.round(sa.spend/ta*100)+'%':'—'}</td><td class="num">${tb?Math.round(sb.spend/tb*100)+'%':'—'}</td></tr><tr><td>Target status</td><td>${ta?spCmpStatus(sa.spend,ta,a===openM):'—'}</td><td>${tb?spCmpStatus(sb.spend,tb,b===openM):'—'}</td></tr></tbody></table></div><div class="rv-card"><div class="rv-card-title">Who moved</div><div class="rv-card-note">Sorted by contribution to the total change. Click a provider for evidence and investigation prompts.</div><table class="rv-perf"><thead><tr><th>Provider</th><th>${MONTH_NAMES[a]}</th><th>${MONTH_NAMES[b]}</th><th>Movement</th><th>Current minimum</th></tr></thead><tbody>${mrows}</tbody></table></div>`;
 };
 
 /* Post-mortem: weighted cumulative curve and actionable evidence. */
@@ -7501,7 +7522,11 @@ runReviewPostMortem = function(){
   const drivers=provRows.filter(x=>x.tgt>0).slice(0,5).map(x=>`<div class="rv-fix ${x.gap>0?'bad':'good'} rv-fix-click" onclick="openProviderDiag('${encodeURIComponent(x.p)}','${spFirstDateForMonth(y,m)}','${toK}')"><span><b>${esc(x.p)}</b> — ${fmt(x.a)} against a weighted minimum plan of ${fmt(x.tgt)}. ${x.gap>0?`<b>${fmt(x.gap)} short</b>.`:`<b>${fmt(-x.gap)} ahead</b>.`}</span><span class="rv-fix-more">Evidence</span></div>`).join('')||'<div class="hub-muted">No provider minimum targets set for this month.</div>';
   const active=set=>new Set(set.map(d=>d.key)).size; const silent=days.length-active(days.filter(d=>d.actual>0));
   let title=past?(actual>=target?'Target hit':'Target missed'):status.label; let sub=past?`${fmt(actual)} of ${fmt(target)} final.`:`${fmt(actual)} spent vs ${fmt(expected)} weighted plan by today. ${rec.remaining?fmt(rec.remaining)+' remains to hit the full-month target.':'Target is already covered.'}`;
-  out.innerHTML=`<div class="rv-verdict ${status.className==='good'?'good':status.className==='bad'?'bad':'neutral'}"><div class="rv-verdict-top"><span class="rv-verdict-badge">${past?'Final result':'Live weighted pace'}</span><span class="rv-verdict-title">${title}</span></div><div class="rv-verdict-grid"><div class="rv-vg"><div class="rv-vg-label">Actual spend</div><div class="rv-vg-val">${fmt(actual)}</div><div class="rv-vg-sub">${stats.active} active days</div></div><div class="rv-vg"><div class="rv-vg-label">${past?'Target':'Planned by today'}</div><div class="rv-vg-val">${fmt(past?target:expected)}</div><div class="rv-vg-sub">weekday-weighted</div></div><div class="rv-vg"><div class="rv-vg-label">${past?'Final gap':'Remaining target'}</div><div class="rv-vg-val">${fmt(Math.abs(past?target-actual:target-actual))}</div><div class="rv-vg-sub">${past?(actual>=target?'over target':'short of target'):`${rec.weekdays.length} weekdays left`}</div></div></div></div><div class="rv-card"><div class="rv-card-title">Pace — actual vs weighted plan</div><div class="rv-card-note">The planned curve follows your historic weekday pattern; it does not assume identical spend every day.</div><div style="height:245px;"><canvas id="rvPaceChartCanvas"></canvas></div></div><div class="rv-card"><div class="rv-card-title">What drove the result</div><div class="rv-card-note">Provider minimums are evidence. Extra Replen / unassigned spend still helps the team target but is not marked as a provider miss.</div>${drivers}</div><div class="rv-card"><div class="rv-card-title">Activity read</div><div class="rv-card-note">${sub}</div><div class="rv-tiles" style="grid-template-columns:repeat(4,1fr);margin:16px 0 0;"><div class="rv-tile"><div class="rv-tile-label">Active days</div><div class="rv-tile-val">${stats.active}</div><div class="rv-tile-sub">${silent} silent day${silent!==1?'s':''}</div></div><div class="rv-tile"><div class="rv-tile-label">£ / active day</div><div class="rv-tile-val">${fmt(stats.avgActive)}</div></div><div class="rv-tile"><div class="rv-tile-label">Orders</div><div class="rv-tile-val">${stats.orders}</div></div><div class="rv-tile"><div class="rv-tile-label">Recovery average</div><div class="rv-tile-val">${rec.weekdays.length?fmt(rec.remaining/rec.weekdays.length):'—'}</div><div class="rv-tile-sub">per remaining weekday</div></div></div></div>`;
+  /* the CSS defines .hit / .miss / .pace — this was emitting good/bad/neutral,
+     so the verdict card rendered with no background colour at all */
+  const vTone=past?(actual>=target?'hit':'miss')
+    :(status.className==='good'?'hit':status.className==='bad'?'miss':'pace');
+  out.innerHTML=`<div class="rv-verdict ${vTone}"><div class="rv-verdict-top"><span class="rv-verdict-badge">${past?'Final result':'Live weighted pace'}</span><span class="rv-verdict-title">${title}</span></div><div class="rv-verdict-grid"><div class="rv-vg"><div class="rv-vg-label">Actual spend</div><div class="rv-vg-val">${fmt(actual)}</div><div class="rv-vg-sub">${stats.active} active days</div></div><div class="rv-vg"><div class="rv-vg-label">${past?'Target':'Planned by today'}</div><div class="rv-vg-val">${fmt(past?target:expected)}</div><div class="rv-vg-sub">weekday-weighted</div></div><div class="rv-vg"><div class="rv-vg-label">${past?'Final gap':'Remaining target'}</div><div class="rv-vg-val">${fmt(Math.abs(past?target-actual:target-actual))}</div><div class="rv-vg-sub">${past?(actual>=target?'over target':'short of target'):`${rec.weekdays.length} weekdays left`}</div></div></div></div><div class="rv-card"><div class="rv-card-title">Pace — actual vs weighted plan</div><div class="rv-card-note">The planned curve follows your historic weekday pattern; it does not assume identical spend every day.</div><div style="height:245px;"><canvas id="rvPaceChartCanvas"></canvas></div></div><div class="rv-card"><div class="rv-card-title">What drove the result</div><div class="rv-card-note">Provider minimums are evidence. Extra Replen / unassigned spend still helps the team target but is not marked as a provider miss.</div>${drivers}</div><div class="rv-card"><div class="rv-card-title">Activity read</div><div class="rv-card-note">${sub}</div><div class="rv-tiles" style="grid-template-columns:repeat(4,1fr);margin:16px 0 0;"><div class="rv-tile"><div class="rv-tile-label">Active days</div><div class="rv-tile-val">${stats.active}</div><div class="rv-tile-sub">${silent} silent day${silent!==1?'s':''}</div></div><div class="rv-tile"><div class="rv-tile-label">£ / active day</div><div class="rv-tile-val">${fmt(stats.avgActive)}</div></div><div class="rv-tile"><div class="rv-tile-label">Orders</div><div class="rv-tile-val">${stats.orders}</div></div><div class="rv-tile"><div class="rv-tile-label">Recovery average</div><div class="rv-tile-val">${rec.weekdays.length?fmt(rec.remaining/rec.weekdays.length):'—'}</div><div class="rv-tile-sub">per remaining weekday</div></div></div></div>`;
   const old=Chart.getChart('rvPaceChartCanvas');if(old)old.destroy();
   let runA=0,runP=0;const labels=full.days.map(d=>d.date.getDate()),actualLine=full.days.map(d=>{runA+=d.actual;return d.key<=toK?runA:null;}),planLine=full.days.map(d=>{runP+=d.plan;return runP;});
   new Chart(document.getElementById('rvPaceChartCanvas'),{type:'line',data:{labels,datasets:[{label:'Actual',data:actualLine,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,.12)',fill:true,tension:.22,pointRadius:0,borderWidth:2.5},{label:'Weighted plan',data:planLine,borderColor:'#fbbf24',borderDash:[6,5],fill:false,tension:.18,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:{ticks:{color:'#6b7584',font:{size:9},maxTicksLimit:16},grid:{display:false}},y:{ticks:{color:'#6b7584',font:{size:10},callback:v=>'£'+(v>=1000?Math.round(v/1000)+'k':v)},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8892a0',font:{size:11},boxWidth:13,padding:14,usePointStyle:true}},tooltip:{backgroundColor:'#1a1e27',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#eef0f5',bodyColor:'#b8c2d0',padding:10,callbacks:{title:i=>'Day '+i[0].label,label:c=>`${c.dataset.label}: ${fmt(c.parsed.y)}`}}}}});
@@ -8441,12 +8466,16 @@ spInstallPaceUI();
     <div class="lk-search">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
       <textarea id="lkQ" rows="1" placeholder="B0CD2Y2PTS   —   or a SKU, or part of a product name…   (paste several, one per line, to do a batch)" spellcheck="false"></textarea>
+      <button class="lk-x" id="lkClear" onclick="spV7LkClear()" title="Clear (Esc)" style="display:none;">×</button>
       <button class="lk-go" onclick="spV7Lookup()">Search</button>
     </div>
     <div class="lk-dates" id="lkPresets"></div>
-    <div class="lk-custom">
-      <label>from</label><input id="lkFrom" type="date" class="hub-input" onchange="spV7Lookup(1)">
-      <label>to</label><input id="lkTo" type="date" class="hub-input" onchange="spV7Lookup(1)">
+    <div class="lk-row2">
+      <div class="lk-custom">
+        <label>from</label><input id="lkFrom" type="date" class="hub-input" onchange="spV7Lookup(1)">
+        <label>to</label><input id="lkTo" type="date" class="hub-input" onchange="spV7Lookup(1)">
+      </div>
+      <div class="lk-group"><span class="lk-group-l">group by</span><div id="lkGroupBtns"></div></div>
     </div>
   </div>
   <div id="lkResult"></div>
@@ -8693,28 +8722,42 @@ spInstallPaceUI();
 .lk-empty span,.lk-none span{font-size:12.5px;color:var(--muted2);line-height:1.6;}
 .lk-empty code{background:var(--surface2);padding:2px 7px;border-radius:5px;color:#fbbf24;font-size:12px;}
 .lk-empty-s{color:var(--muted) !important;font-size:11.5px !important;}
-.lk-ans{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.lk-ans-top{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 24px 16px;}
-.lk-ans-name{font-family:var(--font-head);font-size:19px;font-weight:800;color:var(--text);line-height:1.25;letter-spacing:-.015em;}
-.lk-ans-ids{display:flex;align-items:center;gap:9px;margin-top:9px;flex-wrap:wrap;}
-.lk-matched{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+.lk-ans{background:linear-gradient(180deg,#141a26,#0d1219);border:1px solid rgba(251,191,36,.2);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -34px rgba(0,0,0,.95);}
+/* the number is the answer, so it leads — the title supports it */
+.lk-ans-top{display:flex;align-items:center;gap:22px;padding:20px 24px 18px;}
+.lk-ans-l{min-width:0;flex:1;}
+.lk-ans-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:#e6edf7;line-height:1.4;letter-spacing:-.005em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lk-ans-ids{display:flex;align-items:center;gap:9px;margin-top:10px;flex-wrap:wrap;}
+.lk-matched{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
 .lk-more{font-size:11px;color:var(--muted);}
-.lk-ans-big{flex:0 0 auto;text-align:right;}
-.lk-ans-big b{display:block;font-family:var(--font-head);font-size:52px;font-weight:800;line-height:.9;letter-spacing:-.04em;color:#fbbf24;font-variant-numeric:tabular-nums;}
-.lk-ans-big span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-top:8px;display:block;}
-.lk-ans-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#080d15;}
-.lk-s{padding:12px 18px;border-left:1px solid var(--border);min-width:0;}
+.lk-ans-big{flex:0 0 auto;text-align:center;background:linear-gradient(180deg,rgba(251,191,36,.16),rgba(245,158,11,.06));
+  border:1px solid rgba(251,191,36,.35);border-radius:14px;padding:14px 26px;min-width:150px;}
+.lk-ans-big b{display:block;font-family:var(--font-head);font-size:50px;font-weight:800;line-height:.88;letter-spacing:-.045em;color:#fbbf24;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(251,191,36,.35);}
+.lk-ans-big span{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:#c9a44c;font-weight:800;margin-top:9px;display:block;}
+.lk-ans-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid rgba(148,163,184,.12);border-bottom:1px solid rgba(148,163,184,.12);background:#0a0f18;}
+.lk-s{padding:13px 18px;border-left:1px solid rgba(148,163,184,.09);min-width:0;position:relative;}
 .lk-s:first-child{border-left:none;}
-.lk-s-l{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#7a8ca4;font-weight:800;margin-bottom:7px;}
+.lk-s::before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;opacity:.75;}
+.lk-s:nth-child(1)::before{background:#4f8ef7;}
+.lk-s:nth-child(2)::before{background:#22c55e;}
+.lk-s:nth-child(3)::before{background:#c084fc;}
+.lk-s:nth-child(4)::before{background:#2dd4bf;}
+.lk-s:nth-child(5)::before{background:#fb923c;}
+.lk-s-l{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#8497ae;font-weight:800;margin-bottom:7px;}
 .lk-s-v{font-family:var(--font-head);font-size:17px;font-weight:800;color:#eef4fc;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lk-s:nth-child(2) .lk-s-v{color:#7ee2a8;}
+.lk-s:nth-child(4) .lk-s-v{color:#7ee8dd;}
 .lk-s-v.sm{font-size:14px;}
 .lk-s-s{font-size:10px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lk-bulk-h{padding:16px 22px;font-size:13px;color:#c3cfdd;border-bottom:1px solid var(--border);}
 .lk-bulk-h b{color:#fbbf24;font-weight:800;}
 .lk-tblwrap{max-height:560px;overflow:auto;}
 .lk-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
-.lk-tbl th{position:sticky;top:0;z-index:1;background:#0d1218;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
-.lk-tbl td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:#c3cfdd;vertical-align:middle;}
+.lk-tbl th{position:sticky;top:0;z-index:1;background:#11172080;backdrop-filter:none;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#8497ae;font-weight:800;padding:11px 14px;border-bottom:1px solid rgba(251,191,36,.18);white-space:nowrap;}
+.lk-tbl th{background:#121821;}
+.lk-tbl td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.045);color:#c3cfdd;vertical-align:middle;}
+.lk-tbl tbody tr:nth-child(even) td{background:rgba(148,163,184,.028);}
 .lk-tbl tr:last-child td{border-bottom:none;}
 .lk-tbl tr:hover td{background:rgba(148,163,184,.05);}
 .lk-tbl th.n,.lk-tbl td.n{text-align:right;font-variant-numeric:tabular-nums;}
@@ -8728,6 +8771,47 @@ spInstallPaceUI();
 .lk-cp.ok{color:#5fd68c;border-color:rgba(34,197,94,.45);}
 .lk-cp.big{font-size:13px;padding:5px 11px;color:#fbbf24;border-color:rgba(251,191,36,.3);}
 .lk-tbl td.sku .lk-cp{max-width:230px;}
+.lk-row2{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.lk-group{display:flex;align-items:center;gap:9px;}
+.lk-group-l{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;}
+#lkGroupBtns{display:flex;gap:5px;}
+.lk-g{background:var(--surface);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;transition:.13s;}
+.lk-g:hover{color:var(--text);border-color:var(--border2);}
+.lk-g.on{background:rgba(45,212,191,.14);border-color:rgba(45,212,191,.5);color:#5eead4;}
+/* export */
+.lk-exp{display:flex;gap:7px;flex:0 0 auto;}
+.lk-exp-b{background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.4);color:#fbbf24;font-family:var(--font-mono);font-size:11.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.13s;}
+.lk-exp-b:hover{background:rgba(251,191,36,.24);color:#fff;}
+.lk-exp-b.alt{background:transparent;border-color:var(--border2);color:var(--muted2);}
+.lk-exp-b.alt:hover{color:#fff;border-color:rgba(148,163,184,.5);background:rgba(148,163,184,.1);}
+.lk-exp-b.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.5);color:#5fd68c;}
+/* group header rows */
+.lk-grp td{background:#121a26 !important;padding:9px 14px !important;border-bottom:1px solid rgba(45,212,191,.22) !important;}
+.lk-grp-k{font-family:var(--font-head);font-size:12.5px;font-weight:800;color:#5eead4;letter-spacing:-.01em;}
+.lk-grp-s{font-size:11px;color:var(--muted2);margin-left:12px;}
+.lk-grp-s b{color:#eef4fc;font-weight:800;}
+/* clear button */
+.lk-x{flex:0 0 auto;background:transparent;border:none;color:var(--muted);font-size:24px;line-height:1;padding:0 8px;cursor:pointer;border-radius:6px;margin-top:1px;}
+.lk-x:hover{color:#fff;background:rgba(255,255,255,.07);}
+/* breakdown */
+.lk-bd{border-bottom:1px solid rgba(148,163,184,.12);background:#0a0f18;}
+.lk-bd-r{display:flex;align-items:center;gap:16px;padding:11px 20px;border-bottom:1px solid rgba(148,163,184,.07);}
+.lk-bd-r:last-child{border-bottom:none;}
+.lk-bd-l{flex:0 0 132px;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#8497ae;font-weight:800;}
+.lk-bd-v{display:flex;gap:7px;flex-wrap:wrap;min-width:0;}
+.lk-chip{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid rgba(148,163,184,.2);color:#c3cfdd;background:rgba(148,163,184,.05);}
+.lk-chip b{font-weight:800;font-variant-numeric:tabular-nums;color:#eef4fc;}
+.lk-chip.p.top{border-color:rgba(79,142,247,.5);background:rgba(79,142,247,.12);color:#a8c8ff;}
+.lk-chip.p.top b{color:#fff;}
+.lk-chip.s.top{border-color:rgba(45,212,191,.45);background:rgba(45,212,191,.1);color:#8fe8dd;}
+.lk-chip.s.top b{color:#fff;}
+.lk-chip.a.top{border-color:rgba(192,132,252,.45);background:rgba(192,132,252,.1);color:#d9b8ff;}
+.lk-chip.a.top b{color:#fff;}
+.lk-bd-r.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.lk-bd-price{margin-top:6px;font-size:12px;color:var(--muted);}
+.lk-bd-price b{font-family:var(--font-head);font-size:17px;font-weight:800;color:#fbbf24;letter-spacing:-.02em;display:inline-block;margin-right:9px;}
+.lk-bd-price span{display:block;margin-top:4px;font-size:10.5px;color:var(--muted);}
+@media(max-width:820px){.lk-bd-r{flex-direction:column;align-items:flex-start;gap:8px;}.lk-bd-r.split{grid-template-columns:1fr;}}
 .lk-tblnote{padding:11px 18px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);background:#080d15;}
 .lk-tblnote b{color:#fbbf24;font-weight:700;}
 /* when it was bought — the "have we had these in recently" strip */
@@ -8815,16 +8899,41 @@ spInstallPaceUI();
 .set-reset{flex:0 0 auto;background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;}
 .set-reset:hover{color:var(--text);border-color:var(--border2);}
 .set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:9px;}
-.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0c121c;border:1px solid rgba(148,163,184,.13);border-radius:10px;padding:10px 13px;transition:.14s;}
-.set-row.off{opacity:.5;}
+.set-row{display:block;background:#0c121c;border:1px solid rgba(148,163,184,.13);border-radius:10px;padding:9px 12px 10px;transition:border-color .14s,opacity .14s;}
+.set-row.off{opacity:.55;}
 .set-row:hover{border-color:rgba(148,163,184,.28);}
-.set-p{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#e8eff8;min-width:0;}
+.set-row.drag{opacity:.35;}
+.set-row.over{border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.18);}
+.set-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.set-grip{cursor:grab;color:#475569;font-size:13px;line-height:1;letter-spacing:-2px;flex:0 0 auto;user-select:none;padding:2px 1px;}
+.set-grip:hover{color:#94a3b8;}
+.set-grip:active{cursor:grabbing;}
+.set-p{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#e8eff8;min-width:0;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .set-dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto;}
-.set-state{font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
-.set-sel{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
-.set-sel label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.set-state{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;
+  flex:0 0 auto;background:rgba(148,163,184,.1);border-radius:20px;padding:3px 8px;}
+.set-state.on{color:#4ade80;background:rgba(74,222,128,.12);}
+.set-state.no{color:#f87171;background:rgba(248,113,113,.12);}
+.rv-open-note{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.28);border-left:3px solid #fbbf24;
+  border-radius:10px;padding:10px 14px;font-size:12.5px;color:#fcd34d;margin-bottom:14px;line-height:1.5;}
+.rv-open-note b{color:#fde68a;}
+.set-odd{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;
+  background:rgba(251,191,36,.16);color:#fbbf24;font-size:9.5px;font-weight:800;margin-left:5px;cursor:help;flex:0 0 auto;}
+.set-hide{flex:0 0 auto;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.18);color:var(--muted);
+  font-family:var(--font-mono);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:3px 8px;border-radius:6px;cursor:pointer;transition:.12s;}
+.set-hide:hover{color:#f87171;border-color:rgba(248,113,113,.45);}
+.set-hide.on{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);}
+.set-hide.on:hover{color:#86efac;}
+.set-sel{display:flex;align-items:center;gap:6px;}
+.set-sel select{flex:1;min-width:0;}
+.set-sel label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex:0 0 auto;}
 .set-sel select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:4px 6px;border-radius:6px;cursor:pointer;}
-.set-foot{font-size:11px;color:var(--muted);margin-top:15px;padding-top:13px;border-top:1px solid var(--border);}
+.set-foot{font-size:11px;color:var(--muted);margin-top:15px;padding-top:13px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.set-reset.sm{padding:5px 10px;font-size:10.5px;}
+.set-foot .set-reset.sm:first-of-type{margin-left:auto;}
 
 /* --- Trends & Review: colour that carries meaning --- */
 #trendsKpiStrip>div{background:linear-gradient(160deg,#131c2b,#0d1420) !important;border:1px solid rgba(148,163,184,.15) !important;border-top-width:3px !important;border-radius:11px !important;padding:13px 15px !important;}
@@ -8863,13 +8972,24 @@ spInstallPaceUI();
 
 /* Trends jump nav — opaque, never blurred (blur on a sticky bar is what caused
    the scroll flicker in the first place) */
-.tnav{position:sticky;top:63px;z-index:38;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-  background:#0d1219;border:1px solid var(--border);border-radius:11px;padding:9px 12px;margin-bottom:16px;}
+/* The header is 60px wide-screen but wraps to ~150px when narrow, so any fixed
+   offset leaves a slit that scrolling content shows through. --stickTop is set
+   from the real header height on load and on resize. */
+:root{--stickTop:60px;}
+.tnav{position:sticky;top:calc(var(--stickTop) - 1px);z-index:38;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  background:#0d1219;border:1px solid var(--border);border-radius:11px;padding:9px 12px;margin-bottom:16px;
+  contain:layout style;box-shadow:0 -10px 0 0 #04060a;}
 .tnav-l{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800;margin-right:4px;}
 .tnav button{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);
   font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.13s;white-space:nowrap;}
 .tnav button:hover{color:#fff;border-color:var(--border2);background:rgba(148,163,184,.08);}
 .tnav .tnav-top{margin-left:auto;color:#8ab5ff;border-color:rgba(79,142,247,.3);}
+/* Trends is ~8,000px with 17 charts. Let the browser skip rendering the heavy
+   non-canvas blocks while they're off screen — canvases are left alone so
+   Chart.js never sizes itself against a skipped container. */
+#trendsMonthCards,#trendsRecords,#pageGrowth .tpx-tblwrap,#pageGrowth table{
+  content-visibility:auto;contain-intrinsic-size:auto 320px;}
+#pageReview table,#pageHub table{content-visibility:auto;contain-intrinsic-size:auto 400px;}
 
 /* Review — the filter wall folds away */
 .rv-more-btn{margin-left:auto;align-self:center;background:var(--surface2);border:1px solid var(--border);
@@ -9127,7 +9247,7 @@ header{
 .dot,.alert-pill .alert-dot{will-change:opacity;box-shadow:none !important;}
 /* Review had a SECOND sticky bar doing the same thing, and the modal shells blur
    a full-screen backdrop while their contents scroll. All of it goes. */
-.rv-toolbar{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:linear-gradient(180deg,#141a24,#0f1319) !important;}
+.rv-toolbar{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:linear-gradient(180deg,#141a24,#0f1319) !important;top:calc(var(--stickTop) - 1px) !important;box-shadow:0 -10px 0 0 #04060a;}
 .prices-modal,.prices-modal-head,.hub-detail-overlay,.ai-modal-overlay{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
 .prices-modal{background:rgba(4,7,11,.86) !important;}
 
@@ -9147,6 +9267,24 @@ header{
 .sq-chev{width:6px;height:6px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(-45deg);transition:transform .18s;}
 .sq-ign[open]>summary .sq-chev{transform:rotate(45deg);}
 .sq-ign>summary .sq-ig{margin-left:auto;}
+
+/* Lookup: tighter — the result had grown too airy */
+.lk-tbl.fixed{table-layout:fixed;}
+/* a base rule was right-aligning the cells while the headers stayed left,
+   which is what opened the canyon between SKU and Order */
+.lk-tbl th,.lk-tbl td{text-align:left !important;}
+.lk-tbl th.n,.lk-tbl td.n{text-align:right !important;}
+.lk-tbl.fixed td,.lk-tbl.fixed th{overflow:hidden;text-overflow:ellipsis;}
+.lk-tbl.fixed td.nm{white-space:normal;}
+.lk-tbl.fixed .lk-cp{max-width:100%;}
+.lk-ans-top{padding:16px 20px 14px !important;}
+.lk-ans-big{padding:11px 20px !important;min-width:126px !important;}
+.lk-ans-big b{font-size:42px !important;}
+.lk-s{padding:11px 16px !important;}
+.lk-s-v{font-size:16px !important;}
+.lk-tbl td{padding:9px 13px !important;}
+.lk-tbl th{padding:9px 13px !important;}
+.lk-bar{gap:9px !important;margin-bottom:14px !important;}
 
 /* the "worth a look" nudge — an inline banner under the header */
 .sqb{display:flex;align-items:center;gap:13px;margin:0;padding:10px 32px;background:linear-gradient(90deg,rgba(244,63,94,.14),rgba(244,63,94,.05));border-bottom:1px solid rgba(244,63,94,.25);}
@@ -10214,8 +10352,22 @@ if(typeof buildOaA2a==='function'){
 /* ---------- 1m. LOOKUP — "how many did we buy?" ----------
    Replaces asking Sarah to count rows in the sheet. One box, one date range,
    a straight answer. OA / A2A only, deliberately. */
-let lkRange={k:'60d'};
+let lkRange={k:'60d'}, lkGroup='none', lkLast=null;
 const LK_PRESETS=[['30d','Last 30 days'],['60d','Last 60 days'],['90d','Last 90 days'],['jan','Since 1 Jan'],['all','All of 2026']];
+const LK_GROUPS=[['none','Nothing'],['date','Date'],['supplier','Supplier'],['account','Account'],['provider','Who bought']];
+const lkDMY=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
+function spV7LkGroupBtns(){
+  const host=document.getElementById('lkGroupBtns'); if(!host)return;
+  host.innerHTML=LK_GROUPS.map(([k,l])=>`<button class="lk-g${lkGroup===k?' on':''}" data-g="${k}">${l}</button>`).join('');
+  host.onclick=e=>{const b=e.target.closest('button'); if(!b)return; lkGroup=b.dataset.g; spV7Lookup();};
+}
+function spV7LkKeyFor(r){
+  if(lkGroup==='date')return lkDMY(r.date);
+  if(lkGroup==='supplier')return r.supplier||'—';
+  if(lkGroup==='account')return r.account||'—';
+  if(lkGroup==='provider')return r.provider||'—';
+  return '';
+}
 function spV7LkDates(){
   const now=new Date(), y=now.getFullYear();
   const from=document.getElementById('lkFrom'), to=document.getElementById('lkTo');
@@ -10250,9 +10402,10 @@ function spV7LkMatch(rows,term){
 function spV7Lookup(fromDate){
   const out=document.getElementById('lkResult'); if(!out)return;
   if(fromDate)lkRange={k:'custom'};
-  spV7LkPresets();
+  spV7LkPresets(); spV7LkGroupBtns();
   const raw=(document.getElementById('lkQ')||{}).value||'';
   const terms=raw.split(/[\n,;\t]+/).map(s=>s.trim()).filter(Boolean);
+  const xb=document.getElementById('lkClear'); if(xb)xb.style.display=raw.trim()?'':'none';
   const src=(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:(typeof allRows!=='undefined'?allRows:[]);
   const {a,b,label}=spV7LkDates();
   const inRange=src.filter(r=>{const k=localDateKey(r.date);return k>=a&&k<=b;});
@@ -10266,13 +10419,22 @@ function spV7Lookup(fromDate){
   out.innerHTML=(terms.length===1?spV7LkSingle(results[0],label,a,b):spV7LkBulk(results,label));
 }
 window.spV7Lookup=spV7Lookup;
+function spV7LkClear(){
+  const q=document.getElementById('lkQ');
+  if(q){q.value='';q.style.height='auto';q.focus();}
+  const x=document.getElementById('lkClear'); if(x)x.style.display='none';
+  spV7Lookup();
+}
+window.spV7LkClear=spV7LkClear;
 /* Enter searches, Shift+Enter adds a line for a batch; box grows as you paste */
 document.addEventListener('DOMContentLoaded',()=>{
   const q=document.getElementById('lkQ'); if(!q)return;
-  const grow=()=>{q.style.height='auto';q.style.height=Math.min(150,q.scrollHeight)+'px';};
+  const grow=()=>{q.style.height='auto';q.style.height=Math.min(150,q.scrollHeight)+'px';
+    const x=document.getElementById('lkClear'); if(x)x.style.display=q.value.trim()?'':'none';};
   q.addEventListener('input',grow);
   q.addEventListener('keydown',e=>{
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();spV7Lookup();}
+    if(e.key==='Escape'){e.preventDefault();spV7LkClear();}
   });
   q.addEventListener('paste',()=>setTimeout(()=>{grow();spV7Lookup();},30));
 });
@@ -10284,23 +10446,122 @@ function spV7LkTotals(rs){
 }
 function spV7LkRowsTable(rs){
   const sorted=rs.slice().sort((x,y)=>y.date-x.date);
-  /* one product in the results? then the title is already in the header —
-     repeating it on every row just eats the widest column */
   const oneProduct=new Set(sorted.map(r=>r.name)).size===1;
   const oneAsin=new Set(sorted.map(r=>r.asin)).size===1;
-  return `<div class="lk-tblwrap"><table class="lk-tbl">
-    <thead><tr><th>Date</th>${oneProduct?'':'<th>Product</th>'}${oneAsin?'':'<th>ASIN</th>'}<th>SKU</th><th>Order</th><th class="n">Qty</th><th>Bought from</th></tr></thead>
-    <tbody>${sorted.map(r=>`<tr>
-      <td class="d">${r.date.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})}</td>
+  const cols=2+(oneProduct?0:1)+(oneAsin?0:1)+3;
+  const line=r=>`<tr>
+      <td class="d">${lkDMY(r.date)}</td>
       ${oneProduct?'':`<td class="nm">${esc(r.name||'—')}</td>`}
       ${oneAsin?'':`<td class="id">${r.asin?`<button class="lk-cp" onclick="spV7Copy('${esc(r.asin)}',this)">${esc(r.asin)}</button>`:'—'}</td>`}
       <td class="id sku">${r.sku?`<button class="lk-cp" onclick="spV7Copy('${esc(r.sku).replace(/'/g,"\\'")}',this)">${esc(r.sku)}</button>`:'—'}</td>
       <td class="id">${r.orderId?`<button class="lk-cp" onclick="spV7Copy('${esc(r.orderId).replace(/'/g,"\\'")}',this)">${esc(r.orderId)}</button>`:'—'}</td>
       <td class="n qty">${r.qty.toLocaleString()}</td>
       <td>${esc(r.supplier||'—')}${r.provider?`<span class="lk-prov">${esc(r.provider)}</span>`:''}</td>
-    </tr>`).join('')}</tbody></table></div>
+    </tr>`;
+  let body;
+  if(lkGroup==='none')body=sorted.map(line).join('');
+  else{
+    const g={}; sorted.forEach(r=>{const k=spV7LkKeyFor(r);(g[k]=g[k]||[]).push(r);});
+    const keys=Object.keys(g).sort((a,b)=>{
+      if(lkGroup==='date')return g[b][0].date-g[a][0].date;
+      return g[b].reduce((x,r)=>x+r.qty,0)-g[a].reduce((x,r)=>x+r.qty,0);
+    });
+    body=keys.map(k=>{
+      const rows=g[k], u=rows.reduce((x,r)=>x+r.qty,0), sp=rows.reduce((x,r)=>x+r.spend,0);
+      return `<tr class="lk-grp"><td colspan="${cols}"><span class="lk-grp-k">${esc(k)}</span>
+        <span class="lk-grp-s"><b>${u.toLocaleString()}</b> units · ${rows.length} line${rows.length!==1?'s':''} · ${fmt(sp)}</span></td></tr>`
+        +rows.map(line).join('');
+    }).join('');
+  }
+  /* fixed widths — auto layout was flinging Order out to the far right with a
+     canyon of empty space in the middle */
+  const w=oneProduct
+    ? (oneAsin?['12%','30%','26%','8%','24%']:['11%','15%','26%','22%','7%','19%'])
+    : (oneAsin?['10%','33%','21%','19%','6%','11%']:['9%','27%','13%','17%','18%','5%','11%']);
+  const cg=`<colgroup>${w.map(x=>`<col style="width:${x}">`).join('')}</colgroup>`;
+  return `<div class="lk-tblwrap"><table class="lk-tbl fixed">${cg}
+    <thead><tr><th>Date</th>${oneProduct?'':'<th>Product</th>'}${oneAsin?'':'<th>ASIN</th>'}<th>SKU</th><th>Order</th><th class="n">Qty</th><th>Bought from</th></tr></thead>
+    <tbody>${body}</tbody></table></div>
     ${oneProduct?`<div class="lk-tblnote">Every line above is the same product${oneAsin&&sorted[0].asin?` · <b>${esc(sorted[0].asin)}</b>`:''} — so it's left out of the table.</div>`:''}`;
 }
+
+/* ---- export ---- */
+function spV7LkText(){
+  const d=lkLast; if(!d)return '';
+  const {title,asins,t,rows,label}=d;
+  const L=[];
+  L.push(`${title}${asins[0]?` — ${asins[0]}`:''}`);
+  L.push(`${t.units.toLocaleString()} units · ${t.orders} order${t.orders!==1?'s':''} · ${fmt(t.spend)} · ${label}`);
+  L.push('');
+  const sorted=rows.slice().sort((x,y)=>y.date-x.date);
+  if(lkGroup==='none'){
+    sorted.forEach(r=>L.push(`${lkDMY(r.date)}  ${String(r.qty).padStart(4)} units  ${r.supplier||'—'}  ${r.orderId||''}`.trimEnd()));
+  }else{
+    const g={}; sorted.forEach(r=>{const k=spV7LkKeyFor(r);(g[k]=g[k]||[]).push(r);});
+    Object.keys(g).forEach(k=>{
+      const u=g[k].reduce((x,r)=>x+r.qty,0);
+      L.push(`${k} — ${u.toLocaleString()} units (${g[k].length} line${g[k].length!==1?'s':''})`);
+      g[k].forEach(r=>L.push(`   ${lkDMY(r.date)}  ${r.qty} units  ${r.supplier||'—'}  ${r.orderId||''}`.trimEnd()));
+      L.push('');
+    });
+  }
+  return L.join('\n').trim();
+}
+function spV7LkCsv(){
+  const d=lkLast; if(!d)return '';
+  const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const head=['Date','Product','ASIN','SKU','Order','Qty','Bought from','Who bought','Account','Spend'];
+  const rows=d.rows.slice().sort((x,y)=>y.date-x.date).map(r=>
+    [lkDMY(r.date),r.name,r.asin,r.sku,r.orderId,r.qty,r.supplier,r.provider,r.account,r.spend.toFixed(2)].map(q).join(','));
+  return [head.map(q).join(','),...rows].join('\n');
+}
+function spV7LkExport(kind,btn){
+  if(kind==='csv'){
+    const csv=spV7LkCsv(); if(!csv)return;
+    const name=((lkLast&&lkLast.asins[0])||'lookup')+'_'+localDateKey(new Date())+'.csv';
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},600);
+    if(btn){const o=btn.textContent;btn.textContent='Downloaded';setTimeout(()=>btn.textContent=o,1400);}
+    return;
+  }
+  spV7Copy(spV7LkText(),btn);
+}
+window.spV7LkExport=spV7LkExport;
+window.spV7LkText=spV7LkText;window.spV7LkCsv=spV7LkCsv;
+/* who bought it, where from, what was paid, which account — the follow-up
+   questions you'd otherwise have to go and read the table for */
+function spV7LkBreakdown(rs){
+  const by=(key)=>{const m={};rs.forEach(r=>{const k=(r[key]||'—');if(!m[k])m[k]={q:0,n:0};m[k].q+=r.qty;m[k].n++;});
+    return Object.entries(m).sort((a,b)=>b[1].q-a[1].q);};
+  const chips=(list,cls)=>list.map(([k,v],i)=>
+    `<span class="lk-chip ${cls}${i===0?' top':''}">${esc(k)}<b>${v.q.toLocaleString()}</b></span>`).join('');
+  const prices=rs.map(r=>r.buyPrice).filter(p=>p>0);
+  const units=rs.reduce((a,r)=>a+r.qty,0), spend=rs.reduce((a,r)=>a+r.spend,0);
+  const perUnit=units?spend/units:0;
+  let priceTxt;
+  if(!prices.length)priceTxt=`<b>${fmtDec(perUnit)}</b><span>worked out from spend ÷ units — no buy price recorded</span>`;
+  else{
+    const mn=Math.min(...prices), mx=Math.max(...prices);
+    priceTxt=(mx-mn)<0.01
+      ? `<b>${fmtDec(mn)}</b><span>same price every time</span>`
+      : `<b>${fmtDec(mn)} → ${fmtDec(mx)}</b><span>${fmtDec(perUnit)} average · ${mx>mn?`${Math.round((mx-mn)/mx*100)}% between cheapest and dearest`:''}</span>`;
+  }
+  const last=rs.reduce((m,r)=>r.date>m?r.date:m,rs[0].date);
+  const daysAgo=Math.round((new Date(localDateKey(new Date()))-new Date(localDateKey(last)))/86400000);
+  const gapTxt=daysAgo<=0?'bought today':daysAgo===1?'bought yesterday':`<b>${daysAgo}</b> days since the last one`;
+  return `<div class="lk-bd">
+    <div class="lk-bd-r"><div class="lk-bd-l">Who bought it</div><div class="lk-bd-v">${chips(by('provider'),'p')}</div></div>
+    <div class="lk-bd-r"><div class="lk-bd-l">Where from</div><div class="lk-bd-v">${chips(by('supplier'),'s')}</div></div>
+    <div class="lk-bd-r"><div class="lk-bd-l">Account used</div><div class="lk-bd-v">${chips(by('account'),'a')}</div></div>
+    <div class="lk-bd-r split">
+      <div><div class="lk-bd-l">Price paid per unit</div><div class="lk-bd-price">${priceTxt}</div></div>
+      <div><div class="lk-bd-l">Last bought</div><div class="lk-bd-price">${gapTxt}<span>${last.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</span></div></div>
+    </div>
+  </div>`;
+}
+
 /* when in the year the buying actually happened — the thing you want when
    you're chasing stock and asking "have we had these in recently?" */
 function spV7LkMonthStrip(rs,a,b){
@@ -10327,28 +10588,43 @@ function spV7LkSingle(res,label,a,b){
   const asins=[...new Set(res.rows.map(r=>r.asin).filter(Boolean))];
   const sups={}; res.rows.forEach(r=>{sups[r.supplier]=(sups[r.supplier]||0)+r.qty;});
   const supList=Object.entries(sups).sort((x,y)=>y[1]-x[1]);
+  lkLast={title:title?title[0]:res.term,asins,t,rows:res.rows,label};
   const dOne=d=>d?d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
   const sameDay=t.first&&t.last&&localDateKey(t.first)===localDateKey(t.last);
   const days=(t.first&&t.last)?Math.round((t.last-t.first)/86400000):0;
   const spanTxt=days>=60?`spread over ${Math.round(days/30)} months`:days>0?`${days} day${days!==1?'s':''} apart`:'';
+  /* the useful bits of the old breakdown block, folded into the tiles */
+  const prices=res.rows.map(r=>r.buyPrice).filter(p=>p>0);
+  const perUnit=t.units?t.spend/t.units:0;
+  let priceSub=fmtDec(perUnit)+' per unit';
+  if(prices.length){const mn=Math.min(...prices),mx=Math.max(...prices);
+    if(mx-mn>=0.01)priceSub=`${fmtDec(mn)} – ${fmtDec(mx)} per unit`;}
+  const ago=t.last?Math.round((new Date(localDateKey(new Date()))-new Date(localDateKey(t.last)))/86400000):null;
+  const gapTxt=ago===null?'—':ago<=0?'Today':ago===1?'Yesterday':`${ago} days ago`;
+  const provs={}; res.rows.forEach(r=>{provs[r.provider||'—']=(provs[r.provider||'—']||0)+r.qty;});
+  const provTop=Object.entries(provs).sort((x,y)=>y[1]-x[1]);
+  const provSub=provTop.length?(provTop.length===1?`all by ${esc(provTop[0][0])}`:`${esc(provTop[0][0])} + ${provTop.length-1} other${provTop.length>2?'s':''}`):'';
   return `<div class="lk-ans">
     <div class="lk-ans-top">
+      <div class="lk-ans-big"><b>${t.units.toLocaleString()}</b><span>units bought</span></div>
       <div class="lk-ans-l">
-        <div class="lk-ans-name">${esc(title?title[0]:res.term)}</div>
+        <div class="lk-ans-name" title="${esc(title?title[0]:res.term)}">${esc(title?title[0]:res.term)}</div>
         <div class="lk-ans-ids">${asins.slice(0,3).map(x=>`<button class="lk-cp big" onclick="spV7Copy('${esc(x)}',this)">${esc(x)}</button>`).join('')}${asins.length>3?`<span class="lk-more">+${asins.length-3} more ASINs</span>`:''}<span class="lk-matched">matched on ${res.how}</span></div>
       </div>
-      <div class="lk-ans-big"><b>${t.units.toLocaleString()}</b><span>units bought</span></div>
+      <div class="lk-exp">
+        <button class="lk-exp-b" onclick="spV7LkExport('text',this)" title="Copy as a message you can paste">Copy message</button>
+        <button class="lk-exp-b alt" onclick="spV7LkExport('csv',this)" title="Download every line as a spreadsheet">CSV</button>
+      </div>
     </div>
     <div class="lk-ans-row">
-      <div class="lk-s"><div class="lk-s-l">Orders</div><div class="lk-s-v">${t.orders.toLocaleString()}</div><div class="lk-s-s">${t.units&&t.orders?(t.units/t.orders).toFixed(1)+' units per order':'—'}</div></div>
-      <div class="lk-s"><div class="lk-s-l">Spent</div><div class="lk-s-v">${fmt(t.spend)}</div><div class="lk-s-s">${t.units?fmtDec(t.spend/t.units)+' per unit':'—'}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Orders</div><div class="lk-s-v">${t.orders.toLocaleString()}</div><div class="lk-s-s">${t.lines} buy line${t.lines!==1?'s':''}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Spent</div><div class="lk-s-v">${fmt(t.spend)}</div><div class="lk-s-s">${priceSub}</div></div>
       <div class="lk-s"><div class="lk-s-l">${sameDay?'Bought on':'Bought between'}</div>
         <div class="lk-s-v">${sameDay?dOne(t.first):dOne(t.first)+' → '+dOne(t.last)}</div>
         <div class="lk-s-s">${sameDay?'all on one day':spanTxt}</div></div>
-      <div class="lk-s"><div class="lk-s-l">Bought from</div><div class="lk-s-v sm">${supList.length?esc(supList[0][0]):'—'}</div><div class="lk-s-s">${supList.length>1?supList.length+' suppliers in total':'only source'}</div></div>
-      <div class="lk-s"><div class="lk-s-l">Buy lines</div><div class="lk-s-v">${t.lines.toLocaleString()}</div><div class="lk-s-s">${esc(label).toLowerCase()}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Bought from</div><div class="lk-s-v sm">${supList.length?esc(supList[0][0]):'—'}</div><div class="lk-s-s">${supList.length>1?supList.length+' suppliers':'only source'}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Last bought</div><div class="lk-s-v sm">${gapTxt}</div><div class="lk-s-s">${provSub}</div></div>
     </div>
-    ${spV7LkMonthStrip(res.rows,a,b)}
     ${spV7LkRowsTable(res.rows)}</div>`;
 }
 function spV7LkBulk(results,label){
@@ -10445,7 +10721,7 @@ function spV7RenderOverall(){
           <div class="ovh3-st"><div class="ovh3-st-l">OA / A2A</div><div class="ovh3-st-v accent">${fmt(oaS)}</div><div class="ovh3-st-s">${pc(oaS).toFixed(1)}% of everything</div></div>
           <div class="ovh3-st"><div class="ovh3-st-l">Lavarion</div><div class="ovh3-st-v" style="color:#c084fc">${fmt(lavS)}</div><div class="ovh3-st-s">${pc(lavS).toFixed(1)}% of everything</div></div>
           <div class="ovh3-st"><div class="ovh3-st-l">OA buy lines</div><div class="ovh3-st-v">${oa.length.toLocaleString()}</div><div class="ovh3-st-s">${lav.length.toLocaleString()} Lavarion lines</div></div>
-          <div class="ovh3-st"><div class="ovh3-st-l">Avg cost / unit</div><div class="ovh3-st-v">${(U(oa)+U(lav))?fmtDec(tot/(U(oa)+U(lav))):'—'}</div><div class="ovh3-st-s">across both books</div></div>
+          <div class="ovh3-st"><div class="ovh3-st-l">Avg cost / unit</div><div class="ovh3-st-v">${U(oa)?fmtDec(oaS/U(oa)):'—'}</div><div class="ovh3-st-s">OA · ${U(lav)?fmtDec(lavS/U(lav)):'—'} Lavarion</div></div>
         </div>
       </div>
       <div class="ovh3-track">
@@ -10470,7 +10746,48 @@ const SPV7_SET_KEY='dash:providerRanges';
 function spV7Ranges(){try{return JSON.parse(localStorage.getItem(SPV7_SET_KEY)||'{}')||{};}catch(e){return {};}}
 let SPV7_RANGES=spV7Ranges();
 function spV7SaveRanges(){try{localStorage.setItem(SPV7_SET_KEY,JSON.stringify(SPV7_RANGES));}catch(e){}}
+/* provider order — drag to rearrange in Settings, and the Provider Breakdown follows */
+const SPV7_ORD_KEY='dash:providerOrder';
+function spV7ReadOrder(){try{const a=JSON.parse(localStorage.getItem(SPV7_ORD_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+let SPV7_ORDER=spV7ReadOrder();
+function spV7SaveOrder(){try{localStorage.setItem(SPV7_ORD_KEY,JSON.stringify(SPV7_ORDER));}catch(e){}}
+/* every provider the dashboard knows about — the named ones plus anything the
+   sheet actually contains, so a mis-keyed cell shows up here and can be hidden */
+function spV7AllProvs(){
+  const set=new Set(Object.keys(PROVIDER_COLORS));
+  try{(allYearRows||[]).forEach(r=>{const p=(r.provider||'').trim(); if(p)set.add(p);});}catch(e){}
+  return [...set];
+}
+/* saved order first, then anything new in the sheet that isn't in it yet */
+function spV7OrderedProvs(){
+  const all=spV7AllProvs();
+  const known=SPV7_ORDER.filter(p=>all.includes(p));
+  return known.concat(all.filter(p=>!known.includes(p)));
+}
+function spV7MoveProv(from,to){
+  const list=spV7OrderedProvs();
+  if(from<0||to<0||from>=list.length||to>=list.length||from===to)return;
+  list.splice(to,0,list.splice(from,1)[0]);
+  SPV7_ORDER=list; spV7SaveOrder(); spV7BuildSettings();
+  try{spV7FilterProviders();}catch(e){}
+}
+/* hide a provider outright — a mis-keyed sheet cell can invent a whole phantom
+   provider (e.g. one row with "Amazon UK" in the provider column) */
+const SPV7_HIDE_KEY='dash:providerHidden';
+function spV7ReadHidden(){try{const a=JSON.parse(localStorage.getItem(SPV7_HIDE_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+let SPV7_HIDDEN=spV7ReadHidden();
+function spV7SaveHidden(){try{localStorage.setItem(SPV7_HIDE_KEY,JSON.stringify(SPV7_HIDDEN));}catch(e){}}
+function spV7ToggleHidden(p){
+  const i=SPV7_HIDDEN.indexOf(p);
+  if(i<0)SPV7_HIDDEN.push(p); else SPV7_HIDDEN.splice(i,1);
+  spV7SaveHidden(); spV7BuildSettings();
+  try{render();}catch(e){}
+  try{spV7FilterProviders();}catch(e){}
+}
+window.spV7ToggleHidden=spV7ToggleHidden;
+window.spV7IsHidden=p=>SPV7_HIDDEN.includes(p);
 function spV7ProviderActive(p,month){
+  if(SPV7_HIDDEN.includes(p))return false;
   const r=SPV7_RANGES[p]; if(!r)return true;
   const from=+r.from||1, to=+r.to||12;
   return month>=from&&month<=to;
@@ -10488,7 +10805,7 @@ window.spV7ResetRanges=spV7ResetRanges;
 
 function spV7BuildSettings(){
   const host=document.getElementById('setBody'); if(!host)return;
-  const provs=Object.keys(PROVIDER_COLORS);
+  const provs=spV7OrderedProvs();
   const cm=new Date().getMonth()+1;
   const opts=(sel)=>Array.from({length:12},(_,i)=>`<option value="${i+1}"${sel===i+1?' selected':''}>${MONTH_NAMES[i+1]}</option>`).join('');
   const active=provs.filter(p=>spV7ProviderActive(p,cm)).length;
@@ -10499,35 +10816,113 @@ function spV7BuildSettings(){
       <button class="set-reset" onclick="spV7ResetRanges()">Reset all to all-year</button>
     </div>
     <div class="set-grid">
-      ${provs.map(p=>{
+      ${provs.map((p,i)=>{
         const r=SPV7_RANGES[p]||{from:1,to:12};
         const on=spV7ProviderActive(p,cm);
         const all=(!SPV7_RANGES[p]);
-        return `<div class="set-row${on?'':' off'}">
-          <div class="set-p"><span class="set-dot" style="background:${PROVIDER_COLORS[p]}"></span>${esc(p)}
-            <span class="set-state">${all?'all year':on?'active now':'not in '+MONTH_NAMES[cm]}</span></div>
-          <div class="set-sel"><label>from</label><select onchange="spV7SetRange('${p}','from',this.value)">${opts(+r.from||1)}</select>
-            <label>to</label><select onchange="spV7SetRange('${p}','to',this.value)">${opts(+r.to||12)}</select></div>
+        const hid=SPV7_HIDDEN.includes(p);
+        const span=hid?'Hidden':all?'All year':(r.from===r.to?MONTH_NAMES[r.from]+' only':MONTH_NAMES[r.from]+'–'+MONTH_NAMES[r.to]);
+        return `<div class="set-row${on?'':' off'}" draggable="true" data-i="${i}" data-p="${esc(p)}">
+          <div class="set-top">
+            <span class="set-grip" title="Drag to reorder">⠿</span>
+            <span class="set-p"><span class="set-dot" style="background:${PROVIDER_COLORS[p]||'#64748b'}"></span>${esc(p)}${PROVIDER_COLORS[p]?'':'<span class="set-odd" title="Not one of your named providers — it only exists because a sheet cell has it in the provider column">?</span>'}</span>
+            <span class="set-state${hid?' no':all?'':on?' on':' no'}">${esc(span)}</span>
+            <button class="set-hide${hid?' on':''}" onclick="spV7ToggleHidden('${esc(p)}')" title="${hid?'Show this provider again':'Hide this provider everywhere — use it for names that only exist because of a sheet typo'}">${hid?'Show':'Hide'}</button>
+          </div>
+          <div class="set-sel"${hid?' style="opacity:.4;pointer-events:none;"':''}><label>from</label><select onchange="spV7SetRange('${esc(p)}','from',this.value)">${opts(+r.from||1)}</select>
+            <label>to</label><select onchange="spV7SetRange('${esc(p)}','to',this.value)">${opts(+r.to||12)}</select></div>
         </div>`;}).join('')}
     </div>
-    <div class="set-foot">Saved in this browser only — it changes what the dashboard shows, never your sheet. Targets still come straight from the Targets tab.</div>`;
+    <div class="set-foot">Saved in this browser only — it changes what the dashboard shows, never your sheet. Targets still come straight from the Targets tab.
+      <button class="set-reset sm" onclick="spV7CopySettings(this)">Copy settings</button>
+      <button class="set-reset sm" onclick="spV7PasteSettings(this)">Paste settings</button></div>`;
+  spV7WireDrag(host);
 }
+/* drag to reorder — the drop target is whichever card you're over */
+function spV7WireDrag(host){
+  let from=-1;
+  host.querySelectorAll('.set-row').forEach(row=>{
+    row.addEventListener('dragstart',e=>{from=+row.dataset.i;row.classList.add('drag');
+      try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(from));}catch(_){}});
+    row.addEventListener('dragend',()=>{row.classList.remove('drag');
+      host.querySelectorAll('.set-row').forEach(r=>r.classList.remove('over'));});
+    row.addEventListener('dragover',e=>{e.preventDefault();
+      try{e.dataTransfer.dropEffect='move';}catch(_){}
+      if(+row.dataset.i!==from)row.classList.add('over');});
+    row.addEventListener('dragleave',()=>row.classList.remove('over'));
+    row.addEventListener('drop',e=>{e.preventDefault();row.classList.remove('over');
+      let f=from; try{const d=e.dataTransfer.getData('text/plain'); if(d!=='')f=+d;}catch(_){}
+      spV7MoveProv(f,+row.dataset.i);});
+  });
+}
+/* a new build is a new file, and browsers keep localStorage per file — so these
+   two buttons carry your settings across without setting them all again */
+function spV7SettingsBlob(){return JSON.stringify({ranges:SPV7_RANGES,order:SPV7_ORDER,hidden:SPV7_HIDDEN});}
+function spV7CopySettings(btn){
+  spV7Copy(spV7SettingsBlob(),null);
+  const o=btn.textContent; btn.textContent='Copied'; setTimeout(()=>{btn.textContent=o;},1300);
+}
+function spV7PasteSettings(btn){
+  const txt=prompt('Paste the settings you copied from your previous version:');
+  if(txt===null)return;
+  try{
+    const o=JSON.parse(txt.trim());
+    if(o&&typeof o==='object'){
+      if(o.ranges&&typeof o.ranges==='object'){SPV7_RANGES=o.ranges;spV7SaveRanges();}
+      if(Array.isArray(o.order)){SPV7_ORDER=o.order;spV7SaveOrder();}
+      if(Array.isArray(o.hidden)){SPV7_HIDDEN=o.hidden;spV7SaveHidden();}
+      spV7BuildSettings(); try{render();}catch(e){}
+      const b=document.querySelector('.set-foot .set-reset.sm+.set-reset.sm');
+      if(b){b.textContent='Restored';setTimeout(()=>{b.textContent='Paste settings';},1500);}
+      return;
+    }
+    throw new Error('bad shape');
+  }catch(e){alert("That doesn't look like a settings block — copy it again from the old file with the Copy settings button.");}
+}
+window.spV7CopySettings=spV7CopySettings;
+window.spV7PasteSettings=spV7PasteSettings;
 
 /* hide inactive providers from the breakdown */
 function spV7FilterProviders(){
-  if(activeMonth===0)return;
-  let hidden=0;
+  /* put the breakdown in the order set in Settings, before hiding anything */
+  try{
+    const grid=document.getElementById('providerGrid');
+    if(grid&&SPV7_ORDER.length){
+      const rank={}; spV7OrderedProvs().forEach((p,i)=>{rank[p]=i;});
+      const rows=[...grid.querySelectorAll('.prow')];
+      const nameOf=r=>{const b=r.querySelector('.prov-badge');return (b&&(b.dataset.prov||b.textContent.trim()))||'';};
+      rows.slice()
+        .sort((a,b)=>(rank[nameOf(a)]??999)-(rank[nameOf(b)]??999))
+        .forEach(r=>grid.appendChild(r));
+    }
+  }catch(e){}
+  let hidden=0, dropped=0;
   document.querySelectorAll('#providerGrid .prow').forEach(row=>{
     const b=row.querySelector('.prov-badge');
     const name=(b&&(b.dataset.prov||b.textContent.trim()))||'';
+    /* a hidden provider is gone in every view; a month range only applies to a month view */
+    if(name&&SPV7_HIDDEN.includes(name)){row.style.display='none';dropped++;return;}
+    if(activeMonth===0){row.style.display='';return;}
     if(name&&!spV7ProviderActive(name,activeMonth)){row.style.display='none';hidden++;}
     else row.style.display='';
   });
+  if(activeMonth===0){
+    const card0=document.querySelector('.targets-card');
+    let n0=document.getElementById('provHiddenNote');
+    if(dropped&&card0){
+      if(!n0){n0=document.createElement('div');n0.id='provHiddenNote';n0.className='lav-note-row';n0.style.margin='10px 0 0';card0.appendChild(n0);}
+      n0.innerHTML=`${dropped} provider${dropped!==1?'s':''} hidden. <a onclick="switchPage('settings')" style="color:var(--accent);cursor:pointer;">Change in Settings</a>`;
+    } else if(n0) n0.remove();
+    return;
+  }
+  hidden+=dropped;
   const card=document.querySelector('.targets-card');
   let note=document.getElementById('provHiddenNote');
   if(hidden&&card){
     if(!note){note=document.createElement('div');note.id='provHiddenNote';note.className='lav-note-row';note.style.margin='10px 0 0';card.appendChild(note);}
-    note.innerHTML=`${hidden} provider${hidden!==1?'s':''} hidden — not running in ${MONTH_NAMES[activeMonth]}. <a onclick="switchPage('settings')" style="color:var(--accent);cursor:pointer;">Change in Settings</a>`;
+    const why=dropped&&hidden-dropped?`${dropped} hidden, ${hidden-dropped} not running in ${MONTH_NAMES[activeMonth]}`
+      :dropped?`hidden in Settings`:`not running in ${MONTH_NAMES[activeMonth]}`;
+    note.innerHTML=`${hidden} provider${hidden!==1?'s':''} not shown — ${why}. <a onclick="switchPage('settings')" style="color:var(--accent);cursor:pointer;">Change in Settings</a>`;
   } else if(note) note.remove();
 }
 
@@ -10610,6 +11005,17 @@ if(typeof loadAndRender==='function'){
   };
 }
 setInterval(()=>{try{spV7RelTime();}catch(e){}},20000);
+
+/* keep every sticky bar flush under the header, whatever height it is */
+function spV7SyncStick(){
+  const h=document.querySelector('header');
+  if(!h)return;
+  document.documentElement.style.setProperty('--stickTop',Math.round(h.getBoundingClientRect().height)+'px');
+}
+window.addEventListener('resize',()=>{clearTimeout(window._stkT);window._stkT=setTimeout(spV7SyncStick,120);});
+document.addEventListener('DOMContentLoaded',spV7SyncStick);
+setTimeout(spV7SyncStick,400);setTimeout(spV7SyncStick,2000);
+if(window.ResizeObserver){const h=document.querySelector('header');if(h)new ResizeObserver(spV7SyncStick).observe(h);}
 
 /* ---------- 1i. TODAY: look at any day, not just today ----------
    The whole page was hardcoded to new Date() with one control on it, so on a
@@ -10762,7 +11168,9 @@ function lavParse(values){
 async function lavLoad(){
   if(lavLoaded||lavLoading)return;
   lavLoading=true;
-  const qs=[1,2,3,4];
+  /* only quarters that can exist yet — asking for "Lavarion Q4" in August is a
+     guaranteed 400 from Sheets on every single load */
+  const qs=[]; for(let q=1;q<=Math.min(4,currentQuarterNumber());q++)qs.push(q);
   const res=await Promise.all(qs.map(q=>fetchTab(LAV_TABS[q]).then(lavParse).catch(()=>[])));
   lavRows=[]; res.forEach(a=>lavRows.push(...a));
   lavRows.sort((a,b)=>b.date-a.date);
@@ -10870,8 +11278,11 @@ function lavRender(){
     else if(lavM===curM)periodTag='live';
   }
   const lineTxt=`<span class="n">${lines}</span> buy line${lines!==1?'s':''} across <span class="n">${orders}</span> order${orders!==1?'s':''}.`;
+  /* don't call a part-month a decline — August at day 7 vs a finished July isn't a drop */
   const deltaLine=(prevLabel&&prevTotal>0)
-    ? `<b>${diff>=0?'+':'−'}${fmt(Math.abs(diff))}</b> vs ${prevLabel} (<span class="n">${fmt(prevTotal)}</span>) · ${lineTxt}`
+    ? (periodTag==='live'
+        ? `${prevLabel} finished on <span class="n">${fmt(prevTotal)}</span> — ${MONTH_NAMES[lavM]||'this period'} is still running · ${lineTxt}`
+        : `<b>${diff>=0?'+':'−'}${fmt(Math.abs(diff))}</b> vs ${prevLabel} (<span class="n">${fmt(prevTotal)}</span>) · ${lineTxt}`)
     : lineTxt;
   const heroStats=
     st('Units bought',units.toLocaleString(),`${orders} order${orders!==1?'s':''} · ${lines} line${lines!==1?'s':''}`)
@@ -11031,7 +11442,12 @@ switchPage=function(page){
       return;
     }
     document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim().toLowerCase()===want));
-    if(page==='settings')spV7BuildSettings();
+    if(page==='settings'){
+      spV7BuildSettings();
+      /* the full year is what reveals odd provider names from earlier quarters */
+      if(!(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)&&typeof loadAllAndBuildGrowth==='function')
+        loadAllAndBuildGrowth().then(spV7BuildSettings).catch(()=>{});
+    }
     else{
       /* needs both books loaded */
       const needOA=!(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length);
@@ -11044,6 +11460,13 @@ switchPage=function(page){
   }
   if(set)set.style.display='none';
   if(all)all.style.display='none';
+  /* leaving Lookup wipes the search so you always come back to a clean box */
+  if(lk&&lk.style.display!=='none'){
+    const q=document.getElementById('lkQ');
+    if(q&&q.value){q.value='';q.style.height='auto';
+      const x=document.getElementById('lkClear'); if(x)x.style.display='none';
+      try{spV7Lookup();}catch(e){}}
+  }
   if(lk)lk.style.display='none';
   if(page==='lavarion'){
     ['pageOverview','pageToday','pageGrowth','pageHub','pageReview'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
@@ -11070,6 +11493,415 @@ switchPage=function(page){
   return spV7SwitchPage.apply(this,arguments);
 };
 
+})();
+</script>
+
+<!-- ============ v8 layer — ASINs page (unique ASIN + COG export) ============ -->
+<style>
+.rv-page-head.rv-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.rv-page-head.rv-head-row .rv-head-left{min-width:0;flex:1 1 420px;}
+.rv-page-head.rv-head-row .rv-subnav{margin-bottom:0;flex:0 0 auto;}
+#pageAsins .ov-eyebrow.ax-eye{color:#38bdf8;}
+#pageAsins .ov-eyebrow.ax-eye::before{background:#38bdf8;}
+.ax-bar{background:#141a24;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px 14px;margin-bottom:12px;
+  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;}
+.ax-dates{display:flex;gap:6px;flex-wrap:wrap;}
+.ax-find{display:flex;align-items:center;gap:9px;background:#0f151f;border:1.5px solid rgba(56,189,248,.35);
+  border-radius:11px;padding:0 12px;flex:0 1 330px;min-width:230px;transition:.15s;}
+.ax-find:focus-within{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.13);}
+.ax-find svg{color:#64748b;flex:none;}
+.ax-find input{flex:1;background:none;border:0;outline:0;color:#e2e8f0;font-size:14px;padding:11px 0;font-family:inherit;}
+.ax-find input::placeholder{color:#556274;}
+.ax-fx{background:none;border:0;color:#64748b;font-size:19px;line-height:1;cursor:pointer;padding:2px 4px;}
+.ax-fx:hover{color:#e2e8f0;}
+.ax-brands{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.ax-brands-l{font-size:10.5px;color:#64748b;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-right:2px;}
+.ax-br{background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.16);color:#94a3b8;border-radius:20px;
+  padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:.12s;}
+.ax-br:hover{color:#7dd3fc;border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.09);}
+.ax-br b{color:#64748b;font-weight:600;margin-left:5px;}
+.ax-p{background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.16);color:#94a3b8;border-radius:9px;
+  padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.12s;}
+.ax-p:hover{color:#e2e8f0;border-color:rgba(56,189,248,.4);}
+.ax-p.on{background:rgba(56,189,248,.16);border-color:#38bdf8;color:#7dd3fc;}
+.ax-custom{display:flex;gap:6px;align-items:center;}
+.ax-custom label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.ax-head{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(56,189,248,.04));border:1px solid rgba(56,189,248,.28);
+  border-left:4px solid #38bdf8;border-radius:14px;padding:16px 18px;margin-bottom:12px;}
+.ax-big{font-size:38px;font-weight:800;color:#7dd3fc;line-height:1;letter-spacing:-.02em;}
+.ax-big span{font-size:14px;font-weight:600;color:#94a3b8;margin-left:9px;letter-spacing:0;}
+.ax-sub{font-size:12.5px;color:#94a3b8;margin-top:6px;}
+.ax-acts{display:flex;gap:8px;flex-wrap:wrap;}
+.ax-b{background:#38bdf8;border:1px solid #38bdf8;color:#06202e;border-radius:9px;padding:9px 15px;
+  font-size:13px;font-weight:700;cursor:pointer;transition:.12s;}
+.ax-b:hover{filter:brightness(1.1);}
+.ax-b.alt{background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.22);color:#cbd5e1;}
+.ax-b.alt:hover{border-color:rgba(56,189,248,.5);color:#e2e8f0;}
+a.ax-b{text-decoration:none;display:inline-flex;align-items:center;}
+.ax-b.keepa{background:#4ade80;border-color:#4ade80;color:#052e16;}
+.ax-cp.big{width:34px;height:34px;margin-left:0;}
+.ax-cp.big svg{width:15px;height:15px;}
+.ax-warn{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.3);border-radius:10px;
+  padding:9px 13px;font-size:12.5px;color:#fcd34d;margin-bottom:12px;}
+.ax-wrap{background:#141a24;border:1px solid rgba(148,163,184,.14);border-radius:14px;overflow:hidden;}
+.ax-tbl{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed;}
+.ax-tbl th{position:sticky;top:0;background:#1b2330;color:#94a3b8;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;padding:9px 14px;text-align:left !important;
+  border-bottom:1px solid rgba(148,163,184,.16);z-index:1;}
+.ax-tbl td{padding:7px 14px;border-bottom:1px solid rgba(148,163,184,.07);color:#e2e8f0;text-align:left !important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ax-tbl th.n,.ax-tbl td.n{text-align:right !important;}
+.ax-tbl tbody tr:hover td{background:rgba(56,189,248,.05);}
+.ax-tbl td.a{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#7dd3fc;letter-spacing:.02em;}
+.ax-tbl td.n{font-variant-numeric:tabular-nums;font-weight:700;color:#f1f5f9;}
+.ax-tbl td.t{color:#cbd5e1;}
+.ax-tbl td.d{color:#64748b;font-size:12.5px;font-variant-numeric:tabular-nums;}
+.ax-tbl th.act,.ax-tbl td.act{text-align:right !important;overflow:visible;}
+.ax-lk{display:inline-flex;align-items:center;gap:5px;background:rgba(56,189,248,.11);border:1px solid rgba(56,189,248,.3);
+  color:#7dd3fc;border-radius:7px;padding:4px 9px;font-size:11.5px;font-weight:700;cursor:pointer;
+  text-decoration:none;transition:.12s;vertical-align:middle;}
+.ax-lk:hover{background:rgba(56,189,248,.22);border-color:#38bdf8;color:#bae6fd;}
+.ax-cp{display:inline-flex;align-items:center;justify-content:center;background:rgba(148,163,184,.09);
+  border:1px solid rgba(148,163,184,.2);color:#94a3b8;border-radius:7px;width:27px;height:25px;
+  cursor:pointer;margin-left:5px;transition:.12s;vertical-align:middle;padding:0;}
+.ax-cp:hover{color:#e2e8f0;border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.11);}
+.ax-cp.ok{color:#4ade80;border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.13);}
+.ax-scroll{max-height:calc(100vh - 300px);min-height:320px;overflow:auto;}
+.ax-tbl th.s{cursor:pointer;user-select:none;transition:color .12s;}
+.ax-tbl th.s:hover{color:#e2e8f0;}
+.ax-tbl th.s.on{color:#7dd3fc;}
+.ax-tbl th.s i{font-style:normal;margin-left:4px;font-size:11px;}
+.ax-tbl td.multi{cursor:help;}
+.ax-tbl td.multi em{font-style:normal;color:#64748b;font-size:11px;font-weight:600;margin-left:5px;}
+#axSup{max-width:210px;}
+.ax-empty{padding:40px 20px;text-align:center;color:#64748b;font-size:13.5px;}
+</style>
+<script>
+(function(){
+/* Unique ASIN + COG. COG = the most recent purchase's unit cost, because the
+   question this answers is "is this worth buying again at roughly that price". */
+let axRange={k:'all'}, axLast=[], axQ='', axSup='', axCog='latest', axSort={k:'date',dir:-1};
+const AX_COGS=[['latest','Latest'],['high','Highest'],['low','Lowest'],['avg','Average']];
+const AX_COG_WORD={latest:'last',high:'highest',low:'lowest',avg:'average'};
+const axCogOf=r=>r.cog[axCog];
+/* hovering a COG shows the whole price history in one line */
+function axCogTip(r){
+  const p=n=>'£'+n.toFixed(2);
+  if(r.buys<2)return `Bought once — ${p(r.cog.latest)}`;
+  return `${r.buys} buys · ${r.units} units\nLatest ${p(r.cog.latest)} · Lowest ${p(r.cog.low)} · Highest ${p(r.cog.high)} · Average ${p(r.cog.avg)}`
+    +(r.suppliers.length?`\nFrom ${r.suppliers.join(', ')}`:'');
+}
+const AX_DOMAIN='2';                                    /* 2 = amazon.co.uk (1=.com, 3=.de, 4=.fr) */
+const AX_KEEPA=a=>'https://keepa.com/#!product/'+AX_DOMAIN+'-'+a;
+/* Keepa's viewer list lives entirely in the URL fragment — no account, no API,
+   no quota. We hand their page {"2":[...asins]} and it builds the list client-side. */
+function axViewerUrl(asins){
+  const clean=(asins||[]).map(a=>String(a||'').trim().toUpperCase()).filter(a=>/^B0[0-9A-Z]{8}$/.test(a));
+  if(!clean.length)return '';
+  const payload={}; payload[AX_DOMAIN]=clean;
+  return 'https://keepa.com/#!viewer/'+encodeURIComponent(JSON.stringify(payload));
+}
+function axViewerFor(list){return axViewerUrl((list||[]).map(r=>r.asin));}
+const AX_CPICON='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+const AX_PRESETS=[['30d','Last 30 days'],['60d','Last 60 days'],['90d','Last 90 days'],['jan','Since 1 Jan'],['all','Everything']];
+
+function axDates(){
+  const now=new Date(), y=now.getFullYear();
+  const f=document.getElementById('axFrom'), t=document.getElementById('axTo');
+  if(axRange.k==='custom'){
+    const dmy=v=>v?v.split('-').reverse().join('/'):'…';
+    return {a:(f&&f.value)||'0000-01-01',b:(t&&t.value)||'9999-12-31',label:`${dmy(f&&f.value)} → ${dmy(t&&t.value)}`};
+  }
+  let a=new Date(now);
+  if(axRange.k==='30d')a.setDate(a.getDate()-30);
+  else if(axRange.k==='60d')a.setDate(a.getDate()-60);
+  else if(axRange.k==='90d')a.setDate(a.getDate()-90);
+  else a=new Date(y,0,1);
+  const lbl=(AX_PRESETS.find(p=>p[0]===axRange.k)||[])[1]||'';
+  return {a:localDateKey(a),b:localDateKey(now),label:lbl};
+}
+function axCogBtns(){
+  const host=document.getElementById('axCogBtns'); if(!host)return;
+  host.innerHTML=AX_COGS.map(([k,l])=>`<button class="ax-p${axCog===k?' on':''}" data-c="${k}" title="${
+    k==='latest'?'The price you paid the last time':k==='high'?'The most you\'ve ever paid':k==='low'?'The least you\'ve ever paid':'Total spent ÷ total units'}">${l}</button>`).join('');
+  host.onclick=e=>{const b=e.target.closest('button'); if(!b)return; axCog=b.dataset.c; axRender();};
+}
+function axSupSel(scoped){
+  const sel=document.getElementById('axSup'); if(!sel)return;
+  const sups=axSuppliers(scoped);
+  sel.innerHTML=`<option value="">Anywhere</option>`+
+    sups.map(([s,n])=>`<option value="${esc(s)}"${axSup===s?' selected':''}>${esc(s)} (${n})</option>`).join('');
+  sel.onchange=()=>{axSup=sel.value;axRender();};
+}
+function axPresets(){
+  const host=document.getElementById('axPresets'); if(!host)return;
+  host.innerHTML=AX_PRESETS.map(([k,l])=>`<button class="ax-p${axRange.k===k?' on':''}" data-k="${k}">${l}</button>`).join('');
+  host.onclick=e=>{const b=e.target.closest('button'); if(!b)return;
+    axRange={k:b.dataset.k};
+    const f=document.getElementById('axFrom'),t=document.getElementById('axTo'); if(f)f.value='';if(t)t.value='';
+    axRender();};
+}
+function axBuild(a,b){
+  const src=(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:(typeof allRows!=='undefined'?allRows:[]);
+  const inRange=src.filter(r=>{const k=localDateKey(r.date);return k>=a&&k<=b;});
+  const map=new Map(); let noAsin=0;
+  inRange.forEach(r=>{
+    const asin=(r.asin||'').trim().toUpperCase();
+    if(!/^[A-Z0-9]{10}$/.test(asin)){noAsin++;return;}
+    const u=unitCostForRow(r), sup=(r.supplier||'').trim();
+    let cur=map.get(asin);
+    if(!cur){cur={asin,name:r.name||'',date:r.date,buys:0,units:0,spend:0,costQty:0,costSum:0,
+      lo:u,hi:u,latest:u,sups:new Set()};map.set(asin,cur);}
+    const qty=(r.qty>0?r.qty:1);
+    cur.buys++;
+    cur.units+=r.qty||0;
+    cur.spend+=r.spend||0;
+    /* average off the same unit cost the other three use — a few sheet rows have a
+       Spend that doesn't match Buy Price × Qty, and mixing the two reads as a bug */
+    cur.costQty+=qty;
+    cur.costSum+=u*qty;
+    if(u>0){cur.lo=Math.min(cur.lo||u,u);cur.hi=Math.max(cur.hi||u,u);}
+    if(sup)cur.sups.add(sup);
+    if(r.date>=cur.date){cur.date=r.date;cur.latest=u;if(r.name)cur.name=r.name;}
+  });
+  const all=[...map.values()].map(r=>{
+    /* average = what a unit has cost you on average, weighted by how many you bought */
+    const avg=r.costQty>0?r.costSum/r.costQty:r.latest;
+    return Object.assign(r,{suppliers:[...r.sups].sort(),
+      cog:{latest:r.latest,low:r.lo,high:r.hi,avg}});
+  });
+  const q=axQ.trim().toLowerCase();
+  const scoped=q?all.filter(r=>r.name.toLowerCase().includes(q)||r.asin.toLowerCase().includes(q)):all.slice();
+  /* if the chosen supplier no longer exists in this range/search, drop it rather than
+     showing an empty table the user can't explain */
+  if(axSup&&!scoped.some(r=>r.suppliers.includes(axSup)))axSup='';
+  let list=axSup?scoped.filter(r=>r.suppliers.includes(axSup)):scoped.slice();
+  const k=axSort.k, d=axSort.dir;
+  list.sort((x,y)=>{
+    let c;
+    if(k==='name')c=(x.name||'').localeCompare(y.name||'');
+    else if(k==='asin')c=x.asin.localeCompare(y.asin);
+    else if(k==='cog')c=axCogOf(x)-axCogOf(y);
+    else c=x.date-y.date;
+    return (c||x.asin.localeCompare(y.asin))*d;
+  });
+  return {list,all,scoped,noAsin,lines:inRange.length};
+}
+/* every supplier in range, with how many unique ASINs came from each */
+function axSuppliers(all){
+  const c={};
+  all.forEach(r=>r.suppliers.forEach(s=>{c[s]=(c[s]||0)+1;}));
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+}
+/* Brand chips — first word of each title, so "Shark" / "Samsung" are one click away.
+   Only words that look like a brand (letters, appearing on 3+ different ASINs). */
+function axBrands(all){
+  const c={};
+  all.forEach(r=>{
+    const w=(r.name||'').trim().split(/[\s\-–—,/&(]+/)[0];
+    if(!w||w.length<3||w.length>18||!/^[A-Za-z][A-Za-z.'’]*$/.test(w))return;
+    const k=w.replace(/[.'’]+$/,'');
+    const n=k.charAt(0).toUpperCase()+k.slice(1);
+    c[n]=(c[n]||0)+1;
+  });
+  return Object.entries(c).filter(([k,n])=>n>=3).sort((a,b)=>b[1]-a[1]).slice(0,12);
+}
+function axRender(fromDate){
+  const out=document.getElementById('axResult'); if(!out)return;
+  if(fromDate)axRange={k:'custom'};
+  axPresets();
+  const {a,b,label}=axDates();
+  const {list,all,scoped,noAsin,lines}=axBuild(a,b);
+  axLast=list;
+  const inp=document.getElementById('axQ'); if(inp&&inp.value!==axQ)inp.value=axQ;
+  const fx=document.getElementById('axFx'); if(fx)fx.style.display=axQ?'':'none';
+  if(!lines){out.innerHTML=`<div class="ax-empty">Loading your buying history…</div>`;return;}
+  axCogBtns(); axSupSel(scoped);
+  const q=axQ.trim();
+  const brands=axBrands(all);
+  const dmy=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const vUrl=axViewerFor(list);
+  const vN=list.filter(r=>/^B0[0-9A-Z]{8}$/.test(r.asin)).length;
+  const vSkipped=list.length-vN;
+  out.innerHTML=`
+    <div class="ax-head">
+      <div>
+        <div class="ax-big">${list.length.toLocaleString()}<span>unique ASIN${list.length===1?'':'s'}${q?` matching “${esc(q)}”`:''}${axSup?` from ${esc(axSup)}`:''}</span></div>
+        <div class="ax-sub">${q||axSup?`${all.length.toLocaleString()} bought in total · `:''}${esc(label)} — from ${lines.toLocaleString()} buy lines. COG is the <b>${AX_COG_WORD[axCog]}</b>${axCog==='avg'?' you’ve paid per unit':' price you paid'}.</div>
+      </div>
+      <div class="ax-acts">
+        ${vUrl?`<a class="ax-b keepa" href="${vUrl}" target="_blank" rel="noopener" title="Opens all of them on one Keepa page — the list travels in the link">Open all ${vN.toLocaleString()} in Keepa ↗</a>
+        <button class="ax-cp big" id="axVCopy" title="Copy the Keepa link for all of them">${AX_CPICON}</button>`:''}
+        <button class="ax-b" onclick="axCopy('both',this)" title="ASIN and COG, tab separated — pastes straight into two columns">Copy ASIN + COG</button>
+        <button class="ax-b alt" onclick="axCopy('asin',this)" title="Just the ASINs, one per line">Copy ASINs</button>
+      </div>
+    </div>
+    ${!q&&brands.length?`<div class="ax-brands"><span class="ax-brands-l">Jump to</span>${
+      brands.map(([b2,n])=>`<button class="ax-br" data-b="${esc(b2)}">${esc(b2)}<b>${n}</b></button>`).join('')}</div>`:''}
+    ${vSkipped?`<div class="ax-warn"><b>${vSkipped.toLocaleString()} ASIN${vSkipped===1?'':'s'} left out of the Keepa link</b> — they don't look like standard <code>B0…</code> codes. They're still in the table and in both copy buttons.</div>`:''}
+    ${noAsin?`<div class="ax-warn"><b>${noAsin.toLocaleString()} buy line${noAsin===1?'':'s'} had no usable ASIN</b> and ${noAsin===1?"isn't":"aren't"} in this list — which is why Buying Hub counts a couple more unique ASINs than this page does. Buying Hub → Data quality shows you which rows.</div>`:''}
+    <div class="ax-wrap"><div class="ax-scroll"><table class="ax-tbl">
+      <colgroup><col style="width:auto"><col style="width:130px"><col style="width:132px"><col style="width:112px"><col style="width:186px"></colgroup>
+      <thead><tr>${[['name','Product',''],['asin','ASIN',''],['cog','COG','n'],['date','Last buy','n']]
+        .map(([k,l,c])=>`<th class="${c} s${axSort.k===k?' on':''}" data-s="${k}">${l}${axSort.k===k?`<i>${axSort.dir<0?'↓':'↑'}</i>`:''}</th>`).join('')}<th class="act">Keepa</th></tr></thead>
+      <tbody>${list.map(r=>`<tr>
+        <td class="t" title="${esc(r.name)}">${esc(r.name||'—')}</td>
+        <td class="a">${esc(r.asin)}</td>
+        <td class="n${r.buys>1?' multi':''}" title="${axCogTip(r)}">£${axCogOf(r).toFixed(2)}${r.buys>1?`<em>×${r.buys}</em>`:''}</td>
+        <td class="n d">${dmy(r.date)}</td>
+        <td class="act"><a class="ax-lk" href="${AX_KEEPA(r.asin)}" target="_blank" rel="noopener">Open Keepa ↗</a><button class="ax-cp" data-a="${r.asin}" title="Copy the Keepa link">${AX_CPICON}</button></td>
+      </tr>`).join('')
+        ||`<tr><td colspan="5" class="ax-empty">${q?`Nothing bought matching “${esc(q)}” in this period.`:'Nothing bought in this period.'}</td></tr>`}</tbody>
+    </table></div></div>`;
+  const vc=out.querySelector('#axVCopy');
+  if(vc)vc.onclick=()=>{spV7Copy(vUrl,null);vc.classList.add('ok');setTimeout(()=>vc.classList.remove('ok'),1100);};
+  const bh=out.querySelector('.ax-brands');
+  if(bh)bh.onclick=e=>{const b2=e.target.closest('.ax-br'); if(!b2)return; axQ=b2.dataset.b; axRender();};
+  const th=out.querySelector('.ax-tbl thead');
+  if(th)th.onclick=e=>{const h=e.target.closest('th.s'); if(!h)return;
+    const k=h.dataset.s;
+    /* first click on a new column picks the sensible direction: A–Z for text, biggest-first for numbers */
+    if(axSort.k===k)axSort.dir*=-1; else axSort={k,dir:(k==='name'||k==='asin')?1:-1};
+    axRender();};
+  const tb=out.querySelector('.ax-tbl tbody');
+  if(tb)tb.onclick=e=>{const c=e.target.closest('.ax-cp'); if(!c)return;
+    spV7Copy(AX_KEEPA(c.dataset.a),null);
+    c.classList.add('ok'); setTimeout(()=>c.classList.remove('ok'),1100);};
+}
+function axText(kind){
+  if(!axLast.length)return '';
+  if(kind==='asin')return axLast.map(r=>r.asin).join('\n');
+  return 'ASIN\tCOG\n'+axLast.map(r=>`${r.asin}\t${axCogOf(r).toFixed(2)}`).join('\n');
+}
+function axFlash(btn,msg){
+  if(!btn)return; const o=btn.textContent; btn.textContent=msg;
+  setTimeout(()=>{btn.textContent=o;},1400);
+}
+window.axCopy=function(kind,btn){
+  const t=axText(kind); if(!t){axFlash(btn,'Nothing to copy');return;}
+  spV7Copy(t,null); axFlash(btn,`Copied ${axLast.length} ASIN${axLast.length===1?'':'s'}`);
+};
+window.axKeepa=function(btn){
+  const t=axText('asin'); if(!t){axFlash(btn,'Nothing to copy');return;}
+  spV7Copy(t,null); axFlash(btn,'Copied — paste into Keepa');
+  setTimeout(()=>{window.open('https://keepa.com/#!viewer','_blank','noopener');},350);
+};
+window.axRender=axRender; window.axText=axText;
+
+/* Every modal opens, but none of them closed on Escape, and the page kept
+   scrolling behind them. One handler covers all six. */
+(function(){
+  const openModals=()=>[...document.querySelectorAll('.prices-modal.show')];
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    const open=openModals(); if(!open.length)return;
+    const m=open[open.length-1];
+    /* use the modal's own close button so its teardown (charts, state) still runs */
+    const x=[...m.querySelectorAll('.prices-modal-x')].reverse()
+      .find(b=>/close/i.test(b.getAttribute('onclick')||'')||/^close/i.test(b.textContent.trim()));
+    e.preventDefault();
+    if(x)x.click(); else m.classList.remove('show');
+  });
+  /* lock the page behind whichever modal is open — Overview is 13,000px tall
+     and scrolling it under a modal is disorienting */
+  let locked=false, savedY=0;
+  const sync=()=>{
+    const any=openModals().length>0;
+    if(any===locked)return;
+    locked=any;
+    if(any){savedY=window.scrollY;document.body.style.overflow='hidden';}
+    else{document.body.style.overflow='';window.scrollTo({top:savedY,behavior:'instant'});}
+  };
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.prices-modal').forEach(m=>{
+      new MutationObserver(sync).observe(m,{attributes:true,attributeFilter:['class']});
+    });
+  });
+})();
+/* Review's title block and its tab strip were stacked, leaving the whole
+   right-hand half of the header empty. Put the tabs beside the title. */
+document.addEventListener('DOMContentLoaded',function(){
+  const head=document.querySelector('#pageReview .rv-page-head');
+  const nav=document.querySelector('#pageReview .rv-subnav');
+  if(head&&nav&&!head.contains(nav)){
+    head.classList.add('rv-head-row');
+    const left=document.createElement('div');
+    left.className='rv-head-left';
+    while(head.firstChild)left.appendChild(head.firstChild);
+    head.appendChild(left); head.appendChild(nav);
+  }
+});
+/* page + nav, injected so the v7 layer stays untouched */
+document.addEventListener('DOMContentLoaded',function(){
+  const lkBtn=document.querySelector('.lk-nav-btn');
+  if(lkBtn&&!document.querySelector('[data-ax]')){
+    const b=document.createElement('button');
+    b.className='page-nav-btn'; b.setAttribute('data-ax','1');
+    b.title='Every unique ASIN you’ve bought, with its COG';
+    b.textContent='ASINs';
+    b.onclick=()=>switchPage('asins');
+    lkBtn.parentNode.insertBefore(b,lkBtn.nextSibling);
+  }
+  const lk=document.getElementById('pageLookup');
+  if(lk&&!document.getElementById('pageAsins')){
+    const d=document.createElement('div');
+    d.id='pageAsins'; d.style.display='none';
+    d.innerHTML=`<main>
+      <div class="ov-page-head">
+        <div class="ov-eyebrow ax-eye">ASINs</div>
+        <div class="ov-title">Everything we've bought</div>
+        <div class="ov-page-sub">One row per unique ASIN, with its COG. Copy it straight into Sheets, or open the lot in Keepa. OA / A2A only.</div>
+      </div>
+      <div class="ax-bar">
+        <div class="ax-find">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input id="axQ" type="text" placeholder="Brand or product — Shark, Samsung, Ninja…" spellcheck="false" autocomplete="off">
+          <button class="ax-fx" id="axFx" title="Clear (Esc)" style="display:none;">×</button>
+        </div>
+        <div class="ax-dates" id="axPresets"></div>
+        <div class="ax-custom">
+          <label>from</label><input id="axFrom" type="date" class="hub-input" onchange="axRender(1)">
+          <label>to</label><input id="axTo" type="date" class="hub-input" onchange="axRender(1)">
+        </div>
+        <div class="ax-custom">
+          <label>cog</label><div class="ax-dates" id="axCogBtns"></div>
+        </div>
+        <div class="ax-custom">
+          <label>bought from</label><select id="axSup" class="hub-input"></select>
+        </div>
+      </div>
+      <div id="axResult"></div>
+    </main>`;
+    lk.parentNode.insertBefore(d,lk.nextSibling);
+    const inp=d.querySelector('#axQ'), fx=d.querySelector('#axFx');
+    let t=null;
+    inp.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{axQ=inp.value;axRender();},160);});
+    inp.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();inp.value='';axQ='';axRender();inp.focus();}});
+    fx.addEventListener('click',()=>{inp.value='';axQ='';axRender();inp.focus();});
+  }
+});
+
+const axPrevSwitch=switchPage;
+switchPage=function(page){
+  const ax=document.getElementById('pageAsins');
+  if(page==='asins'){
+    ['pageOverview','pageToday','pageGrowth','pageHub','pageReview','pageLavarion','pageOverall','pageSettings','pageLookup']
+      .forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+    if(ax)ax.style.display='block';
+    document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim().toLowerCase()==='asins'));
+    try{localStorage.setItem('dash:page','asins');}catch(e){}
+    axRender();
+    if(!(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)&&typeof loadAllAndBuildGrowth==='function')
+      loadAllAndBuildGrowth().then(()=>axRender()).catch(()=>{});
+    setTimeout(()=>{const i=document.getElementById('axQ');if(i)i.focus();},60);
+    return;
+  }
+  /* leaving wipes the brand filter so you always come back to the full list */
+  if(ax&&ax.style.display!=='none'&&(axQ||axSup)){axQ='';axSup='';try{axRender();}catch(e){}}
+  if(ax)ax.style.display='none';
+  return axPrevSwitch.apply(this,arguments);
+};
 })();
 </script>
 </body>
