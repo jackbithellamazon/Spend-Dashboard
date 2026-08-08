@@ -4257,12 +4257,50 @@ function hubEntityDisplay(rows, field){
   const full=names.join(', ');
   return `<span class="hub-entity-cell" title="${esc(full)}"><span class="hub-mini-tag">${esc(primary)}</span>${extra>0?`<span class="hub-count-tag">+${extra}</span>`:''}</span>`;
 }
+/* this table used to build every row at once — ~87k characters of DOM for one view.
+   Render a page at a time; Copy/CSV still act on the whole filtered set. */
+let hubTableAll=[], hubTableShown=0, hubRowFn=null;
+const HUB_PAGE=100;
+function hubPageInit(items,rowFn){
+  hubTableAll=items; hubRowFn=rowFn;
+  hubTableShown=Math.min(HUB_PAGE,items.length);
+  setTimeout(hubRenderRows,0);
+  return items.slice(0,HUB_PAGE).map(rowFn).join('');
+}
+function hubRenderRows(){
+  const tb=document.getElementById('hubAsinBody'); if(!tb||!hubRowFn)return;
+  tb.innerHTML=hubTableAll.slice(0,hubTableShown).map(hubRowFn).join('');
+  const f=document.getElementById('hubMoreBar');
+  if(f){
+    const left=hubTableAll.length-hubTableShown;
+    f.innerHTML=left>0
+      ? `<span>Showing <b>${hubTableShown.toLocaleString()}</b> of <b>${hubTableAll.length.toLocaleString()}</b> ASINs</span>
+         <button class="hub-btn secondary" onclick="hubShowMore(${HUB_PAGE})">Show ${Math.min(HUB_PAGE,left)} more</button>
+         <button class="hub-btn secondary" onclick="hubShowMore(0)">Show all ${hubTableAll.length.toLocaleString()}</button>`
+      : (hubTableAll.length>HUB_PAGE?`<span>All <b>${hubTableAll.length.toLocaleString()}</b> ASINs shown</span>`:'');
+    f.style.display=f.innerHTML?'':'none';
+  }
+}
+window.hubShowMore=function(n){
+  hubTableShown=n?Math.min(hubTableAll.length,hubTableShown+n):hubTableAll.length;
+  hubRenderRows();
+};
+function hubAsinRowHtml(x){
+  const asin=x.rows[0].asin||'—', sample=x.rows[0], brand=hubBrandForRow(sample)||'—', title=rowTitle(sample)||'—',
+    latestRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0]||sample, sku=(latestRow.sku||sample.sku||'—'),
+    supCount=new Set(x.rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean)).size;
+  const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA';
+  const supTxt=hubEntityDisplay(x.rows,'supplier'), provTxt=hubEntityDisplay(x.rows,'provider');
+  const typeCls={'S&S':'sns','UK A2A':'uk','EU A2A':'eu','OA':'oa'}[type];
+  return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(brand)}</span></td><td class="bold" style="color:var(--accent);">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sku)}">${esc(sku)}</span></td><td><span class="hub-title-cell" title="${esc(title)}">${esc(title)}</span></td><td class="bold" style="color:#f2f5fb;">${fmt(x.spend)}</td><td>${x.units.toLocaleString()} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${countOrders(x.rows)}</td><td>${supCount>1?`<span class="hub-sup-trigger" onclick="event.stopPropagation();openHubSuppliers('${esc(asin)}')" title="View all suppliers &amp; places">${supTxt}</span>`:supTxt}</td><td>${provTxt}</td><td>${priceList(x.rows, brand+' · '+asin)}</td><td>${x.last?x.last.toLocaleDateString('en-GB'):'—'}</td><td><span class="type-badge ${typeCls}">${type}</span></td><td><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${amazonLink(asin)}">Amazon</a><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${keepaLink(asin)}">Keepa</a></td></tr>`;
+}
 function renderHubAsinTable(rows){
   const byAsin=Object.values(groupSpend(rows,r=>r.asin)).sort((a,b)=>b.spend-a.spend);
   lastHubAsins=uniqueAsinsFromRows(rows); lastHubRows=rows;
-  return `<div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">ASINs bought <span class="hub-muted">· ${lastHubAsins.length} unique · click any row for purchase history</span></div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubAsins('comma')">Copy comma list</button><button class="hub-btn secondary" onclick="copyHubData('asinSku')">Copy ASIN + SKU</button><button class="hub-btn secondary" onclick="copyHubData('amazon')">Copy Amazon links</button><button class="hub-btn secondary" onclick="copyHubData('keepa')">Copy Keepa links</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><div class="hub-asin-scroll"><table class="hub-asin-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Title</th><th>Spend</th><th>Units</th><th>Orders</th><th>Suppliers</th><th>Providers</th><th>Prices paid</th><th>Last bought</th><th>Type</th><th>Links</th></tr></thead><tbody>`+
-    byAsin.map(x=>{const asin=x.rows[0].asin||'—', sample=x.rows[0], brand=hubBrandForRow(sample)||'—', title=rowTitle(sample)||'—', latestRow=x.rows.slice().sort((a,b)=>b.date-a.date)[0]||sample, sku=(latestRow.sku||sample.sku||'—'), supCount=new Set(x.rows.map(r=>hubSupplierName(r.supplier)).filter(Boolean)).size; const type=x.rows.some(r=>r.sns)?'S&S':x.rows.some(isUkA2A)?'UK A2A':x.rows.some(isEuA2A)?'EU A2A':'OA'; const supTxt=hubEntityDisplay(x.rows,'supplier'); const provTxt=hubEntityDisplay(x.rows,'provider'); const ps=asinPriceStats(x.rows); const typeCls={'S&S':'sns','UK A2A':'uk','EU A2A':'eu','OA':'oa'}[type]; return `<tr class="hub-row-click" onclick="openHubAsinDetail('${esc(asin)}')"><td><span class="hub-brand-cell">${esc(brand)}</span></td><td class="bold" style="color:var(--accent);">${esc(asin)}</td><td><span class="hub-sku-cell" title="${esc(sku)}">${esc(sku)}</span></td><td><span class="hub-title-cell" title="${esc(title)}">${esc(title)}</span></td><td class="bold" style="color:#f2f5fb;">${fmt(x.spend)}</td><td>${x.units.toLocaleString()} <span style="font-size:10px;color:var(--muted);">units</span></td><td>${countOrders(x.rows)}</td><td>${supCount>1?`<span class="hub-sup-trigger" onclick="event.stopPropagation();openHubSuppliers('${esc(asin)}')" title="View all suppliers &amp; places">${supTxt}</span>`:supTxt}</td><td>${provTxt}</td><td>${priceList(x.rows, brand+' · '+asin)}</td><td>${x.last?x.last.toLocaleDateString('en-GB'):'—'}</td><td><span class="type-badge ${typeCls}">${type}</span></td><td><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${amazonLink(asin)}">Amazon</a><a class="hub-link" target="_blank" onclick="event.stopPropagation()" href="${keepaLink(asin)}">Keepa</a></td></tr>`}).join('')+
-    `</tbody></table></div></div>`;
+  const firstPage=hubPageInit(byAsin,hubAsinRowHtml);
+  return `<div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">ASINs bought <span class="hub-muted">· ${lastHubAsins.length} unique · click any row for purchase history</span></div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubAsins('comma')">Copy comma list</button><button class="hub-btn secondary" onclick="copyHubData('asinSku')">Copy ASIN + SKU</button><button class="hub-btn secondary" onclick="copyHubData('amazon')">Copy Amazon links</button><button class="hub-btn secondary" onclick="copyHubData('keepa')">Copy Keepa links</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><div class="hub-asin-scroll"><table class="hub-asin-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Title</th><th>Spend</th><th>Units</th><th>Orders</th><th>Suppliers</th><th>Providers</th><th>Prices paid</th><th>Last bought</th><th>Type</th><th>Links</th></tr></thead><tbody id="hubAsinBody">`+
+    firstPage+
+    `</tbody></table></div><div class="hub-morebar" id="hubMoreBar"></div></div>`;
 }
 function renderHubQuickLists(rows){
   const ukRows=rows.filter(isUkA2A), euRows=rows.filter(isEuA2A), snsRows=rows.filter(r=>r.sns);
@@ -4836,7 +4874,7 @@ function renderOfferMode(rows){
 function renderPriceHistory(rows){
   const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin).map(x=>({x,ps:asinPriceStats(x.rows)})).sort((a,b)=>b.x.spend-a.x.spend);
   lastHubRows=rows; lastHubAsins=uniqueAsinsFromRows(rows);
-  const body=groups.map(({x,ps})=>{
+  const priceRow=({x,ps})=>{
     const sample=x.rows[0], asin=sample.asin;
     const latest=x.rows.slice().sort((a,b)=>b.date-a.date)[0]||sample;
     const lowRow=x.rows.slice().sort((a,b)=>unitCostForRow(a)-unitCostForRow(b))[0];
@@ -4857,8 +4895,9 @@ function renderPriceHistory(rows){
       <td style="text-align:left;">${lowRow?esc(hubSupplierName(lowRow.supplier)||'—'):'—'}</td>
       <td>${lastRow?lastRow.date.toLocaleDateString('en-GB'):'—'}</td>
     </tr>`;
-  }).join('');
-  return hubSummaryCards('Price History',rows)+`<div class="hub-alert">Every price you've paid per ASIN, from your own purchase rows. <strong>Spread</strong> is the gap between your cheapest and dearest buy — "flat" means you've only ever paid one price.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Purchase price history by ASIN</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Spend</th><th>Units</th><th>Buys</th><th style="text-align:left;">Prices paid</th><th>Spread</th><th style="text-align:left;">Cheapest from</th><th>Last bought</th></tr></thead><tbody>${body||'<tr><td colspan="10">No ASINs in this filter.</td></tr>'}</tbody></table></div>`;
+  };
+  const body=hubPageInit(groups,priceRow);
+  return hubSummaryCards('Price History',rows)+`<div class="hub-alert">Every price you've paid per ASIN, from your own purchase rows. <strong>Spread</strong> is the gap between your cheapest and dearest buy — "flat" means you've only ever paid one price.</div><div class="hub-table-wrap"><div class="hub-copybar"><div class="hub-copybar-title">Purchase price history by ASIN</div><div class="hub-copybar-actions"><button class="hub-btn secondary" onclick="copyHubData('asins')">Copy ASINs</button><button class="hub-btn secondary" onclick="copyHubData('csv')">Copy CSV</button></div></div><table class="hub-matrix-table"><thead><tr><th>Brand</th><th>ASIN</th><th>SKU</th><th>Spend</th><th>Units</th><th>Buys</th><th style="text-align:left;">Prices paid</th><th>Spread</th><th style="text-align:left;">Cheapest from</th><th>Last bought</th></tr></thead><tbody id="hubAsinBody">${body||'<tr><td colspan="10">No ASINs in this filter.</td></tr>'}</tbody></table><div class="hub-morebar" id="hubMoreBar"></div></div>`;
 }
 function renderMultiBuy(rows){
   const groups=Object.values(groupSpend(rows,r=>r.asin)).filter(x=>x.rows[0].asin&&countOrders(x.rows)>=2).sort((a,b)=>countOrders(b.rows)-countOrders(a.rows)||b.spend-a.spend);
@@ -8735,6 +8774,9 @@ spInstallPaceUI();
   border:1px solid rgba(251,191,36,.35);border-radius:14px;padding:14px 26px;min-width:150px;}
 .lk-ans-big b{display:block;font-family:var(--font-head);font-size:50px;font-weight:800;line-height:.88;letter-spacing:-.045em;color:#fbbf24;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(251,191,36,.35);}
 .lk-ans-big span{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:#c9a44c;font-weight:800;margin-top:9px;display:block;}
+.lk-ans-big.alt{background:linear-gradient(180deg,rgba(56,189,248,.15),rgba(56,189,248,.04));border-color:rgba(56,189,248,.35);}
+.lk-ans-big.alt b{color:#38bdf8;text-shadow:0 0 32px rgba(56,189,248,.3);}
+.lk-ans-big.alt span{color:#7dd3fc;}
 .lk-ans-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid rgba(148,163,184,.12);border-bottom:1px solid rgba(148,163,184,.12);background:#0a0f18;}
 .lk-s{padding:13px 18px;border-left:1px solid rgba(148,163,184,.09);min-width:0;position:relative;}
 .lk-s:first-child{border-left:none;}
@@ -8749,7 +8791,7 @@ spInstallPaceUI();
 .lk-s:nth-child(2) .lk-s-v{color:#7ee2a8;}
 .lk-s:nth-child(4) .lk-s-v{color:#7ee8dd;}
 .lk-s-v.sm{font-size:14px;}
-.lk-s-s{font-size:10px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lk-s-s{font-size:11px;color:#8fa1b8;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lk-bulk-h{padding:16px 22px;font-size:13px;color:#c3cfdd;border-bottom:1px solid var(--border);}
 .lk-bulk-h b{color:#fbbf24;font-weight:800;}
 .lk-tblwrap{max-height:560px;overflow:auto;}
@@ -8762,10 +8804,22 @@ spInstallPaceUI();
 .lk-tbl tr:hover td{background:rgba(148,163,184,.05);}
 .lk-tbl th.n,.lk-tbl td.n{text-align:right;font-variant-numeric:tabular-nums;}
 .lk-tbl td.d{white-space:nowrap;color:var(--muted2);}
+/* two lines is enough to identify it — four made every row a paragraph.
+   Clamp the span, not the cell: -webkit-box on a <td> breaks table layout. */
 .lk-tbl td.nm{color:#e8eff8;font-weight:600;max-width:330px;}
+.lk-tbl td.nm span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;line-height:1.35;}
 .lk-tbl td.qty{font-weight:800;color:#fbbf24;font-size:14px;}
 .lk-tbl tr.miss td{color:var(--muted);font-style:italic;}
-.lk-prov{display:block;font-size:10px;color:var(--muted);margin-top:2px;}
+/* was var(--muted) on near-black — unreadable. Provider gets its own colour. */
+/* some provider colours are dark teals/blues that die on a near-black row,
+   so lift them rather than inventing a second palette */
+.lk-prov{display:block;font-size:10.5px;font-weight:700;margin-top:2px;letter-spacing:.01em;
+  filter:brightness(1.55) saturate(1.15);}
+.lk-tbl th.sortable{cursor:pointer;user-select:none;transition:color .12s;}
+.lk-tbl th.sortable:hover{color:#e2e8f0;}
+.lk-tbl th.sortable.on{color:#fbbf24;}
+.lk-tbl th.sortable i{font-style:normal;margin-left:4px;font-size:10px;}
 .lk-cp{background:rgba(148,163,184,.08);border:1px solid var(--border);color:#c3cfdd;font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:5px;cursor:pointer;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:.12s;}
 .lk-cp:hover{border-color:var(--border2);color:#fff;background:rgba(148,163,184,.16);}
 .lk-cp.ok{color:#5fd68c;border-color:rgba(34,197,94,.45);}
@@ -8915,6 +8969,9 @@ spInstallPaceUI();
   flex:0 0 auto;background:rgba(148,163,184,.1);border-radius:20px;padding:3px 8px;}
 .set-state.on{color:#4ade80;background:rgba(74,222,128,.12);}
 .set-state.no{color:#f87171;background:rgba(248,113,113,.12);}
+.hub-morebar{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 16px;
+  border-top:1px solid rgba(148,163,184,.12);font-size:12.5px;color:#94a3b8;flex-wrap:wrap;}
+.hub-morebar b{color:#e2e8f0;}
 .rv-open-note{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.28);border-left:3px solid #fbbf24;
   border-radius:10px;padding:10px 14px;font-size:12.5px;color:#fcd34d;margin-bottom:14px;line-height:1.5;}
 .rv-open-note b{color:#fde68a;}
@@ -10352,7 +10409,7 @@ if(typeof buildOaA2a==='function'){
 /* ---------- 1m. LOOKUP — "how many did we buy?" ----------
    Replaces asking Sarah to count rows in the sheet. One box, one date range,
    a straight answer. OA / A2A only, deliberately. */
-let lkRange={k:'60d'}, lkGroup='none', lkLast=null;
+let lkRange={k:'60d'}, lkGroup='none', lkLast=null, lkSort={k:'date',dir:-1};
 const LK_PRESETS=[['30d','Last 30 days'],['60d','Last 60 days'],['90d','Last 90 days'],['jan','Since 1 Jan'],['all','All of 2026']];
 const LK_GROUPS=[['none','Nothing'],['date','Date'],['supplier','Supplier'],['account','Account'],['provider','Who bought']];
 const lkDMY=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -10396,7 +10453,17 @@ function spV7LkMatch(rows,term){
   if(hit.length)return {rows:hit,how:'ASIN'};
   hit=rows.filter(r=>(r.sku||'').toUpperCase()===up);
   if(hit.length)return {rows:hit,how:'SKU'};
-  hit=rows.filter(r=>(r.name||'').toLowerCase().includes(low)||(r.sku||'').toLowerCase().includes(low)||(r.asin||'').toLowerCase().includes(low));
+  /* word-start matching, same reason as the ASINs page: a plain substring made
+     "lg" match Elgato and every ASIN with LG in it */
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  /* same rule as the ASINs page, so both pages answer "lg" identically:
+     short queries are whole words, longer ones match the start of a word */
+  const whole=t.length<=3&&!/\s/.test(t);
+  let re=null;
+  try{re=new RegExp((whole?'\\b':'(?<![A-Za-z0-9])')+esc(t)+(whole?'\\b':''),'i');}
+  catch(e){try{re=new RegExp('\\b'+esc(t)+(whole?'\\b':''),'i');}catch(e2){re=null;}}
+  const test=v=>re?re.test(v||''):String(v||'').toLowerCase().includes(low);
+  hit=rows.filter(r=>test(r.name)||test(r.sku)||(r.asin||'').toUpperCase().startsWith(up));
   return {rows:hit,how:hit.length?'name':'none'};
 }
 function spV7Lookup(fromDate){
@@ -10417,6 +10484,14 @@ function spV7Lookup(fromDate){
   }
   const results=terms.map(t=>({term:t,...spV7LkMatch(inRange,t)}));
   out.innerHTML=(terms.length===1?spV7LkSingle(results[0],label,a,b):spV7LkBulk(results,label));
+  /* click a heading to sort — text goes A–Z first, numbers and dates biggest first */
+  const th=out.querySelector('.lk-tbl thead');
+  if(th)th.onclick=e=>{
+    const h=e.target.closest('th.sortable'); if(!h)return;
+    const key=h.dataset.lks;
+    if(lkSort.k===key)lkSort.dir*=-1; else lkSort={k:key,dir:(key==='qty'||key==='date')?-1:1};
+    spV7Lookup();
+  };
 }
 window.spV7Lookup=spV7Lookup;
 function spV7LkClear(){
@@ -10445,18 +10520,27 @@ function spV7LkTotals(rs){
     last:rs.length?rs.reduce((m,r)=>r.date>m?r.date:m,rs[0].date):null};
 }
 function spV7LkRowsTable(rs){
-  const sorted=rs.slice().sort((x,y)=>y.date-x.date);
+  const k=lkSort.k, dir=lkSort.dir;
+  const val={date:r=>r.date,name:r=>(r.name||'').toLowerCase(),asin:r=>r.asin||'',
+    sku:r=>(r.sku||'').toLowerCase(),order:r=>(r.orderId||''),qty:r=>r.qty,
+    supplier:r=>(r.supplier||'').toLowerCase()};
+  const get=val[k]||val.date;
+  const sorted=rs.slice().sort((x,y)=>{
+    const A=get(x),B=get(y);
+    const c=(typeof A==='string')?A.localeCompare(B):(A-B);
+    return (c||(y.date-x.date))*dir;
+  });
   const oneProduct=new Set(sorted.map(r=>r.name)).size===1;
   const oneAsin=new Set(sorted.map(r=>r.asin)).size===1;
   const cols=2+(oneProduct?0:1)+(oneAsin?0:1)+3;
   const line=r=>`<tr>
       <td class="d">${lkDMY(r.date)}</td>
-      ${oneProduct?'':`<td class="nm">${esc(r.name||'—')}</td>`}
+      ${oneProduct?'':`<td class="nm" title="${esc(r.name||'')}"><span>${esc(r.name||'—')}</span></td>`}
       ${oneAsin?'':`<td class="id">${r.asin?`<button class="lk-cp" onclick="spV7Copy('${esc(r.asin)}',this)">${esc(r.asin)}</button>`:'—'}</td>`}
       <td class="id sku">${r.sku?`<button class="lk-cp" onclick="spV7Copy('${esc(r.sku).replace(/'/g,"\\'")}',this)">${esc(r.sku)}</button>`:'—'}</td>
       <td class="id">${r.orderId?`<button class="lk-cp" onclick="spV7Copy('${esc(r.orderId).replace(/'/g,"\\'")}',this)">${esc(r.orderId)}</button>`:'—'}</td>
       <td class="n qty">${r.qty.toLocaleString()}</td>
-      <td>${esc(r.supplier||'—')}${r.provider?`<span class="lk-prov">${esc(r.provider)}</span>`:''}</td>
+      <td>${esc(r.supplier||'—')}${r.provider?`<span class="lk-prov" style="color:${(typeof PROVIDER_COLORS!=='undefined'&&PROVIDER_COLORS[r.provider])||'#94a3b8'}">${esc(r.provider)}</span>`:''}</td>
     </tr>`;
   let body;
   if(lkGroup==='none')body=sorted.map(line).join('');
@@ -10476,11 +10560,15 @@ function spV7LkRowsTable(rs){
   /* fixed widths — auto layout was flinging Order out to the far right with a
      canyon of empty space in the middle */
   const w=oneProduct
-    ? (oneAsin?['12%','30%','26%','8%','24%']:['11%','15%','26%','22%','7%','19%'])
-    : (oneAsin?['10%','33%','21%','19%','6%','11%']:['9%','27%','13%','17%','18%','5%','11%']);
+    ? (oneAsin?['12%','29%','25%','9%','25%']:['11%','15%','25%','21%','8%','20%'])
+    : (oneAsin?['10%','32%','20%','18%','8%','12%']:['9%','26%','13%','16%','16%','8%','12%']);
   const cg=`<colgroup>${w.map(x=>`<col style="width:${x}">`).join('')}</colgroup>`;
   return `<div class="lk-tblwrap"><table class="lk-tbl fixed">${cg}
-    <thead><tr><th>Date</th>${oneProduct?'':'<th>Product</th>'}${oneAsin?'':'<th>ASIN</th>'}<th>SKU</th><th>Order</th><th class="n">Qty</th><th>Bought from</th></tr></thead>
+    <thead><tr>${
+      [['date','Date',''],...(oneProduct?[]:[['name','Product','']]),...(oneAsin?[]:[['asin','ASIN','']]),
+       ['sku','SKU',''],['order','Order',''],['qty','Qty','n'],['supplier','Bought from','']]
+      .map(([key,lbl,cls])=>`<th class="${cls} sortable${lkSort.k===key?' on':''}" data-lks="${key}">${lbl}${lkSort.k===key?`<i>${lkSort.dir<0?'↓':'↑'}</i>`:''}</th>`).join('')
+    }</tr></thead>
     <tbody>${body}</tbody></table></div>
     ${oneProduct?`<div class="lk-tblnote">Every line above is the same product${oneAsin&&sorted[0].asin?` · <b>${esc(sorted[0].asin)}</b>`:''} — so it's left out of the table.</div>`:''}`;
 }
@@ -10490,7 +10578,14 @@ function spV7LkText(){
   const d=lkLast; if(!d)return '';
   const {title,asins,t,rows,label}=d;
   const L=[];
-  L.push(`${title}${asins[0]?` — ${asins[0]}`:''}`);
+  /* a name search can span many products — naming just the first one made the
+     pasted message read as if the whole total belonged to that single product */
+  if(asins.length>1){
+    L.push(`"${d.term||title}" — ${asins.length} different products`);
+    L.push(asins.join(', '));
+  } else {
+    L.push(`${title}${asins[0]?` — ${asins[0]}`:''}`);
+  }
   L.push(`${t.units.toLocaleString()} units · ${t.orders} order${t.orders!==1?'s':''} · ${fmt(t.spend)} · ${label}`);
   L.push('');
   const sorted=rows.slice().sort((x,y)=>y.date-x.date);
@@ -10588,7 +10683,7 @@ function spV7LkSingle(res,label,a,b){
   const asins=[...new Set(res.rows.map(r=>r.asin).filter(Boolean))];
   const sups={}; res.rows.forEach(r=>{sups[r.supplier]=(sups[r.supplier]||0)+r.qty;});
   const supList=Object.entries(sups).sort((x,y)=>y[1]-x[1]);
-  lkLast={title:title?title[0]:res.term,asins,t,rows:res.rows,label};
+  lkLast={title:title?title[0]:res.term,term:res.term,asins,t,rows:res.rows,label};
   const dOne=d=>d?d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
   const sameDay=t.first&&t.last&&localDateKey(t.first)===localDateKey(t.last);
   const days=(t.first&&t.last)?Math.round((t.last-t.first)/86400000):0;
@@ -10607,6 +10702,7 @@ function spV7LkSingle(res,label,a,b){
   return `<div class="lk-ans">
     <div class="lk-ans-top">
       <div class="lk-ans-big"><b>${t.units.toLocaleString()}</b><span>units bought</span></div>
+      <div class="lk-ans-big alt"><b>${t.orders.toLocaleString()}</b><span>order${t.orders===1?'':'s'}</span></div>
       <div class="lk-ans-l">
         <div class="lk-ans-name" title="${esc(title?title[0]:res.term)}">${esc(title?title[0]:res.term)}</div>
         <div class="lk-ans-ids">${asins.slice(0,3).map(x=>`<button class="lk-cp big" onclick="spV7Copy('${esc(x)}',this)">${esc(x)}</button>`).join('')}${asins.length>3?`<span class="lk-more">+${asins.length-3} more ASINs</span>`:''}<span class="lk-matched">matched on ${res.how}</span></div>
@@ -10617,7 +10713,7 @@ function spV7LkSingle(res,label,a,b){
       </div>
     </div>
     <div class="lk-ans-row">
-      <div class="lk-s"><div class="lk-s-l">Orders</div><div class="lk-s-v">${t.orders.toLocaleString()}</div><div class="lk-s-s">${t.lines} buy line${t.lines!==1?'s':''}</div></div>
+      <div class="lk-s"><div class="lk-s-l">Buy lines</div><div class="lk-s-v">${t.lines.toLocaleString()}</div><div class="lk-s-s">${t.orders} order${t.orders!==1?'s':''}${asins.length>1?` · ${asins.length} ASINs`:''}</div></div>
       <div class="lk-s"><div class="lk-s-l">Spent</div><div class="lk-s-v">${fmt(t.spend)}</div><div class="lk-s-s">${priceSub}</div></div>
       <div class="lk-s"><div class="lk-s-l">${sameDay?'Bought on':'Bought between'}</div>
         <div class="lk-s-v">${sameDay?dOne(t.first):dOne(t.first)+' → '+dOne(t.last)}</div>
@@ -11503,9 +11599,23 @@ switchPage=function(page){
 .rv-page-head.rv-head-row .rv-subnav{margin-bottom:0;flex:0 0 auto;}
 #pageAsins .ov-eyebrow.ax-eye{color:#38bdf8;}
 #pageAsins .ov-eyebrow.ax-eye::before{background:#38bdf8;}
-.ax-bar{background:#141a24;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px 14px;margin-bottom:12px;
-  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;}
+.ov-page-head.ax-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:14px;}
+.ax-head-row .ax-head-left{min-width:0;flex:1 1 380px;}
+.ax-head-row #axHead{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:0 1 auto;}
+.ax-head-row .ax-headnum{justify-content:flex-end;text-align:right;}
+.ax-head-row .ax-headnum em{text-align:right;}
+.ax-bar-r:empty,.ax-bar-r:has(> .ax-brands:empty){display:none;}
+.ax-headnum{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.ax-headnum b{font-size:34px;font-weight:800;color:#7dd3fc;line-height:1;letter-spacing:-.02em;}
+.ax-headnum span{font-size:13.5px;font-weight:600;color:#94a3b8;}
+.ax-headnum em{flex-basis:100%;font-style:normal;font-size:11.5px;color:#64748b;margin-top:3px;}
+.ax-bar{background:#141a24;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:11px 14px;margin-bottom:12px;
+  display:flex;flex-direction:column;gap:9px;}
+.ax-bar-r{display:flex;flex-wrap:wrap;gap:9px 14px;align-items:center;}
 .ax-dates{display:flex;gap:6px;flex-wrap:wrap;}
+.ax-dates.grow{flex:1 1 auto;}
+.ax-custom.grow{flex:1 1 auto;}
+.ax-dates.grow .ax-p{flex:1 1 auto;text-align:center;}
 .ax-find{display:flex;align-items:center;gap:9px;background:#0f151f;border:1.5px solid rgba(56,189,248,.35);
   border-radius:11px;padding:0 12px;flex:0 1 330px;min-width:230px;transition:.15s;}
 .ax-find:focus-within{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.13);}
@@ -11514,7 +11624,8 @@ switchPage=function(page){
 .ax-find input::placeholder{color:#556274;}
 .ax-fx{background:none;border:0;color:#64748b;font-size:19px;line-height:1;cursor:pointer;padding:2px 4px;}
 .ax-fx:hover{color:#e2e8f0;}
-.ax-brands{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.ax-brands{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1 1 100%;}
+.ax-brands:empty{display:none;}
 .ax-brands-l{font-size:10.5px;color:#64748b;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-right:2px;}
 .ax-br{background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.16);color:#94a3b8;border-radius:20px;
   padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:.12s;}
@@ -11573,7 +11684,7 @@ a.ax-b{text-decoration:none;display:inline-flex;align-items:center;}
 .ax-tbl th.s.on{color:#7dd3fc;}
 .ax-tbl th.s i{font-style:normal;margin-left:4px;font-size:11px;}
 .ax-tbl td.multi{cursor:help;}
-.ax-tbl td.multi em{font-style:normal;color:#64748b;font-size:11px;font-weight:600;margin-left:5px;}
+.ax-tbl td.b{color:#94a3b8;font-weight:600;font-variant-numeric:tabular-nums;}
 #axSup{max-width:210px;}
 .ax-empty{padding:40px 20px;text-align:center;color:#64748b;font-size:13.5px;}
 </style>
@@ -11584,6 +11695,9 @@ a.ax-b{text-decoration:none;display:inline-flex;align-items:center;}
 let axRange={k:'all'}, axLast=[], axQ='', axSup='', axCog='latest', axSort={k:'date',dir:-1};
 const AX_COGS=[['latest','Latest'],['high','Highest'],['low','Lowest'],['avg','Average']];
 const AX_COG_WORD={latest:'last',high:'highest',low:'lowest',avg:'average'};
+/* the column headings change with the basis, so the date always proves the price shown */
+const AX_COG_COL={latest:'Last COG',high:'Highest COG',low:'Lowest COG',avg:'Avg COG'};
+const AX_DATE_COL={latest:'Bought on',high:'Paid on',low:'Paid on',avg:'Last buy'};
 const axCogOf=r=>r.cog[axCog];
 /* hovering a COG shows the whole price history in one line */
 function axCogTip(r){
@@ -11642,6 +11756,29 @@ function axPresets(){
     const f=document.getElementById('axFrom'),t=document.getElementById('axTo'); if(f)f.value='';if(t)t.value='';
     axRender();};
 }
+/* "lg" used to match Elgato (e-LG-ato) and any ASIN containing LG, because it was a
+   plain substring test. Match at word starts instead; a trailing space means whole word. */
+function axEsc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function axMatches(r,raw){
+  const q=String(raw||'').trim();
+  if(!q)return true;
+  /* short queries are brands or acronyms, so match the whole word — otherwise "lg"
+     also pulls in "LGA 1700". Longer ones stay prefix-y so "sams" still finds Samsung.
+     A trailing space forces whole-word at any length. */
+  const whole=(q.length<=3||/\s$/.test(String(raw||'')))&&!/\s/.test(q);
+  const up=q.toUpperCase();
+  /* a full ASIN, or the start of one you're part-way through typing */
+  if(/^B0[0-9A-Z]{2,8}$/i.test(q)&&r.asin.startsWith(up))return true;
+  if(r.asin===up)return true;
+  const name=r.name||'';
+  try{
+    const re=new RegExp((whole?'\\b':'(?<![A-Za-z0-9])')+axEsc(q)+(whole?'\\b':''),'i');
+    return re.test(name);
+  }catch(e){
+    /* older engines without lookbehind — fall back to word-boundary only */
+    try{return new RegExp('\\b'+axEsc(q),'i').test(name);}catch(e2){return name.toLowerCase().includes(q.toLowerCase());}
+  }
+}
 function axBuild(a,b){
   const src=(typeof allYearRows!=='undefined'&&allYearRows&&allYearRows.length)?allYearRows:(typeof allRows!=='undefined'?allRows:[]);
   const inRange=src.filter(r=>{const k=localDateKey(r.date);return k>=a&&k<=b;});
@@ -11652,7 +11789,7 @@ function axBuild(a,b){
     const u=unitCostForRow(r), sup=(r.supplier||'').trim();
     let cur=map.get(asin);
     if(!cur){cur={asin,name:r.name||'',date:r.date,buys:0,units:0,spend:0,costQty:0,costSum:0,
-      lo:u,hi:u,latest:u,sups:new Set()};map.set(asin,cur);}
+      lo:u,hi:u,latest:u,loDate:r.date,hiDate:r.date,sups:new Set()};map.set(asin,cur);}
     const qty=(r.qty>0?r.qty:1);
     cur.buys++;
     cur.units+=r.qty||0;
@@ -11661,7 +11798,12 @@ function axBuild(a,b){
        Spend that doesn't match Buy Price × Qty, and mixing the two reads as a bug */
     cur.costQty+=qty;
     cur.costSum+=u*qty;
-    if(u>0){cur.lo=Math.min(cur.lo||u,u);cur.hi=Math.max(cur.hi||u,u);}
+    /* remember WHEN the cheapest and dearest were paid, so the date column can
+       prove the price you're looking at */
+    if(u>0){
+      if(!(cur.lo>0)||u<cur.lo){cur.lo=u;cur.loDate=r.date;}
+      if(!(cur.hi>0)||u>cur.hi){cur.hi=u;cur.hiDate=r.date;}
+    }
     if(sup)cur.sups.add(sup);
     if(r.date>=cur.date){cur.date=r.date;cur.latest=u;if(r.name)cur.name=r.name;}
   });
@@ -11669,10 +11811,11 @@ function axBuild(a,b){
     /* average = what a unit has cost you on average, weighted by how many you bought */
     const avg=r.costQty>0?r.costSum/r.costQty:r.latest;
     return Object.assign(r,{suppliers:[...r.sups].sort(),
-      cog:{latest:r.latest,low:r.lo,high:r.hi,avg}});
+      cog:{latest:r.latest,low:r.lo,high:r.hi,avg},
+      cogDate:{latest:r.date,low:r.loDate,high:r.hiDate,avg:r.date}});
   });
   const q=axQ.trim().toLowerCase();
-  const scoped=q?all.filter(r=>r.name.toLowerCase().includes(q)||r.asin.toLowerCase().includes(q)):all.slice();
+  const scoped=q?all.filter(r=>axMatches(r,axQ)):all.slice();
   /* if the chosen supplier no longer exists in this range/search, drop it rather than
      showing an empty table the user can't explain */
   if(axSup&&!scoped.some(r=>r.suppliers.includes(axSup)))axSup='';
@@ -11683,7 +11826,8 @@ function axBuild(a,b){
     if(k==='name')c=(x.name||'').localeCompare(y.name||'');
     else if(k==='asin')c=x.asin.localeCompare(y.asin);
     else if(k==='cog')c=axCogOf(x)-axCogOf(y);
-    else c=x.date-y.date;
+    else if(k==='buys')c=x.buys-y.buys;
+    else c=(x.cogDate[axCog]||x.date)-(y.cogDate[axCog]||y.date);
     return (c||x.asin.localeCompare(y.asin))*d;
   });
   return {list,all,scoped,noAsin,lines:inRange.length};
@@ -11724,40 +11868,40 @@ function axRender(fromDate){
   const vUrl=axViewerFor(list);
   const vN=list.filter(r=>/^B0[0-9A-Z]{8}$/.test(r.asin)).length;
   const vSkipped=list.length-vN;
+  /* the count and the actions live in the page header now — one band less to scroll past */
+  const head=document.getElementById('axHead');
+  if(head)head.innerHTML=`
+    <div class="ax-headnum"><b>${list.length.toLocaleString()}</b><span>unique ASIN${list.length===1?'':'s'}${q?` matching “${esc(q)}”`:''}${axSup?` from ${esc(axSup)}`:''}</span>
+      <em>${q||axSup?`${all.length.toLocaleString()} in total · `:''}${esc(label)} · COG is the ${AX_COG_WORD[axCog]}${axCog==='avg'?' per unit':' price paid'}</em></div>
+    <div class="ax-acts">
+      ${vUrl?`<a class="ax-b keepa" href="${vUrl}" target="_blank" rel="noopener" title="Opens all of them on one Keepa page — the list travels in the link">Open all ${vN.toLocaleString()} in Keepa ↗</a>
+      <button class="ax-cp big" id="axVCopy" title="Copy the Keepa link for all of them">${AX_CPICON}</button>`:''}
+      <button class="ax-b" onclick="axCopy('both',this)" title="ASIN and COG, tab separated — pastes straight into two columns">Copy ASIN + COG</button>
+      <button class="ax-b alt" onclick="axCopy('asin',this)" title="Just the ASINs, one per line">Copy ASINs</button>
+    </div>`;
+  const bhost=document.getElementById('axBrands');
+  if(bhost)bhost.innerHTML=(!q&&brands.length)?`<span class="ax-brands-l">Jump to</span>${
+    brands.map(([b2,n])=>`<button class="ax-br" data-b="${esc(b2)}">${esc(b2)}<b>${n}</b></button>`).join('')}`:'';
   out.innerHTML=`
-    <div class="ax-head">
-      <div>
-        <div class="ax-big">${list.length.toLocaleString()}<span>unique ASIN${list.length===1?'':'s'}${q?` matching “${esc(q)}”`:''}${axSup?` from ${esc(axSup)}`:''}</span></div>
-        <div class="ax-sub">${q||axSup?`${all.length.toLocaleString()} bought in total · `:''}${esc(label)} — from ${lines.toLocaleString()} buy lines. COG is the <b>${AX_COG_WORD[axCog]}</b>${axCog==='avg'?' you’ve paid per unit':' price you paid'}.</div>
-      </div>
-      <div class="ax-acts">
-        ${vUrl?`<a class="ax-b keepa" href="${vUrl}" target="_blank" rel="noopener" title="Opens all of them on one Keepa page — the list travels in the link">Open all ${vN.toLocaleString()} in Keepa ↗</a>
-        <button class="ax-cp big" id="axVCopy" title="Copy the Keepa link for all of them">${AX_CPICON}</button>`:''}
-        <button class="ax-b" onclick="axCopy('both',this)" title="ASIN and COG, tab separated — pastes straight into two columns">Copy ASIN + COG</button>
-        <button class="ax-b alt" onclick="axCopy('asin',this)" title="Just the ASINs, one per line">Copy ASINs</button>
-      </div>
-    </div>
-    ${!q&&brands.length?`<div class="ax-brands"><span class="ax-brands-l">Jump to</span>${
-      brands.map(([b2,n])=>`<button class="ax-br" data-b="${esc(b2)}">${esc(b2)}<b>${n}</b></button>`).join('')}</div>`:''}
     ${vSkipped?`<div class="ax-warn"><b>${vSkipped.toLocaleString()} ASIN${vSkipped===1?'':'s'} left out of the Keepa link</b> — they don't look like standard <code>B0…</code> codes. They're still in the table and in both copy buttons.</div>`:''}
     ${noAsin?`<div class="ax-warn"><b>${noAsin.toLocaleString()} buy line${noAsin===1?'':'s'} had no usable ASIN</b> and ${noAsin===1?"isn't":"aren't"} in this list — which is why Buying Hub counts a couple more unique ASINs than this page does. Buying Hub → Data quality shows you which rows.</div>`:''}
     <div class="ax-wrap"><div class="ax-scroll"><table class="ax-tbl">
-      <colgroup><col style="width:auto"><col style="width:130px"><col style="width:132px"><col style="width:112px"><col style="width:186px"></colgroup>
-      <thead><tr>${[['name','Product',''],['asin','ASIN',''],['cog','COG','n'],['date','Last buy','n']]
-        .map(([k,l,c])=>`<th class="${c} s${axSort.k===k?' on':''}" data-s="${k}">${l}${axSort.k===k?`<i>${axSort.dir<0?'↓':'↑'}</i>`:''}</th>`).join('')}<th class="act">Keepa</th></tr></thead>
+      <colgroup><col style="width:auto"><col style="width:118px"><col style="width:104px"><col style="width:118px"><col style="width:66px"><col style="width:178px"></colgroup>
+      <thead><tr>${[['name','Product',''],['asin','ASIN',''],['cog',AX_COG_COL[axCog],'n'],['date',AX_DATE_COL[axCog],'n'],['buys','Buys','n']]
+        .map(([k,l,c])=>`<th class="${c} s${axSort.k===k?' on':''}" data-s="${k}"${k==='buys'?' title="How many separate times you have bought this ASIN"':''}>${l}${axSort.k===k?`<i>${axSort.dir<0?'↓':'↑'}</i>`:''}</th>`).join('')}<th class="act">Keepa</th></tr></thead>
       <tbody>${list.map(r=>`<tr>
         <td class="t" title="${esc(r.name)}">${esc(r.name||'—')}</td>
         <td class="a">${esc(r.asin)}</td>
-        <td class="n${r.buys>1?' multi':''}" title="${axCogTip(r)}">£${axCogOf(r).toFixed(2)}${r.buys>1?`<em>×${r.buys}</em>`:''}</td>
-        <td class="n d">${dmy(r.date)}</td>
+        <td class="n${r.buys>1?' multi':''}" title="${axCogTip(r)}">£${axCogOf(r).toFixed(2)}</td>
+        <td class="n d">${dmy(r.cogDate[axCog]||r.date)}</td>
+        <td class="n b">${r.buys}</td>
         <td class="act"><a class="ax-lk" href="${AX_KEEPA(r.asin)}" target="_blank" rel="noopener">Open Keepa ↗</a><button class="ax-cp" data-a="${r.asin}" title="Copy the Keepa link">${AX_CPICON}</button></td>
       </tr>`).join('')
-        ||`<tr><td colspan="5" class="ax-empty">${q?`Nothing bought matching “${esc(q)}” in this period.`:'Nothing bought in this period.'}</td></tr>`}</tbody>
+        ||`<tr><td colspan="6" class="ax-empty">${q?`Nothing matched “${esc(q)}”. Searching matches the start of a word, so “lg” finds LG but not Elgato.`:'Nothing bought in this period.'}</td></tr>`}</tbody>
     </table></div></div>`;
-  const vc=out.querySelector('#axVCopy');
+  const vc=document.getElementById('axVCopy');
   if(vc)vc.onclick=()=>{spV7Copy(vUrl,null);vc.classList.add('ok');setTimeout(()=>vc.classList.remove('ok'),1100);};
-  const bh=out.querySelector('.ax-brands');
-  if(bh)bh.onclick=e=>{const b2=e.target.closest('.ax-br'); if(!b2)return; axQ=b2.dataset.b; axRender();};
+  if(bhost)bhost.onclick=e=>{const b2=e.target.closest('.ax-br'); if(!b2)return; axQ=b2.dataset.b; axRender();};
   const th=out.querySelector('.ax-tbl thead');
   if(th)th.onclick=e=>{const h=e.target.closest('th.s'); if(!h)return;
     const k=h.dataset.s;
@@ -11848,35 +11992,43 @@ document.addEventListener('DOMContentLoaded',function(){
     const d=document.createElement('div');
     d.id='pageAsins'; d.style.display='none';
     d.innerHTML=`<main>
-      <div class="ov-page-head">
-        <div class="ov-eyebrow ax-eye">ASINs</div>
-        <div class="ov-title">Everything we've bought</div>
-        <div class="ov-page-sub">One row per unique ASIN, with its COG. Copy it straight into Sheets, or open the lot in Keepa. OA / A2A only.</div>
+      <div class="ov-page-head ax-head-row">
+        <div class="ax-head-left">
+          <div class="ov-eyebrow ax-eye">ASINs</div>
+          <div class="ov-title">Everything we've bought</div>
+          <div class="ov-page-sub">One row per unique ASIN, with its COG. Copy it straight into Sheets, or open the lot in Keepa. OA / A2A only.</div>
+        </div>
+        <div id="axHead"></div>
       </div>
       <div class="ax-bar">
-        <div class="ax-find">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
-          <input id="axQ" type="text" placeholder="Brand or product — Shark, Samsung, Ninja…" spellcheck="false" autocomplete="off">
-          <button class="ax-fx" id="axFx" title="Clear (Esc)" style="display:none;">×</button>
+        <div class="ax-bar-r">
+          <div class="ax-find">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <input id="axQ" type="text" placeholder="Brand or product — Shark, Samsung, Ninja…" spellcheck="false" autocomplete="off">
+            <button class="ax-fx" id="axFx" title="Clear (Esc)" style="display:none;">×</button>
+          </div>
+          <div class="ax-dates grow" id="axPresets"></div>
         </div>
-        <div class="ax-dates" id="axPresets"></div>
-        <div class="ax-custom">
-          <label>from</label><input id="axFrom" type="date" class="hub-input" onchange="axRender(1)">
-          <label>to</label><input id="axTo" type="date" class="hub-input" onchange="axRender(1)">
+        <div class="ax-bar-r">
+          <div class="ax-custom">
+            <label>from</label><input id="axFrom" type="date" class="hub-input" onchange="axRender(1)">
+            <label>to</label><input id="axTo" type="date" class="hub-input" onchange="axRender(1)">
+          </div>
+          <div class="ax-custom grow"><label>cog</label><div class="ax-dates grow" id="axCogBtns"></div></div>
+          <div class="ax-custom"><label>bought from</label><select id="axSup" class="hub-input"></select></div>
         </div>
-        <div class="ax-custom">
-          <label>cog</label><div class="ax-dates" id="axCogBtns"></div>
-        </div>
-        <div class="ax-custom">
-          <label>bought from</label><select id="axSup" class="hub-input"></select>
-        </div>
+        <div class="ax-bar-r"><div class="ax-brands" id="axBrands"></div></div>
       </div>
       <div id="axResult"></div>
     </main>`;
     lk.parentNode.insertBefore(d,lk.nextSibling);
     const inp=d.querySelector('#axQ'), fx=d.querySelector('#axFx');
     let t=null;
-    inp.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{axQ=inp.value;axRender();},160);});
+    /* 160ms flashed "nothing matched" while you were still mid-word — wait until
+       you've actually paused, and wait longer on a short fragment */
+    inp.addEventListener('input',()=>{clearTimeout(t);
+      const wait=inp.value.trim().length<=3?600:380;
+      t=setTimeout(()=>{axQ=inp.value;axRender();},wait);});
     inp.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();inp.value='';axQ='';axRender();inp.focus();}});
     fx.addEventListener('click',()=>{inp.value='';axQ='';axRender();inp.focus();});
   }
