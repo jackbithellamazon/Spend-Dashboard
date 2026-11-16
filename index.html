@@ -10049,6 +10049,7 @@ function spV7EnsureRaw(){
 }
 window.spV7EnsureRaw=spV7EnsureRaw;
 window.spV7SetRaw=function(tab,v){SPV7_RAW[tab]=v;spV7RawPromise=Promise.resolve();};
+window.spV7Raw=()=>SPV7_RAW;window.spV7Issues=()=>spV7SheetIssues();
 function spV7Cell(r,i){return (r&&i<r.length?(r[i]||''):'').toString().trim();}
 /* 0 -> A, 14 -> O, 26 -> AA — so we can name the exact cell to paste into */
 function spV7ColLetter(i){let s='';i=Number(i);do{s=String.fromCharCode(65+(i%26))+s;i=Math.floor(i/26)-1;}while(i>=0);return s;}
@@ -17265,5 +17266,241 @@ body:has(#v12dStrip):not(:has(#pageOverview[style*="none"])) #sqBanner{display:n
 </script>
 <!-- ===== end v12d ===== -->
 
+<!-- ===== v13 layer: Sheet page (your Purchase Sheet as one list) ===== -->
+<style>
+#pageSheet .sh-eye{color:#38d6f5}#pageSheet .ov-eyebrow.sh-eye::before{background:#38d6f5}
+.sh-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.sh-tab{font:600 13px var(--font-head,Inter),sans-serif;color:#eef2f7;background:#141b29;border:1px solid rgba(148,163,184,.22);border-radius:8px;padding:7px 14px;cursor:pointer}
+.sh-tab:hover{border-color:rgba(148,163,184,.45)}
+.sh-tab.on{background:#2f6fe4;border-color:#2f6fe4;color:#fff}
+.sh-tab i{font-style:normal;font-weight:700;margin-left:7px;color:#8fb6ff}.sh-tab.on i{color:#dbe7ff}
+.sh-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.sh-tools input,.sh-tools select{font:500 13px Inter,sans-serif;color:#eef2f7;background:#0d121b;border:1px solid rgba(148,163,184,.28);border-radius:8px;padding:8px 10px;outline:none}
+.sh-tools input:focus,.sh-tools select:focus{border-color:#2f6fe4}
+.sh-tools #shQ{flex:1;min-width:240px}
+.sh-tools select{max-width:210px}
+.sh-chk{display:inline-flex;align-items:center;gap:6px;font:600 13px Inter,sans-serif;color:#ffd0d5;background:rgba(255,92,108,.10);border:1px solid rgba(255,92,108,.45);border-radius:8px;padding:7px 11px;cursor:pointer}
+.sh-chk input{accent-color:#FF5C6C}
+.sh-clear{font:600 13px Inter,sans-serif;color:#eef2f7;background:transparent;border:1px solid rgba(148,163,184,.3);border-radius:8px;padding:8px 12px;cursor:pointer}
+.sh-sum{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;font:500 13px Inter,sans-serif;color:#dbe4ef;margin:0 0 10px}
+.sh-sum b{color:#fff;font-size:15px}.sh-sum .sp{color:#5CF0A8}.sh-sum .er{color:#FF8A96}
+.sh-wrap{position:relative;overflow:auto;max-height:calc(100vh - 300px);min-height:420px;border:1px solid rgba(148,163,184,.18);border-radius:10px;background:#0b1018}
+table.sh-t{border-collapse:separate;border-spacing:0;font:500 13px Inter,sans-serif;color:#f3f6fa;min-width:100%}
+.sh-t th,.sh-t td{padding:7px 11px;border-bottom:1px solid rgba(148,163,184,.13);border-right:1px solid rgba(148,163,184,.10);white-space:nowrap;text-align:left;vertical-align:top}
+.sh-t thead th{position:sticky;top:0;z-index:3;background:#1b2536;color:#f3f6fa;font-weight:700;cursor:pointer;user-select:none;text-transform:none;letter-spacing:0;font-size:12.5px;border-bottom:1px solid rgba(91,155,255,.35)}
+.sh-t thead th small{display:block;font:600 10.5px Inter,sans-serif;color:#8fb6ff;letter-spacing:.03em}
+.sh-t thead th:hover{background:#1f2a3d}
+.sh-t thead th .ar{color:#5b9bff;margin-left:4px}
+.sh-t th.rl,.sh-t td.rl{position:sticky;left:0;z-index:2;background:#121a27;font-weight:700;color:#eef2f7;border-right:1px solid rgba(91,155,255,.25)}
+.sh-t thead th.rl{z-index:4;background:#1b2536}
+.sh-t tbody tr:nth-child(even) td{background:#0e141e}.sh-t tbody tr:nth-child(even) td.rl{background:#131a26}
+.sh-t tbody tr:hover td{background:#1a2747}.sh-t tbody tr:hover td.rl{background:#1d2b4d}
+.sh-t td.n{text-align:right;font-variant-numeric:tabular-nums}
+.sh-t td.nm{max-width:360px;overflow:hidden;text-overflow:ellipsis}
+.sh-t td.rl a{color:#eef2f7;text-decoration:none}.sh-t td.rl a:hover{color:#5b9bff}
+.sh-t td.rl a span{color:#5b9bff;margin-left:5px}
+.sh-t tr.er td{background:rgba(255,92,108,.10)!important}.sh-t tr.er td.rl{box-shadow:inset 3px 0 0 #FF5C6C;background:#2a141a!important}
+.sh-t .ex{display:inline-block;margin-left:6px;font:800 10px Inter,sans-serif;color:#fff;background:#e0384c;border-radius:4px;padding:1px 5px;cursor:help}
+.sh-pv{display:inline-flex;align-items:center;gap:6px;font-weight:700}.sh-pv i{width:8px;height:8px;border-radius:50%;background:var(--pc)}
+.sh-t td a.lnk{color:#5b9bff}
+.sh-more{display:flex;gap:8px;justify-content:center;padding:14px}
+.sh-more button{font:600 13px Inter,sans-serif;color:#fff;background:#2f6fe4;border:0;border-radius:8px;padding:8px 16px;cursor:pointer}
+.sh-more button.gh{background:transparent;border:1px solid rgba(148,163,184,.45);color:#eef2f7}
+.sh-empty{padding:40px;text-align:center;color:#eef2f7;font:500 14px Inter,sans-serif}
+.sh-note{font:500 12.5px Inter,sans-serif;color:#dbe4ef;margin-top:10px}
+#shOrder{font-weight:700;color:#fff;background:#16254a;border-color:rgba(91,155,255,.55);max-width:none}
+.sh-tools input::placeholder{color:#b9c5d6}
+.sh-t td.n{color:#ffffff}
+.sh-t tbody td:empty{background-clip:padding-box}
+</style>
+<script>
+(function(){
+  const LAV='Lavarion';
+  const S={order:'sheet',tab:'All',q:'',prov:'',month:'',sup:'',errOnly:false,sort:null,show:300,data:{},gids:null,lavBusy:false,at:0};
+  const e=s=>(s==null?'':String(s)).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const MN=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const num=v=>{const s=String(v==null?'':v).replace(/[£$€,\s]/g,'');if(!/^-?\d+(\.\d+)?$/.test(s))return null;return +s;};
+  const show=n=>(window.spShowName?window.spShowName(n):n);
+  const col=i=>{let s='',n=i;do{s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)-1;}while(n>=0);return s;};
+  const realCol=(tab,i)=>{if(typeof spRealCell!=='function')return col(i);const c=spRealCell(tab,col(i)+'1');return c.replace(/\d+$/,'');};
+
+  /* ---- page shell ---- */
+  function mount(){
+    if(document.getElementById('pageSheet'))return;
+    const lk=[...document.querySelectorAll('.page-nav-btn')].find(b=>b.textContent.trim()==='Lookup');
+    if(lk){const b=document.createElement('button');b.className='page-nav-btn';b.textContent='Sheet';b.title='Your Purchase Sheet — every row, like Google Sheets';
+      b.onclick=()=>switchPage('sheet');lk.parentNode.insertBefore(b,lk.nextSibling);}
+    const host=document.getElementById('pageLookup');
+    const d=document.createElement('div');d.id='pageSheet';d.style.display='none';
+    d.innerHTML=`<main><div class="ov-page-head"><div class="ov-eyebrow sh-eye">Sheet</div><div class="ov-title">Your Purchase Sheet</div>
+      <div class="ov-page-sub">Every row, the way it is in Google Sheets. Read only — click a row number to open it in the sheet.</div></div>
+      <div class="sh-tabs" id="shTabs"></div>
+      <div class="sh-tools"><select id="shOrder" title="Sort the list"><option value="sheet">Oldest → newest (sheet order)</option><option value="new">Newest → oldest</option><option value="spendD">Most spent → least</option><option value="spendA">Least spent → most</option><option value="buyD">High ticket → low (buy price)</option><option value="buyA">Low ticket → high (buy price)</option><option value="qtyD">Most units → fewest</option><option value="prov">Provider A → Z</option><option value="sup">Supplier A → Z</option></select>
+        <input id="shQ" placeholder="Search every column — product, ASIN, SKU, order ID, supplier…" autocomplete="off">
+        <select id="shProv"></select><select id="shMonth"></select><select id="shSup"></select>
+        <label class="sh-chk" id="shErrL"><input type="checkbox" id="shErr"> Sheet errors only</label><button class="sh-clear" id="shClear">Clear</button></div>
+      <div class="sh-sum" id="shSum"></div>
+      <div class="sh-wrap" id="shWrap"><div class="sh-empty">Loading your sheet…</div></div>
+      <div class="sh-note" id="shNote"></div></main>`;
+    (host&&host.parentNode?host.parentNode:document.body).insertBefore(d,host?host.nextSibling:null);
+    const q=d.querySelector('#shQ');let t;q.oninput=()=>{clearTimeout(t);t=setTimeout(()=>{S.q=q.value.trim().toLowerCase();S.show=300;render();},200);};
+    d.querySelector('#shOrder').onchange=ev=>{S.order=ev.target.value;S.sort=null;S.show=300;render();document.getElementById('shWrap').scrollTop=0;};
+    d.querySelector('#shProv').onchange=ev=>{S.prov=ev.target.value;S.show=300;render();};
+    d.querySelector('#shMonth').onchange=ev=>{S.month=ev.target.value;S.show=300;render();};
+    d.querySelector('#shSup').onchange=ev=>{S.sup=ev.target.value;S.show=300;render();};
+    d.querySelector('#shErr').onchange=ev=>{S.errOnly=ev.target.checked;S.show=300;render();};
+    d.querySelector('#shClear').onclick=()=>{S.q='';S.prov='';S.month='';S.sup='';S.errOnly=false;S.sort=null;S.order='sheet';S.show=300;q.value='';d.querySelector('#shOrder').value='sheet';d.querySelector('#shErr').checked=false;render();};
+  }
+  const PAGES=['pageOverview','pageToday','pageGrowth','pageHub','pageReview','pageLavarion','pageOverall','pageSettings','pageLookup','pageAsins','pageMonthly','ovFuture'];
+  const prev=switchPage;
+  switchPage=function(page){
+    const me=document.getElementById('pageSheet');
+    if(page==='sheet'){
+      PAGES.forEach(id=>{const x=document.getElementById(id);if(x)x.style.display='none';});
+      if(me)me.style.display='block';
+      document.querySelectorAll('.page-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()==='Sheet'));
+      window.scrollTo(0,0);open();return;
+    }
+    if(me)me.style.display='none';
+    return prev.apply(this,arguments);
+  };
+
+  /* ---- data: the same raw download the other pages use ---- */
+  async function gids(){
+    if(S.gids)return S.gids;
+    try{const key=spSheetsKey();const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?fields=sheets.properties(title,sheetId)&key=${encodeURIComponent(key)}`,{cache:'no-store'});
+      const j=await r.json();S.gids={};(j.sheets||[]).forEach(s=>{S.gids[s.properties.title]=s.properties.sheetId;});}catch(x){S.gids={};}
+    return S.gids;
+  }
+  function issuesMap(){
+    const m={};
+    try{const I=window.spV7Issues?window.spV7Issues():null;if(!I)return m;
+      ['dropped','badProv','badSup','badDate'].forEach(k=>(I[k]||[]).forEach(x=>{(m[x.tab+'|'+x.row]=m[x.tab+'|'+x.row]||[]).push(x.why+(k==='dropped'?' — so it isn’t counted anywhere':''));}));
+      (I.dbl||[]).forEach(g=>(g.rows||[]).forEach(x=>{(m[x.tab+'|'+x.row]=m[x.tab+'|'+x.row]||[]).push('order '+(g.oid||'')+': '+g.why);}));}catch(x){}
+    return m;
+  }
+  function build(tab,vals,kind){
+    const head=(vals[0]||[]).map(h=>String(h==null?'':h).trim());
+    const H=head.map(h=>h.toLowerCase());
+    const find=(...ns)=>{for(const n of ns){const i=H.findIndex(h=>h===n||h.startsWith(n));if(i>=0)return i;}return -1;};
+    const ci=kind==='oa'?{date:COL_DATE,prov:COL_PROVIDER,sup:COL_SUPPLIER,spend:COL_SPEND,qty:COL_QTY,name:COL_NAME,buy:COL_BUY_PRICE}
+      :{date:find('date'),prov:-1,sup:find('bought from','supplier'),spend:find('spent','spend'),qty:find('quanity','quantity','qty'),name:find('name','title','product'),buy:find('buy price','price')};
+    const rows=[];
+    for(let i=1;i<vals.length;i++){const r=vals[i]||[];if(!r.some(c=>String(c==null?'':c).trim()))continue;
+      const cell=j=>String(r[j]==null?'':r[j]).trim();
+      const d=ci.date>=0?spParseSheetDate(cell(ci.date)):null;
+      rows.push({tab,row:i+1,r,d,prov:ci.prov>=0?cell(ci.prov):(kind==='lav'?'PLUB':''),sup:ci.sup>=0?cell(ci.sup):'',spend:ci.spend>=0?num(cell(ci.spend)):null,buy:ci.buy>=0?num(cell(ci.buy)):null,qty:ci.qty>=0?(parseInt(cell(ci.qty).replace(/[,\s]/g,''))||0):0,
+        txt:r.map(c=>String(c==null?'':c)).join('  ').toLowerCase()});}
+    return {tab,head,rows,ci,kind};
+  }
+  async function loadOA(){
+    await (window.spV7EnsureRaw?window.spV7EnsureRaw():Promise.resolve());
+    const raw=window.spV7Raw?window.spV7Raw():{};
+    Object.values(QUARTER_TABS).forEach(t=>{if(raw[t])S.data[t]=build(t,raw[t],'oa');});
+  }
+  async function loadLav(){
+    if(S.lavBusy)return;S.lavBusy=true;
+    try{const g=await gids();const tabs=Object.keys(g).filter(t=>/^lavarion q\d/i.test(t)).sort();
+      for(const t of tabs){try{const v=await fetchTab(t,true);if(v)S.data[t]=build(t,v,'lav');}catch(x){}}}
+    finally{S.lavBusy=false;}
+  }
+  async function open(){
+    mount();
+    try{await loadOA();}catch(x){}
+    S.at=Date.now();render();gids().then(()=>render());
+    if(S.tab===LAV&&!Object.keys(S.data).some(t=>/^lavarion/i.test(t)))loadLav().then(render);
+  }
+
+  /* ---- what's on screen ---- */
+  function sets(){
+    const oa=Object.values(QUARTER_TABS).filter(t=>S.data[t]);
+    if(S.tab==='All')return oa.map(t=>S.data[t]);
+    if(S.tab===LAV)return Object.keys(S.data).filter(t=>/^lavarion/i.test(t)).sort().map(t=>S.data[t]);
+    return S.data[QUARTER_TABS[+S.tab.slice(1)]]?[S.data[QUARTER_TABS[+S.tab.slice(1)]]]:[];
+  }
+  function render(){
+    const pg=document.getElementById('pageSheet');if(!pg||pg.style.display==='none')return;
+    const iss=issuesMap();
+    /* tabs, like the tab strip at the bottom of Google Sheets */
+    const cnt=t=>S.data[t]?S.data[t].rows.length:null;
+    const qTabs=[1,2,3,4].filter(q=>QUARTER_TABS[q]&&S.data[QUARTER_TABS[q]]);
+    const all=qTabs.reduce((a,q)=>a+cnt(QUARTER_TABS[q]),0);
+    const lavN=Object.keys(S.data).filter(t=>/^lavarion/i.test(t)).reduce((a,t)=>a+cnt(t),0);
+    document.getElementById('shTabs').innerHTML=[['All',all]].concat(qTabs.map(q=>['Q'+q,cnt(QUARTER_TABS[q])])).concat([[LAV,lavN||null]])
+      .map(([k,n])=>`<button class="sh-tab${S.tab===k?' on':''}" data-t="${k}">${k==='All'?'All OA / A2A':k}${n!=null?`<i>${n.toLocaleString('en-GB')}</i>`:''}</button>`).join('');
+    document.querySelectorAll('#shTabs [data-t]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;S.sort=null;S.show=300;S.prov='';S.sup='';S.month='';render();
+      if(S.tab===LAV&&!lavN)loadLav().then(render);});
+    const ss=sets();
+    const wrap=document.getElementById('shWrap');
+    if(!ss.length){wrap.innerHTML=`<div class="sh-empty">${S.tab===LAV&&S.lavBusy||!S.at?'Loading your sheet…':'Nothing in this tab yet.'}</div>`;document.getElementById('shSum').innerHTML='';return;}
+    const kind=ss[0].kind;
+    /* columns: the tab's own headings; for "All" the Q2 layout every quarter is read into. Empty columns are left out. */
+    let head=[];ss.forEach(s=>{s.head.forEach((h,i)=>{if(!head[i]||!head[i].trim())head[i]=h;});});
+    let rows=ss.flatMap(s=>s.rows);
+    const used=head.map((_,i)=>rows.some(x=>String(x.r[i]==null?'':x.r[i]).trim()));
+    const cols=head.map((h,i)=>i).filter(i=>used[i]);
+    /* filter lists */
+    const provs={},sups={},mons={};
+    rows.forEach(x=>{if(x.prov)provs[x.prov]=(provs[x.prov]||0)+1;if(x.sup)sups[x.sup]=(sups[x.sup]||0)+1;if(x.d){const k=x.d.getFullYear()+'-'+String(x.d.getMonth()+1).padStart(2,'0');mons[k]=(mons[k]||0)+1;}});
+    const opt=(sel,label,obj,cur,fmtK)=>{const el=document.getElementById(sel);const ks=Object.keys(obj).sort(sel==='shMonth'?(a,b)=>b.localeCompare(a):(a,b)=>obj[b]-obj[a]||a.localeCompare(b));
+      el.innerHTML=`<option value="">${label}</option>`+ks.map(k=>`<option value="${e(k)}"${k===cur?' selected':''}>${e(fmtK?fmtK(k):k)} (${obj[k].toLocaleString('en-GB')})</option>`).join('');el.style.display=ks.length?'':'none';};
+    opt('shProv','All providers',provs,S.prov,show);
+    opt('shMonth','All months',mons,S.month,k=>MN[+k.slice(5)]+' '+k.slice(0,4));
+    opt('shSup','All suppliers',sups,S.sup);
+    document.getElementById('shErrL').style.display=kind==='oa'?'':'none';
+    /* filter */
+    if(S.prov)rows=rows.filter(x=>x.prov===S.prov);
+    if(S.sup)rows=rows.filter(x=>x.sup===S.sup);
+    if(S.month)rows=rows.filter(x=>x.d&&(x.d.getFullYear()+'-'+String(x.d.getMonth()+1).padStart(2,'0'))===S.month);
+    if(S.errOnly)rows=rows.filter(x=>iss[x.tab+'|'+x.row]);
+    if(S.q){const words=S.q.split(/\s+/).filter(Boolean);rows=rows.filter(x=>words.every(w=>x.txt.includes(w)));}
+    /* sort: newest first unless you click a heading */
+    const tq=t=>{const m=/q(\d)/i.exec(t);return m?+m[1]:0;};
+    const sheetOrd=(a,b)=>(tq(a.tab)-tq(b.tab))||(a.row-b.row);
+    const nz=(v,lo)=>v==null?(lo?Infinity:-Infinity):v;
+    const ORD={sheet:sheetOrd,
+      new:(a,b)=>((b.d?b.d.getTime():0)-(a.d?a.d.getTime():0))||-sheetOrd(a,b),
+      spendD:(a,b)=>nz(b.spend)-nz(a.spend)||sheetOrd(a,b), spendA:(a,b)=>nz(a.spend,1)-nz(b.spend,1)||sheetOrd(a,b),
+      buyD:(a,b)=>nz(b.buy)-nz(a.buy)||sheetOrd(a,b), buyA:(a,b)=>nz(a.buy,1)-nz(b.buy,1)||sheetOrd(a,b),
+      qtyD:(a,b)=>(b.qty||0)-(a.qty||0)||sheetOrd(a,b),
+      prov:(a,b)=>(!a.prov)-(!b.prov)||show(a.prov).localeCompare(show(b.prov))||sheetOrd(a,b),
+      sup:(a,b)=>(!a.sup)-(!b.sup)||a.sup.localeCompare(b.sup)||sheetOrd(a,b)};
+    const ordSel=document.getElementById('shOrder');if(ordSel){ordSel.value=S.order;const hasProv=kind==='oa';[...ordSel.options].forEach(o=>{if(o.value==='prov')o.hidden=!hasProv;});}
+    if(!S.sort)rows.sort(ORD[S.order]||sheetOrd);
+    else{const i=S.sort.i,dir=S.sort.d;const isDate=i===ss[0].ci.date;
+      const val=x=>{const c=String(x.r[i]==null?'':x.r[i]).trim();if(isDate)return x.d?x.d.getTime():null;const n=num(c);return n!=null?n:c.toLowerCase();};
+      rows.sort((a,b)=>{const A=val(a),B=val(b);if(A===B)return 0;if(A===null||A==='')return 1;if(B===null||B==='')return -1;
+        if(typeof A==='number'&&typeof B==='number')return (A-B)*dir;return String(A).localeCompare(String(B),'en',{numeric:true})*dir;});}
+    /* totals for what's showing */
+    const spend=rows.reduce((a,x)=>a+(x.spend||0),0),units=rows.reduce((a,x)=>a+(x.qty||0),0),nErr=rows.filter(x=>iss[x.tab+'|'+x.row]).length;
+    document.getElementById('shSum').innerHTML=`<span><b>${rows.length.toLocaleString('en-GB')}</b> row${rows.length===1?'':'s'}</span><span><b class="sp">${fmt(spend)}</b> spent</span><span><b>${units.toLocaleString('en-GB')}</b> units</span>${nErr?`<span><b class="er">${nErr.toLocaleString('en-GB')}</b> row${nErr===1?'':'s'} flagged by the sheet-errors check</span>`:''}`;
+    /* the table */
+    const single=ss.length===1?ss[0].tab:null;
+    const numCols=new Set(cols.filter(i=>{let n=0,t=0;for(const x of rows.slice(0,200)){const c=String(x.r[i]==null?'':x.r[i]).trim();if(!c)continue;t++;if(num(c)!=null)n++;}return t&&n/t>0.8;}));
+    const ar=i=>S.sort&&S.sort.i===i?`<span class="ar">${S.sort.d>0?'▲':'▼'}</span>`:'';
+    const g=S.gids||{};
+    const link=x=>g[x.tab]!=null?`https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=${g[x.tab]}&range=A${x.row}`:null;
+    const short=t=>/^q(\d)/i.test(t)?'Q'+t.match(/^q(\d)/i)[1]:t.replace(/^lavarion\s*/i,'Lav ');
+    const cellHtml=(x,i)=>{const c=String(x.r[i]==null?'':x.r[i]).trim();if(!c)return '<td></td>';
+      if(i===ss[0].ci.prov&&kind==='oa'){const pc=(typeof PROVIDER_COLORS!=='undefined'&&PROVIDER_COLORS[c])||'#94a3b8';return `<td><span class="sh-pv" style="--pc:${pc}"><i></i>${e(show(c))}</span></td>`;}
+      if(/^https?:\/\//i.test(c))return `<td><a class="lnk" href="${e(c)}" target="_blank" rel="noopener">link ↗</a></td>`;
+      if(i===ss[0].ci.name)return `<td class="nm" title="${e(c)}">${e(c)}</td>`;
+      return `<td class="${numCols.has(i)?'n':''}">${e(c)}</td>`;};
+    const shown=rows.slice(0,S.show);
+    wrap.innerHTML=rows.length?`<table class="sh-t"><thead><tr><th class="rl">Row</th>${cols.map(i=>`<th data-i="${i}">${e(head[i]||'(no heading)')}${ar(i)}<small>${single?'column '+realCol(single,i):'&nbsp;'}</small></th>`).join('')}</tr></thead><tbody>
+      ${shown.map(x=>{const er=iss[x.tab+'|'+x.row];const l=link(x);
+        return `<tr${er?` class="er" title="${e(er.join(' · '))}"`:''}><td class="rl">${l?`<a href="${l}" target="_blank" rel="noopener" title="Open ${e(x.tab)} row ${x.row} in Google Sheets">${short(x.tab)} · ${x.row}<span>↗</span></a>`:`${short(x.tab)} · ${x.row}`}${er?`<span class="ex" title="${e(er.join(' · '))}">!</span>`:''}</td>${cols.map(i=>cellHtml(x,i)).join('')}</tr>`;}).join('')}
+      </tbody></table>${rows.length>S.show?`<div class="sh-more"><button id="shMore">Show ${Math.min(500,rows.length-S.show).toLocaleString('en-GB')} more</button><button class="gh" id="shAll">Show all ${rows.length.toLocaleString('en-GB')}</button></div>`:''}`
+      :`<div class="sh-empty">No rows match. <button class="sh-clear" onclick="document.getElementById('shClear').click()">Clear the filters</button></div>`;
+    wrap.querySelectorAll('th[data-i]').forEach(th=>th.onclick=()=>{const i=+th.dataset.i;S.sort=S.sort&&S.sort.i===i?(S.sort.d===-1?{i,d:1}:null):{i,d:-1};render();});
+    const mo=document.getElementById('shMore');if(mo)mo.onclick=()=>{S.show+=500;render();};
+    const al=document.getElementById('shAll');if(al)al.onclick=()=>{S.show=rows.length;render();};
+    document.getElementById('shNote').textContent=`Read from your Purchase Sheet${S.at?' at '+new Date(S.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):''} · pick an order on the left, or click a heading to sort by that column (again to flip, a third time to go back)${kind==='oa'?' · rows in red are the ones in the sheet-errors count — hover the ! to see why':''}.`;
+  }
+  mount();
+  window.spSheetPage={open,state:S};
+})();
+</script>
+<!-- ===== end v13 ===== -->
 </body>
 </html>
