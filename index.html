@@ -7349,16 +7349,18 @@ function spPlanStatus(plan,opts={}){
   const active=new Set(plan.days.filter(d=>d.actual>0).map(d=>d.key)).size;
   const elapsed=plan.days.length;
   if(past){
-    return ratio>=1?{label:'Target hit',className:'good',colour:'#4ade80',detail:`${fmt(plan.actual-plan.target)} over plan.`}:{label:'Target missed',className:'bad',colour:'#fb7185',detail:`${fmt(plan.target-plan.actual)} short of plan.`};
+    return ratio>=1?{label:'Target hit',className:'good',colour:'#4ade80',detail:`${fmt(plan.actual-plan.target)} over plan.`}:ratio>=.9?{label:'Just missed',className:'warn',colour:'#fbbf24',detail:`${fmt(plan.target-plan.actual)} short of plan.`}:{label:'Target missed',className:'bad',colour:'#fb7185',detail:`${fmt(plan.target-plan.actual)} short of plan.`};
   }
-  if(elapsed<7||active<2){
-    const dir=ratio>=1?'above':'below';
-    return {label:'Early read',className:'neutral',colour:'#7eb3fb',detail:`${fmt(plan.actual)} is ${dir} the weighted plan of ${fmt(plan.target)} so far — too early to call the month.`};
-  }
-  if(ratio>=1) return {label:'Ahead of plan',className:'good',colour:'#4ade80',detail:`${fmt(plan.actual-plan.target)} ahead of weighted plan.`};
-  if(ratio>=.9) return {label:'Close to plan',className:'warn',colour:'#fbbf24',detail:`${fmt(plan.target-plan.actual)} below weighted plan.`};
-  const cls=ratio<.7?'bad':'warn';
-  return {label:ratio<.7?'At risk':'Watch',className:cls,colour:ratio<.7?'#fb7185':'#fbbf24',detail:`${fmt(plan.target-plan.actual)} below weighted plan.`};
+  /* Jack 25 Nov: no "Early read" badge. The badge always gives the real verdict;
+     early (first 7 days or under 2 buying days) is kept as a flag for the wording only. */
+  const early=elapsed<7||active<2;
+  /* Jack 25 Nov: plain target words. Colours follow his rule: green = at/above
+     the plan, amber = within 10% under, red = anything worse. */
+  if(ratio>=1.1) return {early,label:'Above target',className:'good',colour:'#4ade80',detail:`${fmt(plan.actual-plan.target)} ahead of weighted plan.`};
+  if(ratio>=1) return {early,label:'On target',className:'good',colour:'#4ade80',detail:`${fmt(plan.actual-plan.target)} ahead of weighted plan.`};
+  if(ratio>=.9) return {early,label:'Just under target',className:'warn',colour:'#fbbf24',detail:`${fmt(plan.target-plan.actual)} below weighted plan.`};
+  if(ratio>=.7) return {early,label:'Under target',className:'bad',colour:'#fb7185',detail:`${fmt(plan.target-plan.actual)} below weighted plan.`};
+  return {early,label:'Well under target',className:'bad',colour:'#fb7185',detail:`${fmt(plan.target-plan.actual)} below weighted plan.`};
 }
 function spRecoveryPlan(y,m,key){
   const plan=spMonthlyPlan(y,m,key); if(!plan.target)return {...plan,remaining:0,next:[],weekdays:0};
@@ -7489,7 +7491,7 @@ buildOvHero = function(totalSpend,teamTarget,progress,currentDay,dim,month,year)
   const perWkTxt=remainingWeekdays?`about ${fmt(perRemainingWeekday)} on each of the ${remainingWeekdays} weekday${remainingWeekdays!==1?'s':''} left`:'no weekdays left this month';
   if(!target)sub=`${fmt(actual)} spent so far. Add a team target in Targets to unlock the pace plan.`;
   else if(isPast)sub=`Finished ${fmt(actual)} of ${fmt(target)} — ${actual>=target?fmt(actual-target)+' over':fmt(target-actual)+' short of'} target.`;
-  else if(status.label==='Early read')sub=`Day ${currentDay} of ${dim}. The plan says you should be at ${fmt(expected)} by now; you're at ${fmt(actual)}. Too early to read much in — but to still land ${fmt(target)}, that's ${perWkTxt}.`;
+  else if(status.early)sub=`Day ${currentDay} of ${dim}. The plan says you should be at ${fmt(expected)} by now; you're at ${fmt(actual)}. Too early to read much in — but to still land ${fmt(target)}, that's ${perWkTxt}.`;
   else sub=`Day ${currentDay} of ${dim}. You should be at ${fmt(expected)} by now and you're at ${fmt(actual)} — ${fmt(Math.abs(gap))} ${gap>=0?'ahead of':'behind'} plan. To hit ${fmt(target)}, spend ${perWkTxt}.`;
   const className=status.className==='neutral'?'neutral':status.className;
   const tone=className==='neutral'?'neutral':className;
@@ -7541,7 +7543,7 @@ paceColor = function(spent,target,progress,month,year){
 };
 paceLabel = function(spent,target,progress,month,year){
   if(!target)return '';
-  if(month&&year){const p=spMonthlyRead(year,month,'team');const exp=p.expected||target*progress;if(!exp)return 'early read';const d=spent-exp;return d>=0?fmt(d)+' above weighted plan':fmt(-d)+' below weighted plan';}
+  if(month&&year){const p=spMonthlyRead(year,month,'team');const exp=p.expected||target*progress;if(!exp)return 'too early to tell';const d=spent-exp;return d>=0?fmt(d)+' above weighted plan':fmt(-d)+' below weighted plan';}
   return '';
 };
 
@@ -7554,8 +7556,8 @@ computeSignals = function(rows,ms){
     const p=spMonthlyRead(y,activeMonth,'team');
     if(p.target){
       const st=spPlanStatus({...p,target:p.expected||p.target,actual:p.actual,toK:p.toK});
-      const msg=st.label==='Early read'
-        ? `Early read only — <b>${fmt(p.actual)}</b> spent versus <b>${fmt(p.expected)}</b> on the weighted plan. Historic starts can vary because of cashflow and prior-month deployment, so use the Jan range as context rather than a required pace.`
+      const msg=st.early
+        ? `Early in the month — <b>${fmt(p.actual)}</b> spent versus <b>${fmt(p.expected)}</b> on the weighted plan. Historic starts can vary because of cashflow and prior-month deployment, so use the Jan range as context rather than a required pace.`
         : p.actual>=p.expected
           ? `<b>Team is above the weighted plan</b> by <b>${fmt(p.actual-p.expected)}</b>. The current activity pattern is supporting the target.`
           : `<b>Team is below the weighted plan</b> by <b>${fmt(p.expected-p.actual)}</b>. Check whether the shortfall is concentrated in one provider or across the team.`;
@@ -8511,7 +8513,7 @@ spInstallPaceUI();
     let base=[];
     try{base=spV6BaseSignals(rows,ms)||[];}catch(e){base=[];}
     // The inner override already prepends a pace/target line; strip it so we don't show it twice.
-    base=base.filter(s=>!/Early read only|Team is (below|above) the weighted plan|Final target result:/.test(String(s.text||'')));
+    base=base.filter(s=>!/Early read only|Early in the month|Team is (below|above) the weighted plan|Final target result:/.test(String(s.text||'')));
     // “Last bought X days ago” only makes sense while viewing the live month.
     if(!liveMonthly){
       base=base.filter(s=>!/hasn't bought|has been quiet|gone quiet/i.test(String(s.text||'')));
@@ -8528,8 +8530,8 @@ spInstallPaceUI();
           base.unshift({sev:gap>=0?'good':gap>=-p.target*.1?'warn':'bad',text:gap>=0?`<b>Final target result:</b> ${fmt(p.actual)} finished <b>${fmt(gap)} above</b> the ${fmt(p.target)} target.`:`<b>Final target result:</b> ${fmt(p.actual)} finished <b>${fmt(Math.abs(gap))} short</b> of the ${fmt(p.target)} target.`});
         } else {
           const st=spPlanStatus({...p,target:p.expected||p.target,actual:p.actual,toK:p.toK});
-          const msg=st.label==='Early read'
-            ? `Early read only — <b>${fmt(p.actual)}</b> spent versus <b>${fmt(p.expected)}</b> on the weighted plan. Historic starts can vary because of cashflow and prior-month deployment, so use the Jan range as context rather than a required pace.`
+          const msg=st.early
+            ? `Early in the month — <b>${fmt(p.actual)}</b> spent versus <b>${fmt(p.expected)}</b> on the weighted plan. Historic starts can vary because of cashflow and prior-month deployment, so use the Jan range as context rather than a required pace.`
             : p.actual>=p.expected
               ? `<b>Team is above the weighted plan</b> by <b>${fmt(p.actual-p.expected)}</b>. The current activity pattern is supporting the target.`
               : `<b>Team is below the weighted plan</b> by <b>${fmt(p.expected-p.actual)}</b>. Check whether the shortfall is concentrated in one provider or across the team.`;
@@ -9160,7 +9162,7 @@ spInstallPaceUI();
 .set-row.drag{opacity:.35;}
 .set-row.over{border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.18);}
 .set-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.set-grip{cursor:grab;color:#475569;font-size:13px;line-height:1;letter-spacing:-2px;flex:0 0 auto;user-select:none;padding:2px 1px;}
+.set-grip{cursor:grab;color:#9fb3cc;font-size:13px;line-height:1;letter-spacing:-2px;flex:0 0 auto;user-select:none;padding:2px 1px;}
 .set-grip:hover{color:#94a3b8;}
 .set-grip:active{cursor:grabbing;}
 .set-p{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#e8eff8;min-width:0;flex:1;
@@ -9661,13 +9663,13 @@ buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
     qDone=(year<nowY)||(year===nowY&&q<nowQ);
     qLeft=(year===nowY&&q===nowQ)?(q*3-(new Date().getMonth()+1)+1):0;
     if(!target){ tone='neutral'; statusTxt=qDone?'Completed':'Quarter to date'; delta=`Total deployed across Q${q}. No quarter target set.`; }
-    else if(qDone){ const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':'Target missed';
+    else if(qDone){ const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':totalSpend>=target*.9?'Just missed':'Target missed';
       delta=`<b>${fmt(Math.abs(g))}</b> ${g>=0?'over':'short of'} the <span class="n">${fmt(target)}</span> Q${q} target — <span class="n">${Math.round(totalSpend/target*100)}%</span> achieved.`; }
     else { tone='neutral'; statusTxt='Quarter to date';
       delta=`<span class="n">${Math.round(totalSpend/target*100)}%</span> of the <span class="n">${fmt(target)}</span> Q${q} target, with <b>${qLeft} month${qLeft!==1?'s':''}</b> still to buy in.`; }
   } else if(isPast){
     if(!target){ tone='neutral'; statusTxt='Completed'; delta=`Final total for ${MONTH_NAMES[month]}. No target was set.`; }
-    else { const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':'Target missed';
+    else { const g=totalSpend-target; tone=g>=0?'good':totalSpend>=target*.9?'warn':'bad'; statusTxt=g>=0?'Target hit':totalSpend>=target*.9?'Just missed':'Target missed';
       delta=`<b>${fmt(Math.abs(g))}</b> ${g>=0?'over':'short of'} the <span class="n">${fmt(target)}</span> target — <span class="n">${Math.round(totalSpend/target*100)}%</span> achieved.`; }
   } else {
     if(!target){ tone='neutral'; statusTxt='No target'; delta=`Spent so far this month. Add an ${MONTH_NAMES[month]} target in your Targets sheet to unlock the pace plan.`; }
@@ -9675,13 +9677,13 @@ buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
       const stt=spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK});
       const gap=totalSpend-expected;
       /* Jack's rule: green = at or above the plan, amber = within 10% below it,
-         red = anything worse. Applies even on an early read — the label still
-         says "Early read" so the confidence caveat is kept, but the colour
+         red = anything worse. Applies even early in the month — the badge gives the real verdict
+         (no "Early read" badge since 25 Nov) and the colour
          always answers "am I on it or not". */
       const ratio=expected>0?totalSpend/expected:1;
       tone=ratio>=1?'good':ratio>=0.9?'warn':'bad';
       statusTxt=stt.label;
-      delta=stt.label==='Early read'
+      delta=stt.early
         ? `Only day ${currentDay} — too early to call. Plan says <span class="n">${fmt(expected)}</span> by now, you're <b>${fmt(Math.abs(gap))} ${gap>=0?'ahead':'behind'}</b>.`
         : `<b>${fmt(Math.abs(gap))} ${gap>=0?'ahead of':'behind'}</b> the weighted plan — it wants <span class="n">${fmt(expected)}</span> by day ${currentDay} of ${dim}.`;
     }
@@ -9714,7 +9716,7 @@ buildOvHero=function(totalSpend,teamTarget,progress,currentDay,dim,month,year){
     const perWk=wk?remaining/wk:0;
     const proj=currentDay?totalSpend/currentDay*dim:0;
     /* A run-rate off one or two days is noise, so show history instead of a fake forecast. */
-    const isEarly=(spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK})||{}).label==='Early read';
+    const isEarly=(spPlanStatus({...plan,actual:totalSpend,target:expected||target,toK:plan.toK})||{}).early;
     const ptEarly=isEarly?spSamePointYTDHistory(year,month,currentDay,dim,'team'):null;
     const normNow=ptEarly?(ptEarly.average||0):0;
     stats=st('Left to hit target',fmt(remaining),`of the ${fmt(target)} ${MONTH_NAMES[month]} target`)
@@ -9940,7 +9942,7 @@ function spV7QuarterSnapshot(){
 const spV7BaseSignals=computeSignals;
 computeSignals=function(rows,ms){
   let out=[]; try{out=spV7BaseSignals.apply(this,arguments)||[];}catch(e){out=[];}
-  return out.filter(s=>!/Early read only|Team is (below|above) the weighted plan|Final target result:|Selected-period view\.|Quarter view\./i.test(String(s.text||'')));
+  return out.filter(s=>!/Early read only|Early in the month|Team is (below|above) the weighted plan|Final target result:|Selected-period view\.|Quarter view\./i.test(String(s.text||'')));
 };
 const spV7BaseRender=renderSignals;
 renderSignals=function(elId,signals,limit){
@@ -9982,7 +9984,7 @@ paceLabel=function(spent,target,progress,month,year){
     if(spIsPastMonth(year,month))
       return spent>=target?`target hit · ${fmt(spent-target)} over`:`finished ${fmt(target-spent)} short`;
     const f=spV7PlanFrac(year,month); const exp=(f!=null?target*f:target*progress);
-    if(!exp)return 'early read';
+    if(!exp)return 'too early to tell';
     const d=spent-exp;
     if(spent<=0)return `nothing yet · ${fmt(exp)} due by today`;
     return d>=0?`${fmt(d)} ahead of their ${fmt(exp)} plan`:`${fmt(-d)} behind their ${fmt(exp)} plan`;
@@ -10372,7 +10374,7 @@ function spV7PolishPace(){
   const wkLeft=Array.isArray(rec.weekdays)?rec.weekdays.length:0;
   const remaining=Math.max(0,target-actual);
   const status=spPlanStatus({fromK:spFirstDateForMonth(y,m),toK:cutoff,days:elapsed,target:past?target:expected,actual});
-  const early=status.label==='Early read';
+  const early=status.early;
   const pt=spSamePointYTDHistory(y,m,curDay,dim,'team');
   const normByNow=pt.average||0;
   const activeDays=new Set(spActualForMonth(y,m,'team').filter(r=>localDateKey(r.date)<=cutoff).map(r=>localDateKey(r.date))).size;
@@ -13408,7 +13410,7 @@ th.n .mr-th{justify-content:flex-end;}
 .mr-bkinfo{flex:1;min-width:240px;display:flex;flex-direction:column;gap:2px;}
 .mr-bkinfo b{color:#fff;font-size:15px;}.mr-bkinfo span{color:#c3cedb;font-size:12.5px;}.mr-bkinfo span.warn{color:#FFD27A;font-weight:700;}
 .mr-bkbtns{display:flex;gap:8px;}.mr-bkbtns label{cursor:pointer;}
-.mr-bkbtns .mr-btn.pri{background:#5b9bff;border-color:#5b9bff;color:#fff;font-weight:700;}.mr-bkbtns .mr-btn.pri:hover{background:#78adff;}
+.mr-bkbtns .mr-btn.pri{background:#2f6fe4;border-color:#2f6fe4;color:#fff;font-weight:700;}.mr-bkbtns .mr-btn.pri:hover{background:#78adff;}
 .mr-bkbtns .mr-btn.ghost{border-color:rgba(148,163,184,.4);color:#e6edf5;}.mr-bkbtns .mr-btn.ghost:hover{border-color:#5b9bff;}
 
 /* KPI: vs last month */
